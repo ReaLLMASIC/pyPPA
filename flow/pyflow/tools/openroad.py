@@ -48,7 +48,7 @@ def parse_floorplanning_stats(log_txt: str) -> FloorplanningStats:
 	stats['sta'] = {}
 
 	clk_period_captures = re.findall('Clock ([^\s]+) period ([\d\.]+)', log_txt)
-	clk_slack_captures = re.findall('Clock ([^\s]+) slack ([\d\.]+)', log_txt)
+	clk_slack_captures = re.findall('Clock ([^\s]+) slack ([\d\.\-]+)', log_txt)
 
 	for (captures, prop) in [(clk_period_captures, 'clk_period'), (clk_slack_captures, 'clk_slack')]:
 		for capture in captures:
