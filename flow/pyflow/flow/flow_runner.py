@@ -7,7 +7,7 @@ import json
 
 from ..tools.yosys import call_yosys_script, parse_yosys_synth_stats, SynthStats
 from ..tools.utils import call_util_script
-from ..tools.openroad import do_openroad_step, parse_floorplanning_stats, FloorplanningStats
+from ..tools.openroad import do_openroad_step, parse_floorplanning_stats, FloorplanningStats, parse_power_report, PowerReport
 
 from .common_config import FlowCommonConfigDict, FlowCommonConfig
 from .platform_config import FlowPlatformConfigDict, FlowPlatformConfig
@@ -119,7 +119,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 
 			return stats
 
-	def floorplan(self) -> FloorplanningStats:
+	def floorplan(self) -> (FloorplanningStats, PowerReport):
 		print(f"Started floorplanning for module `{self.get('DESIGN_NAME')}`.")
 
 		makedirs(self.get('RESULTS_DIR'), exist_ok = True)
@@ -141,4 +141,9 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		print(f"Floorplanning completed for module `{self.get('DESIGN_NAME')}`.")
 
 		with open(path.join(self.get('LOG_DIR'), '2_1_floorplan.log')) as logfile:
-			return parse_floorplanning_stats(log_txt=logfile.read())
+			fp_stats = parse_floorplanning_stats(log_txt=logfile.read())
+
+			with open(path.join(self.get('REPORTS_DIR'), '1_synth_power_report.txt')) as report_txt:
+				power_report = parse_power_report(report_txt=report_txt.read())
+
+				return fp_stats, power_report

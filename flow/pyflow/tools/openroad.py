@@ -58,3 +58,53 @@ def parse_floorplanning_stats(log_txt: str) -> FloorplanningStats:
 				stats['sta'][capture[0]] = {prop: float(capture[1]), 'clk_name': capture[0]}
 
 	return stats
+
+class PowerReportEntry(TypedDict):
+	internal_power: str
+	switching_power: str
+	leakage_power: str
+	total_power: str
+	percentage: float
+
+class PowerReportTotalPercentages(TypedDict):
+	internal_power: float
+	switching_power: float
+	leakage_power: float
+
+class PowerReport(TypedDict):
+	sequential: PowerReportEntry
+	combinational: PowerReportEntry
+	clock: PowerReportEntry
+	macro: PowerReportEntry
+	pad: PowerReportEntry
+
+	total: PowerReportEntry
+	total_percentages: PowerReportTotalPercentages
+
+def parse_power_report(report_txt: str) -> PowerReport:
+	report: PowerReport = {}
+
+	parse_total_percent = False
+	for line in report_txt.lower().splitlines():
+		values = line.split()
+
+		for power_entry in ('sequential', 'combinational', 'clock', 'macro', 'pad', 'total'):
+			if values[0] == power_entry:
+				report[power_entry] = {
+					'internal_power': values[1],
+					'switching_power': values[2],
+					'leakage_power': values[3],
+					'total_power': values[4],
+					'percentage': float(values[5].replace('%', ''))
+				}
+
+		parse_total_percent = values[0] == 'total'
+
+		if parse_total_percent:
+			report['total_percentages'] = {
+				'internal_power': float(values[0].replace('%', '')),
+				'switching_power': float(values[1].replace('%', '')),
+				'leakage_power': float(values[2].replace('%', ''))
+			}
+	return report
+

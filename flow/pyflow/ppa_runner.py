@@ -5,7 +5,7 @@ from multiprocessing import Pool
 
 from .flow import FlowRunner, FlowConfigDict
 from .tools.yosys import SynthStats
-from .tools.openroad import FloorplanningStats
+from .tools.openroad import FloorplanningStats, PowerReport
 
 class ParameterSweepDict(TypedDict):
 	start: float
@@ -22,6 +22,7 @@ class ModuleRun(TypedDict):
 	run_dir: str
 	synth_stats: SynthStats
 	floorplanning_stats: FloorplanningStats
+	power_report: PowerReport
 
 class PPARunner:
 	design_name: str
@@ -74,13 +75,14 @@ class PPARunner:
 		module_runner.preprocess()
 
 		synth_stats = module_runner.synthesis()
-		fp_stats = module_runner.floorplan()
+		fp_stats, power_report = module_runner.floorplan()
 
 		return {
 			'name': module_runner.get('DESIGN_NAME'),
 			'run_dir': module_work_home,
 			'synth_stats': synth_stats,
-			'floorplanning_stats': fp_stats
+			'floorplanning_stats': fp_stats,
+			'power_report': power_report
 		}
 
 	def clean_runs(self):
@@ -117,3 +119,6 @@ class PPARunner:
 						print(f"		{stat}: {', '.join(formatted_sta_results)}", file=write_to)
 					else:
 						print(f"		{stat}: {run['floorplanning_stats'][stat]}", file=write_to)
+
+				for stat in run['power_report']:
+						print(f"		{stat}: {run['power_report'][stat]}", file=write_to)
