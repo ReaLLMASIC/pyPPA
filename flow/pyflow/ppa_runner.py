@@ -86,13 +86,15 @@ class PPARunner:
 	def clean_runs(self):
 		rmtree(self.global_flow_config.get('WORK_HOME'))
 
-	def print_stats(self):
+	def print_stats(self, file: Optional[str] = None):
+		write_to = open(file, 'w') if file is not None else None
+
 		for module_name in self.runs:
 			module_runs = self.runs[module_name]
-			print(f"---Module {module_name}---")
+			print(f"---Module {module_name}---", file=write_to)
 
 			for (i, run) in enumerate(module_runs):
-				print(f"	Run #{i + 1}:")
+				print(f"	Run #{i + 1}:", file=write_to)
 
 				for stat in run['synth_stats']:
 					if stat == 'cell_counts':
@@ -101,9 +103,9 @@ class PPARunner:
 						for cell in run['synth_stats']['cell_counts']:
 							formatted_cell_counts.append(f"{cell} ({run['synth_stats']['cell_counts'][cell]})")
 
-						print(f"		{stat}: {', '.join(formatted_cell_counts)}")
+						print(f"		{stat}: {', '.join(formatted_cell_counts)}", file=write_to)
 					else:
-						print(f"		{stat}: {run['synth_stats'][stat]}")
+						print(f"		{stat}: {run['synth_stats'][stat]}", file=write_to)
 
 				for stat in run['floorplanning_stats']:
 					if stat == 'sta':
@@ -112,6 +114,6 @@ class PPARunner:
 						for clk in run['floorplanning_stats']['sta'].values():
 							formatted_sta_results.append(f"{clk['clk_name']} (period: {clk['clk_period']}, slack: {clk['clk_slack']})")
 
-						print(f"		{stat}: {', '.join(formatted_sta_results)}")
+						print(f"		{stat}: {', '.join(formatted_sta_results)}", file=write_to)
 					else:
-						print(f"		{stat}: {run['floorplanning_stats'][stat]}")
+						print(f"		{stat}: {run['floorplanning_stats'][stat]}", file=write_to)

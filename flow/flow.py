@@ -35,4 +35,4 @@ gcd_runner = PPARunner(
 )
 
 gcd_runner.run_ppa_analysis()
-gcd_runner.print_stats()
+gcd_runner.print_stats('ppa.txt')
