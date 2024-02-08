@@ -36,6 +36,9 @@ proc load_design {design_file sdc_file msg} {
   source $::env(SCRIPTS_DIR)/write_ref_sdc.tcl
   write_updated_sdc "1_synth"
 
+  source $::env(SCRIPTS_DIR)/ppa/write_power_report.tcl
+  write_power_report "1_synth"
+
   # Log sequential and combinational cell counts
   set block [ord::get_db_block]
   set seq_count 0
@@ -51,6 +54,8 @@ proc load_design {design_file sdc_file msg} {
 
   puts "Sequential Cells Count: $seq_count"
   puts "Combinational Cells Count: $comb_count"
+
+  sta::report_power
 }
 
 #===========================================================================================

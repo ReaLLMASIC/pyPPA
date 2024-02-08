@@ -10,7 +10,8 @@ gcd_runner = PPARunner(
 		'PLATFORM': 'sky130hd',
 		'VERILOG_FILES': [
 			path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'rtl', 'softmax.v'),
-			path.join('..', 'HW', 'comp', 'vector_engine', 'softermax', 'rtl', 'softermax.v')
+			path.join('..', 'HW', 'comp', 'vector_engine', 'softermax', 'rtl', 'softermax.v'),
+			# path.join('..', 'HW', 'comp', 'vector_engine', 'consmax', 'rtl', 'consmax.v'),
 		],
 		'DESIGN_DIR': path.join('..', 'HW', 'comp', 'vector_engine'),
 		'SCRIPTS_DIR': path.join('scripts', 'orfs'),
