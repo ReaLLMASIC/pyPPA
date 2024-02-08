@@ -97,14 +97,13 @@ def parse_power_report(report_txt: str) -> PowerReport:
 					'total_power': values[4],
 					'percentage': float(values[5].replace('%', ''))
 				}
-
-		parse_total_percent = values[0] == 'total'
-
 		if parse_total_percent:
 			report['total_percentages'] = {
 				'internal_power': float(values[0].replace('%', '')),
 				'switching_power': float(values[1].replace('%', '')),
 				'leakage_power': float(values[2].replace('%', ''))
 			}
+		parse_total_percent = values[0] == 'total'
+
 	return report
 
