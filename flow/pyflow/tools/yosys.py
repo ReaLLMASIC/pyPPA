@@ -1,53 +1,33 @@
+import json
 from os import path
-from typing import TypedDict
-from . import __call_tool
 
-def __call_yosys(
-	args: list[str],
-	logfile: str,
-	env: dict[str, str],
-	yosys_cmd: str
-):
-	__call_tool(
-		tool=yosys_cmd,
-		args=['-v', '3', *args],
-		env=env,
-		logfile=logfile
-	)
+from .blueprint import SynthTool, SynthStats
 
-def call_yosys_script(
-	script: str,
-	args: list[str],
-	logfile: str,
-	scripts_dir: str,
-	env: dict[str, str],
-	yosys_cmd: str
-):
-	__call_yosys(["-c", path.join(scripts_dir, f'{script}.tcl'), *args], logfile, env, yosys_cmd)
+class Yosys(SynthTool):
+	def __init__(self, cmd: str, scripts_dir: str, default_args: list[str] = []):
+		super().__init__(cmd, scripts_dir, default_args + ['-v', '3'])
 
-class SynthStats(TypedDict):
-	num_wires: int
-	num_wire_bits: int
-	num_public_wires: int
-	num_memories: int
-	num_memory_bits: int
-	num_processes: int
-	num_cells: int
-	cell_counts: dict[str, int]
-	module_area: float
+	def run_synth(self, env: dict[str, str], logfile: str):
+		self._call_tool(
+			args=["-c", path.join(self.scripts_dir, f'synth.tcl')],
+			env=env,
+			logfile=logfile
+		)
 
-def parse_yosys_synth_stats(stats_json: dict) -> SynthStats:
-	stats: SynthStats = {}
+	def parse_synth_stats(self, raw_stats: str) -> SynthStats:
+		stats_json = json.loads(raw_stats)
 
-	stats['num_wires'] = stats_json['design']['num_wires']
-	stats['num_wire_bits'] = stats_json['design']['num_wire_bits']
-	stats['num_public_wires'] = stats_json['design']['num_pub_wires']
-	stats['num_public_wire_bits'] = stats_json['design']['num_pub_wire_bits']
-	stats['num_memories'] = stats_json['design']['num_memories']
-	stats['num_memory_bits'] = stats_json['design']['num_memory_bits']
-	stats['num_processes'] = stats_json['design']['num_processes']
-	stats['num_cells'] = stats_json['design']['num_cells']
-	stats['module_area'] = stats_json['design']['area']
-	stats['cell_counts'] = stats_json['design']['num_cells_by_type']
+		parsed_stats: SynthStats = {}
 
-	return stats
+		parsed_stats['num_wires'] = stats_json['design']['num_wires']
+		parsed_stats['num_wire_bits'] = stats_json['design']['num_wire_bits']
+		parsed_stats['num_public_wires'] = stats_json['design']['num_pub_wires']
+		parsed_stats['num_public_wire_bits'] = stats_json['design']['num_pub_wire_bits']
+		parsed_stats['num_memories'] = stats_json['design']['num_memories']
+		parsed_stats['num_memory_bits'] = stats_json['design']['num_memory_bits']
+		parsed_stats['num_processes'] = stats_json['design']['num_processes']
+		parsed_stats['num_cells'] = stats_json['design']['num_cells']
+		parsed_stats['module_area'] = stats_json['design']['area']
+		parsed_stats['cell_counts'] = stats_json['design']['num_cells_by_type']
+
+		return parsed_stats

@@ -1,8 +1,8 @@
 from os import path
-from . import __call_tool
+from .blueprint import call_cmd
 
 def call_util_script(script: str, args: list[str], utils_dir: str, env: dict[str, str], logfile: str):
-	__call_tool(
+	call_cmd(
 		path.join(utils_dir, script),
 		args,
 		env,

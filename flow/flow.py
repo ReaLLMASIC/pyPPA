@@ -1,10 +1,14 @@
 from os import path
 
 from pyflow import PPARunner
+from pyflow.tools.yosys import Yosys
 from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 
 gcd_runner = PPARunner(
 	design_name="vector_engine",
+	tools={
+		'synth_tool': Yosys(cmd='/usr/bin/miniconda3/bin/yosys', scripts_dir=path.join('scripts', 'orfs'))
+	},
 	global_flow_config={
 		**SKY130HD_PLATFORM_CONFIG,
 		'PLATFORM': 'sky130hd',

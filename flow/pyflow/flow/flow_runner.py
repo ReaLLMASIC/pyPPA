@@ -1,13 +1,12 @@
-from typing import Union
+from typing import Union, TypedDict
 
 from os import makedirs, path
 from shutil import copyfile
 import re
-import json
 
-from ..tools.yosys import call_yosys_script, parse_yosys_synth_stats, SynthStats
+from ..tools.blueprint import SynthTool, SynthStats
 from ..tools.utils import call_util_script
-from ..tools.openroad import do_openroad_step, parse_floorplanning_stats, FloorplanningStats, parse_power_report, PowerReport
+from ..tools.openroad import do_openroad_step, parse_floorplanning_stats, parse_power_report, FloorplanningStats, PowerReport
 
 from .common_config import FlowCommonConfigDict, FlowCommonConfig
 from .platform_config import FlowPlatformConfigDict, FlowPlatformConfig
@@ -15,11 +14,20 @@ from .design_config import FlowDesignConfigDict, FlowDesignConfig
 
 FlowConfigDict = Union[FlowCommonConfigDict, FlowPlatformConfigDict, FlowDesignConfigDict]
 
+class FlowTools(TypedDict):
+	synth_tool: SynthTool
+
 class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
+	tools: FlowTools
 	configopts: Union[FlowConfigDict, dict]
 	config: FlowConfigDict
 
-	def __init__(self, configopts: Union[FlowConfigDict, dict]):
+	def __init__(
+		self,
+		tools: FlowTools,
+		configopts: Union[FlowConfigDict, dict]
+	):
+		self.tools = tools
 		self.configopts = configopts.copy()
 		self.config = configopts.copy()
 
@@ -98,14 +106,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		SYNTH_OUTPUT_FILE = path.join(self.get('RESULTS_DIR'), '1_1_yosys.v')
 		SYNTH_LOG_FILE = path.join(self.get('LOG_DIR'), '1_1_yosys.log')
 
-		call_yosys_script(
-			'synth',
-			logfile=SYNTH_LOG_FILE,
-			args=[],
-			scripts_dir=self.get('SCRIPTS_DIR'),
-			env=self.get_env(),
-			yosys_cmd=self.get('YOSYS_CMD')
-		)
+		self.tools['synth_tool'].run_synth(env=self.get_env(), logfile=SYNTH_LOG_FILE)
 
 		# Copy results
 		copyfile(SYNTH_OUTPUT_FILE, path.join(self.get('RESULTS_DIR'), '1_synth.v'))
@@ -114,12 +115,11 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		print(f"Synthesis completed for {self.get('DESIGN_NAME')}.")
 
 		with open(path.join(self.get('REPORTS_DIR'), 'synth_stat.json')) as statsfile:
-			stats_json = json.loads(statsfile.read())
-			stats = parse_yosys_synth_stats(stats_json)
+			stats = self.tools['synth_tool'].parse_synth_stats(statsfile.read())
 
 			return stats
 
-	def floorplan(self) -> (FloorplanningStats, PowerReport):
+	def floorplan(self) -> tuple[FloorplanningStats, PowerReport]:
 		print(f"Started floorplanning for module `{self.get('DESIGN_NAME')}`.")
 
 		makedirs(self.get('RESULTS_DIR'), exist_ok = True)

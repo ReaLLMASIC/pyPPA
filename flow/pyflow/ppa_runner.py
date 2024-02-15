@@ -3,7 +3,7 @@ from os import path
 from shutil import rmtree
 from multiprocessing import Pool
 
-from .flow import FlowRunner, FlowConfigDict
+from .flow import FlowRunner, FlowConfigDict, FlowTools
 from .tools.yosys import SynthStats
 from .tools.openroad import FloorplanningStats, PowerReport
 
@@ -26,6 +26,7 @@ class ModuleRun(TypedDict):
 
 class PPARunner:
 	design_name: str
+	tools: FlowTools
 	global_flow_config: FlowConfigDict
 	modules: list[ModuleConfig]
 	runs: dict[str, list[ModuleRun]] = {}
@@ -35,12 +36,14 @@ class PPARunner:
 	def __init__(
 		self,
 		design_name: str,
+		tools: FlowTools,
 		global_flow_config: FlowConfigDict,
 		modules: list[ModuleConfig],
 		max_parallel_threads: int = 8,
 		work_home: Optional[str] = None
 	):
 		self.design_name = design_name
+		self.tools = tools
 		self.global_flow_config = global_flow_config
 		self.modules = modules
 		self.work_home = work_home if work_home != None else path.abspath(path.join('.', 'runs', design_name))
@@ -56,11 +59,14 @@ class PPARunner:
 			print(f"Running flow for module `{module['name']}`.")
 
 			module_work_home = path.join(self.work_home, module['name'])
-			module_runner: FlowRunner = FlowRunner({
-				**self.global_flow_config,
-				'DESIGN_NAME': module['name'],
-				'WORK_HOME': module_work_home
-			})
+			module_runner: FlowRunner = FlowRunner(
+				self.tools,
+				{
+					**self.global_flow_config,
+					'DESIGN_NAME': module['name'],
+					'WORK_HOME': module_work_home
+				}
+			)
 
 			jobs.append((module_runner, module_work_home))
 

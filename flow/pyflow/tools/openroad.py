@@ -1,10 +1,10 @@
 from os import path
 from typing import TypedDict
 import re
-from . import __call_tool
+from .blueprint import call_cmd
 
 def _call_openroad(args: list[str], logfile: str, openroad_cmd: str, env: dict[str, str]):
-	__call_tool(
+	call_cmd(
 		tool=openroad_cmd,
 		args=['-exit', '-no_init', *args],
 		env=env,
