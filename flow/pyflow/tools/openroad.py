@@ -1,7 +1,6 @@
 from os import path
-from typing import TypedDict
 import re
-from .blueprint import call_cmd, APRTool, FloorplanningStats, PowerReport
+from .blueprint import APRTool, FloorplanningStats, PowerReport
 
 class OpenROAD(APRTool):
 	def __init__(self, cmd: str, scripts_dir: str, default_args: list[str] = []):
