@@ -104,9 +104,8 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		print(f"Started synthesis for module `{self.get('DESIGN_NAME')}`.")
 
 		SYNTH_OUTPUT_FILE = path.join(self.get('RESULTS_DIR'), '1_1_yosys.v')
-		SYNTH_LOG_FILE = path.join(self.get('LOG_DIR'), '1_1_yosys.log')
 
-		self.tools['synth_tool'].run_synth(env=self.get_env(), logfile=SYNTH_LOG_FILE)
+		self.tools['synth_tool'].run_synth(env=self.get_env())
 
 		# Copy results
 		copyfile(SYNTH_OUTPUT_FILE, path.join(self.get('RESULTS_DIR'), '1_synth.v'))
