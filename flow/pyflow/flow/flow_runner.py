@@ -4,9 +4,8 @@ from os import makedirs, path
 from shutil import copyfile
 import re
 
-from ..tools.blueprint import SynthTool, SynthStats
+from ..tools.blueprint import SynthTool, SynthStats, APRTool, FloorplanningStats, PowerReport
 from ..tools.utils import call_util_script
-from ..tools.openroad import do_openroad_step, parse_floorplanning_stats, parse_power_report, FloorplanningStats, PowerReport
 
 from .common_config import FlowCommonConfigDict, FlowCommonConfig
 from .platform_config import FlowPlatformConfigDict, FlowPlatformConfig
@@ -16,6 +15,7 @@ FlowConfigDict = Union[FlowCommonConfigDict, FlowPlatformConfigDict, FlowDesignC
 
 class FlowTools(TypedDict):
 	synth_tool: SynthTool
+	apr_tool: APRTool
 
 class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 	tools: FlowTools
@@ -124,25 +124,14 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		makedirs(self.get('RESULTS_DIR'), exist_ok = True)
 		makedirs(self.get('LOG_DIR'), exist_ok = True)
 
-		# STEP 1: Translate verilog to odb
-		do_openroad_step('2_1_floorplan', 'floorplan', self.get('SCRIPTS_DIR'), self.get('LOG_DIR'), self.get('OPENROAD_CMD'), self.get_env())
-		# STEP 2: IO Placement (random)
-		do_openroad_step('2_2_floorplan_io', 'io_placement_random', self.get('SCRIPTS_DIR'), self.get('LOG_DIR'), self.get('OPENROAD_CMD'), self.get_env())
-		# STEP 3: Timing Driven Mixed Sized Placement
-		do_openroad_step('2_3_floorplan_tdms', 'tdms_place', self.get('SCRIPTS_DIR'), self.get('LOG_DIR'), self.get('OPENROAD_CMD'), self.get_env())
-		# STEP 4: Macro Placement
-		do_openroad_step('2_4_floorplan_macro', 'macro_place', self.get('SCRIPTS_DIR'), self.get('LOG_DIR'), self.get('OPENROAD_CMD'), self.get_env())
-		# STEP 5: Tapcell and Welltie insertion
-		do_openroad_step('2_5_floorplan_tapcell', 'tapcell', self.get('SCRIPTS_DIR'), self.get('LOG_DIR'), self.get('OPENROAD_CMD'), self.get_env())
-		# STEP 6: PDN generation
-		do_openroad_step('2_6_floorplan_pdn', 'pdn', self.get('SCRIPTS_DIR'), self.get('LOG_DIR'), self.get('OPENROAD_CMD'), self.get_env())
+		self.tools['apr_tool'].run_floorplanning(self.get_env(), self.get('LOG_DIR'))
 
 		print(f"Floorplanning completed for module `{self.get('DESIGN_NAME')}`.")
 
 		with open(path.join(self.get('LOG_DIR'), '2_1_floorplan.log')) as logfile:
-			fp_stats = parse_floorplanning_stats(log_txt=logfile.read())
+			fp_stats = self.tools['apr_tool'].parse_floorplanning_stats(raw_stats=logfile.read())
 
 			with open(path.join(self.get('REPORTS_DIR'), '1_synth_power_report.txt')) as report_txt:
-				power_report = parse_power_report(report_txt=report_txt.read())
+				power_report = self.tools['apr_tool'].parse_power_report(raw_report=report_txt.read())
 
 				return fp_stats, power_report

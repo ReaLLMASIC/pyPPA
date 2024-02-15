@@ -1,109 +1,79 @@
 from os import path
 from typing import TypedDict
 import re
-from .blueprint import call_cmd
+from .blueprint import call_cmd, APRTool, FloorplanningStats, PowerReport
 
-def _call_openroad(args: list[str], logfile: str, openroad_cmd: str, env: dict[str, str]):
-	call_cmd(
-		tool=openroad_cmd,
-		args=['-exit', '-no_init', *args],
-		env=env,
-		logfile=logfile
-	)
+class OpenROAD(APRTool):
+	def __init__(self, cmd: str, scripts_dir: str, default_args: list[str] = []):
+		super().__init__(cmd, scripts_dir, default_args + ['-exit', '-no_init'])
 
-class STAReport(TypedDict):
-	clk_name: str
-	clk_period: float
-	clk_slack: float
+	def __run_step(self, step_name: str, script: str, env: dict[str, str], log_dir: str):
+		script_path = path.join(self.scripts_dir, f'{script}.tcl')
+		metricsfile_path = path.join(log_dir, f'{step_name}.json')
+		logfile_path = path.join(log_dir, f'{step_name}.log')
 
-class FloorplanningStats(TypedDict):
-	num_sequential_cells: int
-	num_combinational_cells: int
-	sta: dict[str, STAReport]
+		self._call_tool([script_path, "-metrics", metricsfile_path], env, logfile_path)
 
-def do_openroad_step(
-	name: str,
-	script: str,
-	scripts_dir: str,
-	log_dir: str,
-	openroad_cmd: str,
-	env: dict[str, str]
-):
-	script_path = path.join(scripts_dir, f'{script}.tcl')
-	metricsfile_path = path.join(log_dir, f'{name}.json')
-	logfile_path = path.join(log_dir, f'{name}.log')
+	def run_floorplanning(self, env: dict[str, str], log_dir: str = ""):
+		# STEP 1: Translate verilog to odb
+		self.__run_step('2_1_floorplan', 'floorplan', env, log_dir)
+		# STEP 2: IO Placement (random)
+		self.__run_step('2_2_floorplan_io', 'io_placement_random', env, log_dir)
+		# STEP 3: Timing Driven Mixed Sized Placement
+		self.__run_step('2_3_floorplan_tdms', 'tdms_place', env, log_dir)
+		# STEP 4: Macro Placement
+		self.__run_step('2_4_floorplan_macro', 'macro_place', env, log_dir)
+		# STEP 5: Tapcell and Welltie insertion
+		self.__run_step('2_5_floorplan_tapcell', 'tapcell', env, log_dir)
+		# STEP 6: PDN generation
+		self.__run_step('2_6_floorplan_pdn', 'pdn', env, log_dir)
 
-	_call_openroad([script_path, "-metrics", metricsfile_path], logfile_path, openroad_cmd, env)
+	def parse_floorplanning_stats(raw_stats: str) -> FloorplanningStats:
+		parsed_stats: FloorplanningStats = {}
 
-def parse_floorplanning_stats(log_txt: str) -> FloorplanningStats:
-	stats: FloorplanningStats = {}
+		seq_captures = re.findall('Sequential Cells Count: (\d+)', raw_stats)
+		parsed_stats['num_sequential_cells'] = int(seq_captures[0]) if len(seq_captures) > 0 else None
 
-	seq_captures = re.findall('Sequential Cells Count: (\d+)', log_txt)
-	stats['num_sequential_cells'] = int(seq_captures[0]) if len(seq_captures) > 0 else None
+		comb_captures = re.findall('Combinational Cells Count: (\d+)', raw_stats)
+		parsed_stats['num_combinational_cells'] = int(comb_captures[0]) if len(comb_captures) > 0 else None
 
-	comb_captures = re.findall('Combinational Cells Count: (\d+)', log_txt)
-	stats['num_combinational_cells'] = int(comb_captures[0]) if len(comb_captures) > 0 else None
+		# Capture STA results
+		parsed_stats['sta'] = {}
 
-	# Capture STA results
-	stats['sta'] = {}
+		clk_period_captures = re.findall('Clock ([^\s]+) period ([\d\.]+)', raw_stats)
+		clk_slack_captures = re.findall('Clock ([^\s]+) slack ([\d\.\-]+)', raw_stats)
 
-	clk_period_captures = re.findall('Clock ([^\s]+) period ([\d\.]+)', log_txt)
-	clk_slack_captures = re.findall('Clock ([^\s]+) slack ([\d\.\-]+)', log_txt)
+		for (captures, prop) in [(clk_period_captures, 'clk_period'), (clk_slack_captures, 'clk_slack')]:
+			for capture in captures:
+				if capture[0] in parsed_stats['sta'].keys():
+					parsed_stats['sta'][capture[0]][prop] = float(capture[1])
+				else:
+					parsed_stats['sta'][capture[0]] = {prop: float(capture[1]), 'clk_name': capture[0]}
 
-	for (captures, prop) in [(clk_period_captures, 'clk_period'), (clk_slack_captures, 'clk_slack')]:
-		for capture in captures:
-			if capture[0] in stats['sta'].keys():
-				stats['sta'][capture[0]][prop] = float(capture[1])
-			else:
-				stats['sta'][capture[0]] = {prop: float(capture[1]), 'clk_name': capture[0]}
+		return parsed_stats
 
-	return stats
+	def parse_power_report(raw_report: str) -> PowerReport:
+		parsed_report: PowerReport = {}
 
-class PowerReportEntry(TypedDict):
-	internal_power: str
-	switching_power: str
-	leakage_power: str
-	total_power: str
-	percentage: float
+		parse_total_percent = False
+		for line in raw_report.lower().splitlines():
+			values = line.split()
 
-class PowerReportTotalPercentages(TypedDict):
-	internal_power: float
-	switching_power: float
-	leakage_power: float
-
-class PowerReport(TypedDict):
-	sequential: PowerReportEntry
-	combinational: PowerReportEntry
-	clock: PowerReportEntry
-	macro: PowerReportEntry
-	pad: PowerReportEntry
-
-	total: PowerReportEntry
-	total_percentages: PowerReportTotalPercentages
-
-def parse_power_report(report_txt: str) -> PowerReport:
-	report: PowerReport = {}
-
-	parse_total_percent = False
-	for line in report_txt.lower().splitlines():
-		values = line.split()
-
-		for power_entry in ('sequential', 'combinational', 'clock', 'macro', 'pad', 'total'):
-			if values[0] == power_entry:
-				report[power_entry] = {
-					'internal_power': values[1],
-					'switching_power': values[2],
-					'leakage_power': values[3],
-					'total_power': values[4],
-					'percentage': float(values[5].replace('%', ''))
+			for power_entry in ('sequential', 'combinational', 'clock', 'macro', 'pad', 'total'):
+				if values[0] == power_entry:
+					parsed_report[power_entry] = {
+						'internal_power': values[1],
+						'switching_power': values[2],
+						'leakage_power': values[3],
+						'total_power': values[4],
+						'percentage': float(values[5].replace('%', ''))
+					}
+			if parse_total_percent:
+				parsed_report['total_percentages'] = {
+					'internal_power': float(values[0].replace('%', '')),
+					'switching_power': float(values[1].replace('%', '')),
+					'leakage_power': float(values[2].replace('%', ''))
 				}
-		if parse_total_percent:
-			report['total_percentages'] = {
-				'internal_power': float(values[0].replace('%', '')),
-				'switching_power': float(values[1].replace('%', '')),
-				'leakage_power': float(values[2].replace('%', ''))
-			}
-		parse_total_percent = values[0] == 'total'
+			parse_total_percent = values[0] == 'total'
 
-	return report
-
+		return parsed_report
