@@ -28,7 +28,7 @@ class OpenROAD(APRTool):
 		# STEP 6: PDN generation
 		self.__run_step('2_6_floorplan_pdn', 'pdn', env, log_dir)
 
-	def parse_floorplanning_stats(raw_stats: str) -> FloorplanningStats:
+	def parse_floorplanning_stats(self, raw_stats: str) -> FloorplanningStats:
 		parsed_stats: FloorplanningStats = {}
 
 		seq_captures = re.findall('Sequential Cells Count: (\d+)', raw_stats)
@@ -52,7 +52,7 @@ class OpenROAD(APRTool):
 
 		return parsed_stats
 
-	def parse_power_report(raw_report: str) -> PowerReport:
+	def parse_power_report(self, raw_report: str) -> PowerReport:
 		parsed_report: PowerReport = {}
 
 		parse_total_percent = False
