@@ -16,12 +16,10 @@ class FlowTool:
 	tool_cmd: str
 	tool_default_args: list[str]
 	scripts_dir: str
-	log_dir: str
 
-	def __init__(self, cmd: str, scripts_dir: str, log_dir: str, default_args: list[str] = []):
+	def __init__(self, cmd: str, scripts_dir: str, default_args: list[str] = []):
 		self.tool_cmd = cmd
 		self.scripts_dir = scripts_dir
-		self.log_dir = log_dir
 		self.tool_default_args = default_args
 
 	def _call_tool(self, args: list[str], env: dict | None, logfile: str | None):
@@ -44,7 +42,7 @@ class SynthStats(TypedDict):
 	module_area: float
 
 class SynthTool(FlowTool):
-	def run_synth(self, env: dict[str, str]):
+	def run_synth(self, env: dict[str, str], log_dir: str = ""):
 		"""Runs the synthesis script."""
 		pass
 
@@ -85,7 +83,7 @@ class PowerReport(TypedDict):
 	total_percentages: PowerReportTotalPercentages
 
 class APRTool(FlowTool):
-	def run_floorplanning(self, env: dict[str, str], logfile: str):
+	def run_floorplanning(self, env: dict[str, str], log_dir: str = ""):
 		"""Runs the floorplanning script."""
 		pass
 

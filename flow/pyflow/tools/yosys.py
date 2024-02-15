@@ -4,14 +4,14 @@ from os import path
 from .blueprint import SynthTool, SynthStats
 
 class Yosys(SynthTool):
-	def __init__(self, cmd: str, scripts_dir: str, log_dir: str, default_args: list[str] = []):
-		super().__init__(cmd, scripts_dir, log_dir, default_args + ['-v', '3'])
+	def __init__(self, cmd: str, scripts_dir: str, default_args: list[str] = []):
+		super().__init__(cmd, scripts_dir, default_args + ['-v', '3'])
 
-	def run_synth(self, env: dict[str, str]):
+	def run_synth(self, env: dict[str, str], log_dir: str = ""):
 		self._call_tool(
 			args=["-c", path.join(self.scripts_dir, f'synth.tcl')],
 			env=env,
-			logfile=path.join(self.log_dir, '1_1_yosys.log')
+			logfile=path.join(log_dir, '1_1_yosys.log')
 		)
 
 	def parse_synth_stats(self, raw_stats: str) -> SynthStats:

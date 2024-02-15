@@ -105,7 +105,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 
 		SYNTH_OUTPUT_FILE = path.join(self.get('RESULTS_DIR'), '1_1_yosys.v')
 
-		self.tools['synth_tool'].run_synth(env=self.get_env())
+		self.tools['synth_tool'].run_synth(env=self.get_env(), log_dir=self.get('LOG_DIR'))
 
 		# Copy results
 		copyfile(SYNTH_OUTPUT_FILE, path.join(self.get('RESULTS_DIR'), '1_synth.v'))
