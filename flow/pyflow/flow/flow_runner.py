@@ -4,7 +4,7 @@ from os import makedirs, path
 from shutil import copyfile
 import re
 
-from ..tools.blueprint import SynthTool, SynthStats, APRTool, FloorplanningStats, PowerReport
+from ..tools.blueprint import SynthTool, SynthStats, APRTool, FloorplanningStats, PowerReport, VerilogSimTool
 from ..tools.utils import call_util_script
 
 from .common_config import FlowCommonConfigDict, FlowCommonConfig
@@ -14,6 +14,7 @@ from .design_config import FlowDesignConfigDict, FlowDesignConfig
 FlowConfigDict = Union[FlowCommonConfigDict, FlowPlatformConfigDict, FlowDesignConfigDict]
 
 class FlowTools(TypedDict):
+	verilog_sim_tool: VerilogSimTool
 	synth_tool: SynthTool
 	apr_tool: APRTool
 
@@ -99,6 +100,18 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 				self.set('ABC_CLOCK_PERIOD_IN_PS', float(clk_period_matches.group(1)))
 
 		print(f"Preprocessing completed for module `{self.get('DESIGN_NAME')}`.")
+
+	def pre_synth_sim(self):
+		print(f"Started pre-synthesis simulations.")
+
+		self.tools['verilog_sim_tool'].run_sim(
+			self.get('VERILOG_FILES'),
+			self.get('DESIGN_NAME'),
+			self.get('PRESYNTH_TESTBENCH'),
+			self.get_env(),
+			'out.vcd',
+			self.get('LOG_DIR')
+		)
 
 	def synthesis(self) -> SynthStats:
 		print(f"Started synthesis for module `{self.get('DESIGN_NAME')}`.")

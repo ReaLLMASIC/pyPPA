@@ -19,7 +19,11 @@ class __DesignCommonConfig(TypedDict):
 class __DesignSynthConfig(TypedDict):
 	"""The synthesis design configuration."""
 	PRESERVE_CELLS: list[str]
-	"""The list of cells to preserve the hierarchy of during synthesis.s"""
+	"""The list of cells to preserve the hierarchy of during synthesis."""
+	RUN_PRESYNTH_SIM: bool
+	"""Runs pre-synthesis Verilog simulations to generate a VCD file."""
+	PRESYNTH_TESTBENCH: str
+	"""Pre-synthesis Verilog simulation testbench file."""
 
 class __DesignFloorplanConfig(TypedDict):
 	"""The floorplan design configuration."""
@@ -43,7 +47,8 @@ FlowDesignConfigDict = Union[__DesignCommonConfig, __DesignSynthConfig, __Design
 FLOW_DESIGN_CONFIG_DEFAULTS: FlowDesignConfigDict = {
 	'ABC_AREA': False,
 	'ABC_CLOCK_PERIOD_IN_PS': 0,
-	'PLACE_PINS_ARGS': ''
+	'PLACE_PINS_ARGS': '',
+	'RUN_PRESYNTH_SIM': False
 }
 
 class FlowDesignConfig:
@@ -59,14 +64,19 @@ class FlowDesignConfig:
 	def get_env(self, init_env: Optional[dict]):
 		env = {**init_env} if init_env is not None else {**self.config}
 
+		# List options
 		for key in ('VERILOG_FILES', 'PRESERVE_CELLS', 'DIE_AREA', 'CORE_AREA'):
 			if key in self.config:
 				env[key] = ' '.join(self.config[key])
 
+		# Numeric options
 		for key in ('CORE_UTILIZATION', 'CORE_ASPECT_RATIO', 'CORE_MARGIN', 'ABC_CLOCK_PERIOD_IN_PS'):
 			if key in self.config:
 				env[key] = str(self.config[key])
 
-		env['ABC_AREA'] = str(int(self.config['ABC_AREA']))
+		# Boolean options (converted to integers)
+		for key in ('ABC_AREA', 'RUN_PRESYNTH_SIM'):
+			if key in self.config:
+				env[key] = str(int(self.config[key]))
 
 		return env

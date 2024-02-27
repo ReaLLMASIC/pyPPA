@@ -79,7 +79,7 @@ class PPARunner:
 			rmtree(module_work_home)
 
 		module_runner.preprocess()
-
+		module_runner.pre_synth_sim()
 		synth_stats = module_runner.synthesis()
 		fp_stats, power_report = module_runner.floorplan()
 
