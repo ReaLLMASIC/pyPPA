@@ -24,6 +24,8 @@ class __DesignSynthConfig(TypedDict):
 	"""Runs pre-synthesis Verilog simulations to generate a VCD file."""
 	PRESYNTH_TESTBENCH: str
 	"""Pre-synthesis Verilog simulation testbench file."""
+	PRESYNTH_VCD: str
+	"""Path to a presynthesis simulation VCD file."""
 
 class __DesignFloorplanConfig(TypedDict):
 	"""The floorplan design configuration."""

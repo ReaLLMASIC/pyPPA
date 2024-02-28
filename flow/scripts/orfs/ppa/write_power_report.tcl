@@ -7,7 +7,6 @@ proc write_power_report {step} {
 		set_propagated_clock [all_clocks]
 
 
-
 		if {[info exists ::env(PRE_SYNTH_VCD)]} {
 			sta::read_activity $::env(PRE_SYNTH_VCD)
 		} else {
