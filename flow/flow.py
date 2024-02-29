@@ -43,7 +43,11 @@ gcd_runner = PPARunner(
 	modules=[
 		{
 			'name': 'softmax',
-			'flow_config': {},
+			'flow_config': {
+				'CORE_UTILIZATION': {
+					'values': [10, 20, 30, 40, 50]
+				}
+			},
 			'parameters': {}
 		},
 		{

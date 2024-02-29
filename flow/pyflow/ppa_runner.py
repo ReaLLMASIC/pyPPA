@@ -7,15 +7,12 @@ from .flow import FlowRunner, FlowConfigDict, FlowTools
 from .tools.yosys import SynthStats
 from .tools.openroad import FloorplanningStats, PowerReport
 
-class ParameterSweepDict(TypedDict):
-	start: float
-	end: float
-	step: float
+from .utils.config_sweep import ParameterSweepDict, ParameterListDict, get_configs_iterator
 
 class ModuleConfig(TypedDict):
 	name: str
-	parameters: dict[str, Union[ParameterSweepDict, list[Any], Any]]
-	flow_config: dict[str, Union[ParameterSweepDict, list[Any], Any]]
+	parameters: dict[str, Union[ParameterSweepDict, ParameterListDict, Any]]
+	flow_config: dict[str, Union[ParameterSweepDict, ParameterListDict, Any]]
 
 class ModuleRun(TypedDict):
 	name: str
@@ -53,23 +50,32 @@ class PPARunner:
 			self.runs[module['name']] = []
 
 	def run_ppa_analysis(self):
+		# List of flow jobs to run
 		jobs = []
 
 		for module in self.modules:
-			print(f"Running flow for module `{module['name']}`.")
+			print(f"Running PPA for module `{module['name']}`.")
 
-			module_work_home = path.join(self.work_home, module['name'])
-			module_runner: FlowRunner = FlowRunner(
-				self.tools,
-				{
-					**self.global_flow_config,
-					'DESIGN_NAME': module['name'],
-					'WORK_HOME': module_work_home
-				}
-			)
+			# Generate module specific configs
+			configs_iterator = get_configs_iterator(module['flow_config'])
 
-			jobs.append((module_runner, module_work_home))
+			# Iterate over configs and add jobs
+			for (job_flow_config, job_number) in configs_iterator.iterate():
+				print('iterated', job_number)
+				module_work_home = path.join(self.work_home, module['name'], str(job_number))
+				module_runner: FlowRunner = FlowRunner(
+					self.tools,
+					{
+						**self.global_flow_config,
+						**job_flow_config,
+						'DESIGN_NAME': module['name'],
+						'WORK_HOME': module_work_home
+					}
+				)
 
+				jobs.append((module_runner, module_work_home))
+
+		# Run the list of jobs
 		ppa_job_runner = Pool(self.max_parallel_threads)
 		for run in ppa_job_runner.starmap(self.__ppa_job__, jobs):
 			self.runs[run['name']].append(run)
