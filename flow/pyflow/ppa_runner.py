@@ -16,6 +16,7 @@ class ModuleConfig(TypedDict):
 
 class ModuleRun(TypedDict):
 	name: str
+	job_number: int
 	run_dir: str
 	synth_stats: SynthStats
 	floorplanning_stats: FloorplanningStats
@@ -72,14 +73,14 @@ class PPARunner:
 					}
 				)
 
-				jobs.append((module_runner, module_work_home))
+				jobs.append((module_runner, module_work_home, job_number))
 
 		# Run the list of jobs
 		ppa_job_runner = Pool(self.max_parallel_threads)
 		for run in ppa_job_runner.starmap(self.__ppa_job__, jobs):
 			self.runs[run['name']].append(run)
 
-	def __ppa_job__(self, module_runner: FlowRunner, module_work_home: str) -> ModuleRun:
+	def __ppa_job__(self, module_runner: FlowRunner, module_work_home: str, job_number: int) -> ModuleRun:
 		if path.exists(module_work_home):
 			rmtree(module_work_home)
 
@@ -90,6 +91,7 @@ class PPARunner:
 
 		return {
 			'name': module_runner.get('DESIGN_NAME'),
+			'job_number': job_number,
 			'run_dir': module_work_home,
 			'synth_stats': synth_stats,
 			'floorplanning_stats': fp_stats,
