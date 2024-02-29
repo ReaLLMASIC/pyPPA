@@ -54,8 +54,6 @@ proc load_design {design_file sdc_file msg} {
 
   puts "Sequential Cells Count: $seq_count"
   puts "Combinational Cells Count: $comb_count"
-
-  sta::report_power
 }
 
 #===========================================================================================

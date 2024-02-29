@@ -8,8 +8,10 @@ proc write_power_report {step} {
 
 
 		if {[info exists ::env(PRE_SYNTH_VCD)]} {
+			puts "Reading VCD file for setting power activity."
 			sta::read_activity $::env(PRE_SYNTH_VCD)
 		} else {
+			puts "No VCD file found. Using default power activity values."
 			sta::set_power_activity -input -activity .1
 			sta::set_power_activity -input_port rst -activity 0
 		}
