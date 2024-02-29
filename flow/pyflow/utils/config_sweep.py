@@ -35,8 +35,8 @@ class ConfigsIterator:
 		return self
 
 	def __next__(self) -> tuple[dict[str, Any], int]:
-		if self.configs_iterated:
-			raise StopIteration
+		if self.configs_iterated and self.config_number != 0:
+				raise StopIteration
 
 		self.config_number += 1
 		generated_config = {}

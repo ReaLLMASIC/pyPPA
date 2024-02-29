@@ -61,7 +61,6 @@ class PPARunner:
 
 			# Iterate over configs and add jobs
 			for (job_flow_config, job_number) in configs_iterator.iterate():
-				print('iterated', job_number)
 				module_work_home = path.join(self.work_home, module['name'], str(job_number))
 				module_runner: FlowRunner = FlowRunner(
 					self.tools,
