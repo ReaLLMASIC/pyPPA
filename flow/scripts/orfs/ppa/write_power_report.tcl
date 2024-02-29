@@ -7,9 +7,9 @@ proc write_power_report {step} {
 		set_propagated_clock [all_clocks]
 
 
-		if {[info exists ::env(PRE_SYNTH_VCD)]} {
+		if {[info exists ::env(PRESYNTH_VCD)]} {
 			puts "Reading VCD file for setting power activity."
-			sta::read_activity $::env(PRE_SYNTH_VCD)
+			sta::read_activity $::env(PRESYNTH_VCD)
 		} else {
 			puts "No VCD file found. Using default power activity values."
 			sta::set_power_activity -input -activity .1
