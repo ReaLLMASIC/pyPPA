@@ -44,15 +44,19 @@ gcd_runner = PPARunner(
 		{
 			'name': 'softmax',
 			'flow_config': {
-				'CORE_UTILIZATION': {
-					'values': [10, 20, 30, 40, 50]
+				'ABC_AREA': {
+					'values': [True, False]
 				}
 			},
 			'parameters': {}
 		},
 		{
 			'name': 'softermax',
-			'flow_config': {},
+			'flow_config': {
+				'ABC_AREA': {
+					'values': [True, False]
+				}
+			},
 			'parameters': {}
 		}
 	]
