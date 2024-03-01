@@ -1,9 +1,8 @@
 from os import path
 
-from pyflow import PPARunner
-from pyflow.tools.yosys import Yosys
-from pyflow.tools.openroad import OpenROAD
-from pyflow.tools.verilator import Verilator
+from pyppa import PPARunner
+from pyppa.tools.yosys import Yosys
+from pyppa.tools.openroad import OpenROAD
 from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 
 gcd_runner = PPARunner(
