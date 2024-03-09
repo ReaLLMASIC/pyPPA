@@ -13,11 +13,9 @@ gcd_runner = PPARunner(
 			scripts_dir=path.join('scripts', 'verilator')
 		),
 		'synth_tool': Yosys(
-			cmd='/usr/bin/miniconda3/bin/yosys',
 			scripts_dir=path.join('scripts', 'orfs')
 		),
 		'apr_tool': OpenROAD(
-			cmd='/usr/bin/miniconda3/bin/openroad',
 			scripts_dir=path.join('scripts', 'orfs')
 		)
 	},

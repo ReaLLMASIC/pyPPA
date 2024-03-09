@@ -1,5 +1,6 @@
 import subprocess
-from typing import TypedDict
+import shutil
+from typing import TypedDict, Optional
 
 def call_cmd(cmd: str, args: list[str], env: dict | None, logfile: str | None):
 	for key in env:
@@ -13,18 +14,18 @@ def call_cmd(cmd: str, args: list[str], env: dict | None, logfile: str | None):
 		subprocess.run([cmd, *args], env=env)
 
 class FlowTool:
-	tool_cmd: str
+	tool_executable: str
 	tool_default_args: list[str]
 	scripts_dir: str
 
-	def __init__(self, cmd: str, scripts_dir: str, default_args: list[str] = []):
-		self.tool_cmd = cmd
+	def __init__(self, scripts_dir: str, default_args: list[str] = [], cmd: Optional[str] = None):
+		self.tool_executable = shutil.which(cmd)
 		self.scripts_dir = scripts_dir
 		self.tool_default_args = default_args
 
 	def _call_tool(self, args: list[str], env: dict | None, logfile: str | None):
 		call_cmd(
-			cmd=self.tool_cmd,
+			cmd=self.tool_executable,
 			args=self.tool_default_args + args,
 			env=env,
 			logfile=logfile

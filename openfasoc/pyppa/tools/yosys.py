@@ -4,8 +4,8 @@ from os import path
 from .blueprint import SynthTool, SynthStats
 
 class Yosys(SynthTool):
-	def __init__(self, cmd: str, scripts_dir: str, default_args: list[str] = []):
-		super().__init__(cmd, scripts_dir, default_args + ['-v', '3'])
+	def __init__(self, scripts_dir: str, default_args: list[str] = [], cmd: str = 'yosys'):
+		super().__init__(scripts_dir, default_args + ['-v', '3'], cmd)
 
 	def run_synth(self, env: dict[str, str], log_dir: str = ""):
 		self._call_tool(

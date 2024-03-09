@@ -3,8 +3,8 @@ import re
 from .blueprint import APRTool, FloorplanningStats, PowerReport
 
 class OpenROAD(APRTool):
-	def __init__(self, cmd: str, scripts_dir: str, default_args: list[str] = []):
-		super().__init__(cmd, scripts_dir, default_args + ['-exit', '-no_init'])
+	def __init__(self, scripts_dir: str, default_args: list[str] = [], cmd: str = 'openroad'):
+		super().__init__(scripts_dir, default_args + ['-exit', '-no_init'], cmd)
 
 	def __run_step(self, step_name: str, script: str, env: dict[str, str], log_dir: str):
 		script_path = path.join(self.scripts_dir, f'{script}.tcl')
