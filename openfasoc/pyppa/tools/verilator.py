@@ -10,18 +10,18 @@ class Verilator(VerilogSimTool):
 		self._call_tool(
 			['--top-module', top_module, '-cc', *verilog_files, '--exe', testbench_file],
 			env,
-			logfile=path.join(log_dir, '0_1_verilator_compile.log')
+			logfile=path.join(log_dir, '0_1_1_verilator_compile.log')
 		)
 		self.call_cmd(
 			cmd='make',
 			args=['-f', 'V' + top_module + '.mk', top_module],
 			env=env,
-			logfile=path.join(log_dir, '0_1_verilator_make.log')
+			logfile=path.join(log_dir, '0_1_2_verilator_make.log')
 		)
 		self.call_cmd(
 			cmd='./obj_dir/'+top_module,
 			args=list(),
 			env=env,
-			logfile=path.join(log_dir, '0_1_verilator_exec.log')
+			logfile=path.join(log_dir, '0_1_3_verilator_exec.log')
 		)
 
