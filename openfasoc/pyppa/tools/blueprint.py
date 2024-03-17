@@ -2,14 +2,14 @@ import subprocess
 import shutil
 from typing import TypedDict, Optional
 
-def call_cmd(cmd: str, args: list[str], env: dict | None, logfile: str | None):
+def call_cmd(cmd: str, args: list[str], env: Optional[dict], logfile: Optional[str], cwd: Optional[str] = None):
 	for key in env:
 		if type(env[key]) != str:
 			print(key, env[key])
 
 	if logfile:
 		with open(logfile, 'w') as f:
-			subprocess.run([cmd, *args], env=env, stdout=f, stderr=f)
+			subprocess.run([cmd, *args], env=env, stdout=f, stderr=f, cwd=cwd)
 	else:
 		subprocess.run([cmd, *args], env=env)
 

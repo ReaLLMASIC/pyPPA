@@ -1,4 +1,5 @@
 from os import path
+from shutil import copyfile
 from .blueprint import VerilogSimTool
 from .blueprint import call_cmd
 
@@ -22,11 +23,14 @@ class Verilator(VerilogSimTool):
 			logfile=path.join(log_dir, '0_1_1_verilator_compile.log')
 		)
 
+		copyfile(testbench_file, path.join(obj_dir, testbench_file))
+
 		call_cmd(
 			cmd='make',
-			args=['-f', 'V' + top_module + '.mk', top_module],
+			args=['-f', path.join(obj_dir, f"V{top_module}.mk"), f"V{top_module}"],
 			env=env,
-			logfile=path.join(log_dir, '0_1_2_verilator_make.log')
+			logfile=path.join(log_dir, '0_1_2_verilator_make.log'),
+			cwd=obj_dir
 		)
 
 		call_cmd(
