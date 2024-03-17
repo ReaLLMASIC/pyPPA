@@ -105,12 +105,13 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		print(f"Started pre-synthesis simulations.")
 
 		self.tools['verilog_sim_tool'].run_sim(
-			self.get('VERILOG_FILES'),
-			self.get('DESIGN_NAME'),
-			self.get('PRESYNTH_TESTBENCH'),
-			self.get_env(),
-			'out.vcd',
-			self.get('LOG_DIR')
+			verilog_files=self.get('VERILOG_FILES'),
+			top_module=self.get('DESIGN_NAME'),
+			testbench_file=self.get('PRESYNTH_TESTBENCH'),
+			obj_dir=self.get('OBJECTS_DIR'),
+			vcd_file='out.vcd',
+			log_dir=self.get('LOG_DIR'),
+			env=self.get_env()
 		)
 
 	def synthesis(self) -> SynthStats:

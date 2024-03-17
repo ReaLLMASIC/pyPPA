@@ -96,5 +96,13 @@ class APRTool(FlowTool):
 		"""Parses the power report"""
 
 class VerilogSimTool(FlowTool):
-	def run_sim(self, verilog_files: list[str], top_module: str, testbench_file: str, env: dict[str, str], vcd_file: str, log_dir: str):
+	def run_sim(self,
+		verilog_files: list[str],
+		top_module: str,
+		testbench_file: str,
+		obj_dir: str,
+		vcd_file: str,
+		log_dir: str,
+		env: dict[str, str]
+	):
 		"""Runs Verilog simulations and generates a VCD file."""

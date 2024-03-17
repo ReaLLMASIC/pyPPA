@@ -17,8 +17,8 @@ class Verilator(VerilogSimTool):
 		env: dict[str, str]
 	):
 		self._call_tool(
-			['--top-module', top_module, '-cc', *verilog_files, '--exe', testbench_file, '--Mdir', obj_dir],
-			env,
+			args=['--top-module', top_module, '-cc', *verilog_files, '--exe', testbench_file, '--Mdir', obj_dir],
+			env=env,
 			logfile=path.join(log_dir, '0_1_1_verilator_compile.log')
 		)
 
