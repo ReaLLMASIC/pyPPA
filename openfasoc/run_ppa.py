@@ -9,16 +9,9 @@ from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 gcd_runner = PPARunner(
 	design_name="vector_engine",
 	tools={
-		'verilog_sim_tool': Verilator(
-			cmd='/usr/bin/miniconda3/bin/verilator',
-			scripts_dir=path.join('scripts', 'verilator')
-		),
-		'synth_tool': Yosys(
-			scripts_dir=path.join('scripts', 'orfs')
-		),
-		'apr_tool': OpenROAD(
-			scripts_dir=path.join('scripts', 'orfs')
-		)
+		'verilog_sim_tool': Verilator(scripts_dir=path.join('scripts', 'verilator')),
+		'synth_tool': Yosys(scripts_dir=path.join('scripts', 'orfs')),
+		'apr_tool': OpenROAD(scripts_dir=path.join('scripts', 'orfs'))
 	},
 	global_flow_config={
 		**SKY130HD_PLATFORM_CONFIG,
