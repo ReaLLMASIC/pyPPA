@@ -3,6 +3,7 @@ from os import path
 from pyppa import PPARunner
 from pyppa.tools.yosys import Yosys
 from pyppa.tools.openroad import OpenROAD
+from pyppa.tools.verilator import Verilator
 from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 
 gcd_runner = PPARunner(
