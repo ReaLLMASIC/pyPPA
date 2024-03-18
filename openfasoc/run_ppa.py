@@ -27,9 +27,7 @@ gcd_runner = PPARunner(
 		'YOSYS_CMD': '/usr/bin/miniconda3/bin/yosys',
 		'OPENROAD_CMD': '/usr/bin/miniconda3/bin/openroad',
 		'KLAYOUT_CMD': 'klayout',
-		'CORE_UTILIZATION': 40,
-		'RUN_PRESYNTH_SIM': True,
-		'PRESYNTH_TESTBENCH': path.join('test.cpp')
+		'CORE_UTILIZATION': 40
 	},
 	modules=[
 		{
@@ -37,7 +35,9 @@ gcd_runner = PPARunner(
 			'flow_config': {
 				'ABC_AREA': {
 					'values': [True, False]
-				}
+				},
+				'RUN_PRESYNTH_SIM': True,
+				'PRESYNTH_TESTBENCH': path.join('test_softmax_tb.cpp')
 			},
 			'parameters': {}
 		},

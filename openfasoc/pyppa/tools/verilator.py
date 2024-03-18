@@ -33,10 +33,17 @@ class Verilator(VerilogSimTool):
 			cwd=obj_dir
 		)
 
-		call_cmd(
-			cmd=path.join(obj_dir, top_module),
-			args=list(),
-			env=env,
-			logfile=path.join(log_dir, '0_1_3_verilator_exec.log')
-		)
+		executable = path.join(obj_dir, top_module)
+		exec_logfile = path.join(log_dir, '0_1_3_verilator_exec.log')
+
+		if path.exists(executable):
+			call_cmd(
+				cmd=executable,
+				args=[],
+				env=env,
+				logfile=exec_logfile
+			)
+		else:
+			with open(exec_logfile, 'w') as logfile:
+				logfile.write(f"Verilator compiled executable {executable} not found.")
 
