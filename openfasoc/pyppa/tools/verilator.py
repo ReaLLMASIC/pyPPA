@@ -17,23 +17,25 @@ class Verilator(VerilogSimTool):
 		log_dir: str,
 		env: dict[str, str]
 	):
+		temp_files_dir = path.join(obj_dir, 'verilator')
+
 		self._call_tool(
-			args=['--top-module', top_module, '-cc', *verilog_files, '--exe', testbench_file, '--Mdir', obj_dir],
+			args=['--top-module', top_module, '-cc', *verilog_files, '--exe', testbench_file, '--Mdir', temp_files_dir],
 			env=env,
 			logfile=path.join(log_dir, '0_1_1_verilator_compile.log')
 		)
 
-		copyfile(testbench_file, path.join(obj_dir, testbench_file))
+		copyfile(testbench_file, path.join(temp_files_dir, 'verilator', testbench_file))
 
 		call_cmd(
 			cmd='make',
-			args=['-f', path.join(obj_dir, f"V{top_module}.mk"), f"V{top_module}"],
+			args=['-f', path.join(temp_files_dir, f"V{top_module}.mk"), f"V{top_module}"],
 			env=env,
 			logfile=path.join(log_dir, '0_1_2_verilator_make.log'),
-			cwd=obj_dir
+			cwd=temp_files_dir
 		)
 
-		executable = path.join(obj_dir, top_module)
+		executable = path.join(temp_files_dir, top_module)
 		exec_logfile = path.join(log_dir, '0_1_3_verilator_exec.log')
 
 		if path.exists(executable):

@@ -108,7 +108,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 			verilog_files=self.get('VERILOG_FILES'),
 			top_module=self.get('DESIGN_NAME'),
 			testbench_file=self.get('PRESYNTH_TESTBENCH'),
-			obj_dir=path.join(self.get('OBJECTS_DIR'), 'verilator'),
+			obj_dir=self.get('OBJECTS_DIR'),
 			vcd_file='out.vcd',
 			log_dir=self.get('LOG_DIR'),
 			env=self.get_env()
