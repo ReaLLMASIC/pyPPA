@@ -1,5 +1,5 @@
 from typing import TypedDict, Union, Any, Optional
-from os import path
+from os import path, mkdir
 from shutil import rmtree
 from multiprocessing import Pool
 
@@ -53,6 +53,11 @@ class PPARunner:
 	def run_ppa_analysis(self):
 		# List of flow jobs to run
 		jobs = []
+
+		# Clear contents of the work home
+		if path.exists(self.work_home):
+			rmtree(self.work_home)
+			mkdir(self.work_home)
 
 		for module in self.modules:
 			print(f"Running PPA for module `{module['name']}`.")
