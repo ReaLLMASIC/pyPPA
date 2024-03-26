@@ -101,18 +101,23 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 
 		print(f"Preprocessing completed for module `{self.get('DESIGN_NAME')}`.")
 
-	def pre_synth_sim(self):
+	def pre_synth_sim(self) -> str:
 		print(f"Started pre-synthesis simulations.")
 
-		self.tools['verilog_sim_tool'].run_sim(
+		dumpfile_dir = self.tools['verilog_sim_tool'].run_sim(
 			verilog_files=self.get('VERILOG_FILES'),
 			testbench_module=self.get('PRESYNTH_TESTBENCH_MODULE'),
 			testbench_file=self.get('PRESYNTH_TESTBENCH'),
 			obj_dir=self.get('OBJECTS_DIR'),
-			vcd_file='out.vcd',
+			vcd_file=self.get('PRESYNTH_VCD_NAME'),
 			log_dir=self.get('LOG_DIR'),
 			env=self.get_env()
 		)
+
+		dumpfile_path = path.join(dumpfile_dir, self.get('PRESYNTH_VCD_NAME'))
+		self.set('PRESYNTH_VCD', dumpfile_path)
+
+		return dumpfile_path
 
 	def synthesis(self) -> SynthStats:
 		print(f"Started synthesis for module `{self.get('DESIGN_NAME')}`.")
