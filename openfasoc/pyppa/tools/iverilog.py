@@ -47,5 +47,4 @@ class Iverilog(VerilogSimTool):
 			cwd=objects_dir
 		)
 
-
-
+		return objects_dir

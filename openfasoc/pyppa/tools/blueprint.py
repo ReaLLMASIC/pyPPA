@@ -105,5 +105,5 @@ class VerilogSimTool(FlowTool):
 		vcd_file: str,
 		log_dir: str,
 		env: dict[str, str]
-	):
-		"""Runs Verilog simulations and generates a VCD file."""
+	) -> str:
+		"""Runs Verilog simulations and generates a VCD file. Returns the path to the directory in which the dumpfiles will be generated."""
