@@ -23,7 +23,7 @@ class FlowTool:
 		self.scripts_dir = scripts_dir
 		self.tool_default_args = default_args
 
-	def _call_tool(self, args: list[str], env: dict | None, logfile: str | None, cwd: str | None):
+	def _call_tool(self, args: list[str], env: dict | None, logfile: str | None, cwd: str | None = None):
 		call_cmd(
 			cmd=self.tool_executable,
 			args=self.tool_default_args + args,
