@@ -106,7 +106,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 
 		self.tools['verilog_sim_tool'].run_sim(
 			verilog_files=self.get('VERILOG_FILES'),
-			top_module=self.get('DESIGN_NAME'),
+			testbench_module=self.get('PRESYNTH_TESTBENCH_MODULE'),
 			testbench_file=self.get('PRESYNTH_TESTBENCH'),
 			obj_dir=self.get('OBJECTS_DIR'),
 			vcd_file='out.vcd',

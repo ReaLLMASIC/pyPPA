@@ -26,6 +26,8 @@ class __DesignSynthConfig(TypedDict):
 	"""Pre-synthesis Verilog simulation testbench file."""
 	PRESYNTH_VCD: str
 	"""Path to a presynthesis simulation VCD file."""
+	PRESYNTH_TESTBENCH_MODULE: str
+	"""The Verilog module name of the pre-synthesis simulation testbench."""
 
 class __DesignFloorplanConfig(TypedDict):
 	"""The floorplan design configuration."""
@@ -62,6 +64,9 @@ class FlowDesignConfig:
 		self.config = {**FLOW_DESIGN_CONFIG_DEFAULTS, **self.config}
 
 		self.config['SDC_FILE'] = self.config.get('SDC_FILE', path.join(self.config['DESIGN_DIR'], 'constraint.sdc'))
+
+		# Set the default presynth testbench module name as {DESIGN_NAME}_tb
+		self.config['PRESYNTH_TESTBENCH_MODULE'] = self.config.get('PRESYNTH_TESTBENCH_MODULE', f"{self.config['DESIGN_NAME']}_tb")
 
 	def get_env(self, init_env: Optional[dict]):
 		env = {**init_env} if init_env is not None else {**self.config}

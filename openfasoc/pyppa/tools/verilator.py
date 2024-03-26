@@ -10,7 +10,7 @@ class Verilator(VerilogSimTool):
 	def run_sim(
 		self,
 		verilog_files: list[str],
-		top_module: str,
+		testbench_module: str,
 		testbench_file: str,
 		obj_dir: str,
 		vcd_file: str,
@@ -20,7 +20,7 @@ class Verilator(VerilogSimTool):
 		temp_files_dir = path.join(obj_dir, 'verilator')
 
 		self._call_tool(
-			args=['--top-module', top_module, '-cc', *verilog_files, '--exe', testbench_file, '--Mdir', temp_files_dir],
+			args=['--top-module', testbench_module, '-cc', *verilog_files, '--exe', testbench_file, '--Mdir', temp_files_dir],
 			env=env,
 			logfile=path.join(log_dir, '0_1_1_verilator_compile.log')
 		)
@@ -29,13 +29,13 @@ class Verilator(VerilogSimTool):
 
 		call_cmd(
 			cmd='make',
-			args=['-f', path.join(temp_files_dir, f"V{top_module}.mk"), f"V{top_module}"],
+			args=['-f', path.join(temp_files_dir, f"V{testbench_module}.mk"), f"V{testbench_module}"],
 			env=env,
 			logfile=path.join(log_dir, '0_1_2_verilator_make.log'),
 			cwd=temp_files_dir
 		)
 
-		executable = path.join(temp_files_dir, top_module)
+		executable = path.join(temp_files_dir, testbench_module)
 		exec_logfile = path.join(log_dir, '0_1_3_verilator_exec.log')
 
 		if path.exists(executable):

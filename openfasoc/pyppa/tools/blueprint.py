@@ -99,7 +99,7 @@ class APRTool(FlowTool):
 class VerilogSimTool(FlowTool):
 	def run_sim(self,
 		verilog_files: list[str],
-		top_module: str,
+		testbench_module: str,
 		testbench_file: str,
 		obj_dir: str,
 		vcd_file: str,
