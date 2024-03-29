@@ -7,7 +7,7 @@ proc write_power_report {step} {
 		set_propagated_clock [all_clocks]
 
 
-		if {[info exists ::env(PRESYNTH_VCD)]} {
+		if {[info exists ::env(STA_VCD_FILE)]} {
 			puts "Reading VCD file for setting power activity."
 			sta::read_power_activities -scope $::env(PRESYNTH_TESTBENCH_MODULE)/dut -vcd $::env(PRESYNTH_VCD)
 		} else {

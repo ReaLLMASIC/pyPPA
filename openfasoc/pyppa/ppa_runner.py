@@ -89,9 +89,29 @@ class PPARunner:
 		if path.exists(module_work_home):
 			rmtree(module_work_home)
 
+		# Preprocess platform files
 		module_runner.preprocess()
-		if module_runner.get('RUN_PRESYNTH_SIM'): module_runner.pre_synth_sim()
+
+		verilog_simulations_run = False
+		# Run presynthesis simulations if enabled
+		if module_runner.get('RUN_PRESYNTH_SIM'):
+			presynth_vcd = module_runner.pre_synth_sim()
+			verilog_simulations_run = True
+
+		# Synthesis
 		synth_stats = module_runner.synthesis()
+
+		# Run postsynthesis simulations if enabled
+		if module_runner.get('RUN_POSTSYNTH_SIM'):
+			postsynth_vcd = module_runner.post_synth_sim()
+			verilog_simulations_run = True
+
+		# Use the synthesized VCD file in the power report if enabled
+		if module_runner.get('USE_STA_VCD') and verilog_simulations_run:
+			sta_vcdfile = presynth_vcd if module_runner.get('STA_VCD_TYPE') == 'presynth' else postsynth_vcd
+			module_runner.set('STA_VCD_FILE', sta_vcdfile)
+
+		# Run floorplanning and generate power report
 		fp_stats, power_report = module_runner.floorplan()
 
 		return {

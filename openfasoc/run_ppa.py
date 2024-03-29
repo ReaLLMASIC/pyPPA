@@ -32,20 +32,12 @@ gcd_runner = PPARunner(
 		{
 			'name': 'softmax',
 			'flow_config': {
-				'RUN_PRESYNTH_SIM': {
-					'values': [True, False]
-				},
+				'RUN_PRESYNTH_SIM': True,
+				'RUN_POSTSYNTH_SIM': False,
 				'PRESYNTH_TESTBENCH': path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v'),
-				'PRESYNTH_VCD_NAME': 'softmax.vcd'
-			},
-			'parameters': {}
-		},
-		{
-			'name': 'softermax',
-			'flow_config': {
-				'ABC_AREA': {
-					'values': [True, False]
-				}
+				'POSTSYNTH_TESTBENCH': path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v'),
+				'USE_STA_VCD': True,
+				'STA_VCD_TYPE': 'presynth'
 			},
 			'parameters': {}
 		}
