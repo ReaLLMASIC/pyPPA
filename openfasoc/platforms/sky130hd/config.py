@@ -15,6 +15,7 @@ SKY130HD_PLATFORM_CONFIG = {
 	'FILL_CELLS': ['sky130_fd_sc_hd__fill_1 sky130_fd_sc_hd__fill_2', 'sky130_fd_sc_hd__fill_4', 'sky130_fd_sc_hd__fill_8'],
 	'CDL_FILE': path.join(PLATFORM_DIR, 'cdl', 'sky130hd.cdl'),
 	'KLAYOUT_LVS_FILE': path.join(PLATFORM_DIR, 'lvs', 'sky130hd.lylvs'),
+	'FORMAL_PDK_VERILOG': path.join(PLATFORM_DIR, 'work_around_yosys', 'formal_pdk.v'),
 
 	# Synthesis config
 	'ABC_DRIVER_CELL': 'sky130_fd_sc_hd__buf_1',

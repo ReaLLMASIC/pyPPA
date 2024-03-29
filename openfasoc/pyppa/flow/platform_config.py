@@ -22,9 +22,11 @@ class __PlatformCommonConfig(TypedDict):
 	FILL_CELLS: list[str]
 	"""List of fill cells. Fill cells are used to fill empty sites."""
 	CDL_FILE: str
-	"""Path to the platform CDL file. """
+	"""Path to the platform CDL file."""
 	KLAYOUT_LVS_FILE: str
 	"""Path to the platform LVS file used in Klayout."""
+	FORMAL_PDK_VERILOG: str
+	"""Path to the formal_pdk.v file with standard cell Verilog models."""
 
 class __PlatformSynthConfig(TypedDict):
 	"""The synthesis platform configuration."""
