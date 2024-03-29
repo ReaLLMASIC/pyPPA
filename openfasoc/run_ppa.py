@@ -23,7 +23,6 @@ gcd_runner = PPARunner(
 		],
 		'DESIGN_DIR': path.join('..', 'HW', 'comp', 'vector_engine'),
 		'SCRIPTS_DIR': path.join('scripts', 'orfs'),
-		'UTILS_DIR': path.join('util', 'orfs'),
 		'YOSYS_CMD': '/usr/bin/miniconda3/bin/yosys',
 		'OPENROAD_CMD': '/usr/bin/miniconda3/bin/openroad',
 		'KLAYOUT_CMD': 'klayout',
@@ -53,5 +52,10 @@ gcd_runner = PPARunner(
 	]
 )
 
+def sorter(x):
+	return x[1]
+
 gcd_runner.run_ppa_analysis()
+stats = sorted(gcd_runner.runs['softmax'][1]['synth_stats']['cell_counts'].items(), key=sorter, reverse=True)
+print(stats)
 gcd_runner.print_stats('ppa.txt')
