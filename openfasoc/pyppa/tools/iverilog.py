@@ -33,18 +33,18 @@ class Iverilog(VerilogSimTool):
 				path.abspath(testbench_file),
 				*[path.abspath(file) for file in verilog_files]
 			],
-			env=env,
-			logfile=path.join(log_dir, '0_1_1_iverilog_compile.log'),
-			cwd=objects_dir
+			logfile=path.join(log_dir, 'iverilog_compile.log'),
+			cwd=objects_dir,
+			env={}
 		)
 
 		# Run the testbench
 		call_cmd(
 			cmd=self.vvp_cmd,
 			args=self.defautl_vvp_args + [testbench_module],
-			env=env,
-			logfile=path.join(log_dir, '0_1_2_iverilog_run.log'),
-			cwd=objects_dir
+			logfile=path.join(log_dir, 'iverilog_run.log'),
+			cwd=objects_dir,
+			env={}
 		)
 
 		return objects_dir
