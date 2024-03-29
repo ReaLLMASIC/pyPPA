@@ -32,12 +32,12 @@ gcd_runner = PPARunner(
 		{
 			'name': 'softmax',
 			'flow_config': {
-				'RUN_PRESYNTH_SIM': True,
-				'RUN_POSTSYNTH_SIM': False,
+				'RUN_PRESYNTH_SIM': False,
+				'RUN_POSTSYNTH_SIM': True,
 				'PRESYNTH_TESTBENCH': path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v'),
 				'POSTSYNTH_TESTBENCH': path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v'),
 				'USE_STA_VCD': True,
-				'STA_VCD_TYPE': 'presynth'
+				'STA_VCD_TYPE': 'postsynth'
 			},
 			'parameters': {}
 		}
@@ -48,6 +48,4 @@ def sorter(x):
 	return x[1]
 
 gcd_runner.run_ppa_analysis()
-stats = sorted(gcd_runner.runs['softmax'][1]['synth_stats']['cell_counts'].items(), key=sorter, reverse=True)
-print(stats)
 gcd_runner.print_stats('ppa.txt')
