@@ -131,7 +131,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 			makedirs(sim_dir)
 
 		dumpfile_dir = self.tools['verilog_sim_tool'].run_sim(
-			verilog_files=[path.join(self.get('RESULTS_DIR'), '1_synth.v')],
+			verilog_files=[self.get('FORMAL_PDK_VERILOG'), path.join(self.get('RESULTS_DIR'), '1_synth.v')],
 			testbench_module=self.get('POSTSYNTH_TESTBENCH_MODULE'),
 			testbench_file=self.get('POSTSYNTH_TESTBENCH'),
 			obj_dir=sim_dir,
