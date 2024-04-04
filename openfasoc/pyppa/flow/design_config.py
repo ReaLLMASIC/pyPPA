@@ -1,5 +1,6 @@
 from typing import TypedDict, Union, Optional
 from os import path
+from ..utils.path_utils import enumerate_dir_recursive
 
 class __DesignCommonConfig(TypedDict):
 	"""The common design configuration."""
@@ -90,8 +91,20 @@ class FlowDesignConfig:
 	def get_env(self, init_env: Optional[dict]):
 		env = {**init_env} if init_env is not None else {**self.config}
 
+		# Recursively read directories in verilog_files
+		verilog_paths = []
+
+		for verilog_path in self.config['VERILOG_FILES']:
+			if path.exists(verilog_path):
+				if path.isdir(verilog_path):
+					verilog_paths.extend(enumerate_dir_recursive(verilog_path))
+				else:
+					verilog_paths.append(verilog_path)
+
+		env['VERILOG_FILES'] = ' '.join(verilog_paths)
+
 		# List options
-		for key in ('VERILOG_FILES', 'PRESERVE_CELLS', 'DIE_AREA', 'CORE_AREA'):
+		for key in ('PRESERVE_CELLS', 'DIE_AREA', 'CORE_AREA'):
 			if key in self.config:
 				env[key] = ' '.join(self.config[key])
 
