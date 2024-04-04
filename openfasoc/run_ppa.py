@@ -17,15 +17,10 @@ gcd_runner = PPARunner(
 		**SKY130HD_PLATFORM_CONFIG,
 		'PLATFORM': 'sky130hd',
 		'VERILOG_FILES': [
-			path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'rtl', 'softmax.v'),
-			path.join('..', 'HW', 'comp', 'vector_engine', 'softermax', 'rtl', 'softermax.v'),
-			# path.join('..', 'HW', 'comp', 'vector_engine', 'consmax', 'rtl', 'consmax.v'),
+			path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'rtl', 'softmax.v')
 		],
 		'DESIGN_DIR': path.join('..', 'HW', 'comp', 'vector_engine'),
 		'SCRIPTS_DIR': path.join('scripts', 'orfs'),
-		'YOSYS_CMD': '/usr/bin/miniconda3/bin/yosys',
-		'OPENROAD_CMD': '/usr/bin/miniconda3/bin/openroad',
-		'KLAYOUT_CMD': 'klayout',
 		'CORE_UTILIZATION': 40
 	},
 	modules=[
