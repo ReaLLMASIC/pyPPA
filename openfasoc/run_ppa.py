@@ -32,8 +32,9 @@ gcd_runner = PPARunner(
 		{
 			'name': 'softmax',
 			'flow_config': {
-				'RUN_PRESYNTH_SIM': False,
-				'RUN_POSTSYNTH_SIM': True,
+				'RUN_POSTSYNTH_SIM': {
+					'values': [True, False]
+				},
 				'PRESYNTH_TESTBENCH': path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v'),
 				'POSTSYNTH_TESTBENCH': path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v'),
 				'USE_STA_VCD': True,
