@@ -19,6 +19,8 @@ class ModuleRun(TypedDict):
 	name: str
 	job_number: int
 	run_dir: str
+	flow_config: FlowConfigDict
+	hyperparameters: dict[str, Any]
 	synth_stats: SynthStats
 	floorplanning_stats: FloorplanningStats
 	power_report: PowerReport
@@ -135,6 +137,8 @@ class PPARunner:
 			'name': module_runner.get('DESIGN_NAME'),
 			'job_number': job_number,
 			'run_dir': module_work_home,
+			'flow_config': module_runner.configopts,
+			'hyperparameters': module_runner.hyperparameters,
 			'synth_stats': synth_stats,
 			'floorplanning_stats': fp_stats,
 			'power_report': power_report
