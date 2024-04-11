@@ -33,7 +33,7 @@ gcd_runner = PPARunner(
 				'USE_STA_VCD': True
 			},
 			'hyperparameters': {
-				'period': {
+				'clk_period': {
 					'values': [10, 20, 30]
 				}
 			}

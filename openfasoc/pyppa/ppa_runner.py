@@ -74,18 +74,23 @@ class PPARunner:
 				# Iterate over each hyperparameter as well
 				for (hyperparam_config, _) in hyperparams_iterator:
 					module_work_home = path.join(self.work_home, module['name'], str(job_number))
-					makedirs(module_work_home, exist_ok=True)
+
+					# Create a clean module work home
+					if path.exists(module_work_home):
+						rmtree(module_work_home)
+					makedirs(module_work_home)
 
 					# Write all the configurations to a file
 					with open(path.join(module_work_home, 'config.json'), 'w') as config_file:
 						json.dump(
 							{
-								'module': module,
+								'module': module['name'],
 								'job_number': job_number,
 								'flow_config': job_flow_config,
 								'hyperparameters': hyperparam_config
 							},
-							config_file
+							config_file,
+							indent=2
 						)
 
 					module_runner: FlowRunner = FlowRunner(
@@ -108,9 +113,6 @@ class PPARunner:
 			self.runs[run['name']].append(run)
 
 	def __ppa_job__(self, module_runner: FlowRunner, module_work_home: str, job_number: int) -> ModuleRun:
-		if path.exists(module_work_home):
-			rmtree(module_work_home)
-
 		# Preprocess platform files
 		module_runner.preprocess()
 

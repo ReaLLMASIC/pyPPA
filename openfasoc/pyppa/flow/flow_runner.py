@@ -110,12 +110,14 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 				# Update the SDC file path
 				self.set('SDC_FILE', new_sdc_file_path)
 
-			# Set yosys-abc clock period to first "clk_period" value or "-period" value found in sdc file
-			# Match for set clk_period or -period statements
-			clk_period_matches = re.search(pattern="^set\s+clk_period\s+(\S+).*|.*-period\s+(\S+).*", flags=re.MULTILINE, string=sdc_file.read())
+		# Read the new SDC file for reading clock period for setting the yosys-abc clock period value
+		if self.get('ABC_CLOCK_PERIOD_IN_PS') is not None:
+			with open(self.get('SDC_FILE')) as sdc_file:
+				# Match for set clk_period or -period statements
+				clk_period_matches = re.search(pattern="^set\s+clk_period\s+(\S+).*|.*-period\s+(\S+).*", flags=re.MULTILINE, string=sdc_file.read())
 
-			if clk_period_matches is not None and len(clk_period_matches.groups()) > 0:
-				self.set('ABC_CLOCK_PERIOD_IN_PS', float(clk_period_matches.group(1)))
+				if clk_period_matches is not None and len(clk_period_matches.groups()) > 0:
+					self.set('ABC_CLOCK_PERIOD_IN_PS', float(clk_period_matches.group(1)))
 
 		print(f"Preprocessing completed for module `{self.get('DESIGN_NAME')}`.")
 
