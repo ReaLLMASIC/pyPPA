@@ -12,7 +12,7 @@ from .utils.config_sweep import ParameterSweepDict, ParameterListDict, get_confi
 class ModuleConfig(TypedDict):
 	name: str
 	parameters: dict[str, Union[ParameterSweepDict, ParameterListDict, Any]]
-	flow_config: dict[str, Union[ParameterSweepDict, ParameterListDict, Any]]
+	flow_config: Union[dict[str, Union[ParameterSweepDict, ParameterListDict]], FlowConfigDict]
 
 class ModuleRun(TypedDict):
 	name: str
@@ -94,22 +94,15 @@ class PPARunner:
 
 		verilog_simulations_run = False
 		# Run presynthesis simulations if enabled
-		if module_runner.get('RUN_PRESYNTH_SIM'):
-			presynth_vcd = module_runner.pre_synth_sim()
-			verilog_simulations_run = True
+		if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'presynth':
+			module_runner.verilog_sim()
 
 		# Synthesis
 		synth_stats = module_runner.synthesis()
 
 		# Run postsynthesis simulations if enabled
-		if module_runner.get('RUN_POSTSYNTH_SIM'):
-			postsynth_vcd = module_runner.post_synth_sim()
-			verilog_simulations_run = True
-
-		# Use the synthesized VCD file in the power report if enabled
-		if module_runner.get('USE_STA_VCD') and verilog_simulations_run:
-			sta_vcdfile = presynth_vcd if module_runner.get('STA_VCD_TYPE') == 'presynth' else postsynth_vcd
-			module_runner.set('STA_VCD_FILE', sta_vcdfile)
+		if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'postsynth':
+			module_runner.verilog_sim()
 
 		# Run floorplanning and generate power report
 		fp_stats, power_report = module_runner.floorplan()

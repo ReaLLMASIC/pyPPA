@@ -27,13 +27,10 @@ gcd_runner = PPARunner(
 		{
 			'name': 'softmax',
 			'flow_config': {
-				'RUN_POSTSYNTH_SIM': {
-					'values': [True, False]
-				},
-				'PRESYNTH_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
-				'POSTSYNTH_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
-				'USE_STA_VCD': True,
-				'STA_VCD_TYPE': 'postsynth'
+				'RUN_VERILOG_SIM': True,
+				'VERILOG_SIM_TYPE': 'postsynth',
+				'VERILOG_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
+				'USE_STA_VCD': True
 			},
 			'parameters': {}
 		}

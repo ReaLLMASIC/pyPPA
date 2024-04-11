@@ -101,49 +101,25 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 
 		print(f"Preprocessing completed for module `{self.get('DESIGN_NAME')}`.")
 
-	def pre_synth_sim(self) -> str:
-		print(f"Started pre-synthesis simulations.")
-		sim_dir = path.join(self.get('OBJECTS_DIR'), 'presynth_sim')
+	def verilog_sim(self) -> str:
+		print(f"Started {'Pre-synthesis' if self.get('VERILOG_SIM_TYPE') == 'presynth' else 'Post-synthesis'} Verilog simulations.")
+		sim_dir = path.join(self.get('OBJECTS_DIR'), f"{self.get('VERILOG_SIM_TYPE')}_sim")
 
 		if not path.exists(sim_dir):
 			makedirs(sim_dir)
 
 		dumpfile_dir = self.tools['verilog_sim_tool'].run_sim(
-			verilog_files=self.get('VERILOG_FILES'),
-			testbench_module=self.get('PRESYNTH_TESTBENCH_MODULE'),
-			testbench_files=self.get('PRESYNTH_TESTBENCH_FILES'),
+			verilog_files=[self.get('FORMAL_PDK_VERILOG'), path.join(self.get('RESULTS_DIR'), '1_synth.v')] if self.get('VERILOG_SIM_TYPE') == 'presynth' else self.get('VERILOG_FILES'),
+			testbench_module=self.get('VERILOG_TESTBENCH_MODULE'),
+			testbench_files=self.get('VERILOG_TESTBENCH_FILES'),
 			obj_dir=sim_dir,
-			vcd_file=self.get('PRESYNTH_VCD_NAME'),
+			vcd_file=self.get('VERILOG_VCD_NAME'),
 			log_dir=self.get('LOG_DIR'),
 			env=self.get_env()
 		)
 
-		dumpfile_path = path.join(dumpfile_dir, self.get('PRESYNTH_VCD_NAME'))
-		self.set('PRESYNTH_VCD', dumpfile_path)
-
-		return dumpfile_path
-
-	def post_synth_sim(self) -> str:
-		print(f"Started post-synthesis simulations.")
-		sim_dir = path.join(self.get('OBJECTS_DIR'), 'postsynth_sim')
-
-		if not path.exists(sim_dir):
-			makedirs(sim_dir)
-
-		dumpfile_dir = self.tools['verilog_sim_tool'].run_sim(
-			verilog_files=[self.get('FORMAL_PDK_VERILOG'), path.join(self.get('RESULTS_DIR'), '1_synth.v')],
-			testbench_module=self.get('POSTSYNTH_TESTBENCH_MODULE'),
-			testbench_files=self.get('POSTSYNTH_TESTBENCH_FILES'),
-			obj_dir=sim_dir,
-			vcd_file=self.get('POSTSYNTH_VCD_NAME'),
-			log_dir=self.get('LOG_DIR'),
-			env=self.get_env()
-		)
-
-		dumpfile_path = path.join(dumpfile_dir, self.get('POSTSYNTH_VCD_NAME'))
-		self.set('POSTSYNTH_VCD', dumpfile_path)
-
-		return dumpfile_path
+		dumpfile_path = path.join(dumpfile_dir, self.get('VERILOG_VCD_NAME'))
+		self.set('STA_VCD_FILE', dumpfile_path)
 
 	def synthesis(self) -> SynthStats:
 		print(f"Started synthesis for module `{self.get('DESIGN_NAME')}`.")
