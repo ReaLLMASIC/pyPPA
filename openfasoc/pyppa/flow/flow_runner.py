@@ -109,7 +109,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 			makedirs(sim_dir)
 
 		dumpfile_dir = self.tools['verilog_sim_tool'].run_sim(
-			verilog_files=[self.get('FORMAL_PDK_VERILOG'), path.join(self.get('RESULTS_DIR'), '1_synth.v')] if self.get('VERILOG_SIM_TYPE') == 'presynth' else self.get('VERILOG_FILES'),
+			verilog_files=[self.get('FORMAL_PDK_VERILOG'), path.join(self.get('RESULTS_DIR'), '1_synth.v')] if self.get('VERILOG_SIM_TYPE') == 'postsynth' else self.get('VERILOG_FILES'),
 			testbench_module=self.get('VERILOG_TESTBENCH_MODULE'),
 			testbench_files=self.get('VERILOG_TESTBENCH_FILES'),
 			obj_dir=sim_dir,
