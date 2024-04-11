@@ -1,6 +1,7 @@
 from typing import TypedDict, Union, Any, Optional
-from os import path, mkdir
+from os import path, mkdir, makedirs
 from shutil import rmtree
+import json
 from multiprocessing import Pool
 
 from .flow import FlowRunner, FlowConfigDict, FlowTools
@@ -11,7 +12,7 @@ from .utils.config_sweep import ParameterSweepDict, ParameterListDict, get_confi
 
 class ModuleConfig(TypedDict):
 	name: str
-	parameters: dict[str, Union[ParameterSweepDict, ParameterListDict, Any]]
+	hyperparameters: dict[str, Union[ParameterSweepDict, ParameterListDict, Any]]
 	flow_config: Union[dict[str, Union[ParameterSweepDict, ParameterListDict]], FlowConfigDict]
 
 class ModuleRun(TypedDict):
@@ -66,19 +67,40 @@ class PPARunner:
 			configs_iterator = get_configs_iterator(module['flow_config'])
 
 			# Iterate over configs and add jobs
-			for (job_flow_config, job_number) in configs_iterator.iterate():
-				module_work_home = path.join(self.work_home, module['name'], str(job_number))
-				module_runner: FlowRunner = FlowRunner(
-					self.tools,
-					{
-						**self.global_flow_config,
-						**job_flow_config,
-						'DESIGN_NAME': module['name'],
-						'WORK_HOME': module_work_home
-					}
-				)
+			job_number = 1
+			for (job_flow_config, _) in configs_iterator.iterate():
+				hyperparams_iterator = get_configs_iterator(module['hyperparameters'])
 
-				jobs.append((module_runner, module_work_home, job_number))
+				# Iterate over each hyperparameter as well
+				for (hyperparam_config, _) in hyperparams_iterator:
+					module_work_home = path.join(self.work_home, module['name'], str(job_number))
+					makedirs(module_work_home, exist_ok=True)
+
+					# Write all the configurations to a file
+					with open(path.join(module_work_home, 'config.json'), 'w') as config_file:
+						json.dump(
+							{
+								'module': module,
+								'job_number': job_number,
+								'flow_config': job_flow_config,
+								'hyperparameters': hyperparam_config
+							},
+							config_file
+						)
+
+					module_runner: FlowRunner = FlowRunner(
+						self.tools,
+						{
+							**self.global_flow_config,
+							**job_flow_config,
+							'DESIGN_NAME': module['name'],
+							'WORK_HOME': module_work_home
+						},
+						hyperparam_config
+					)
+
+					jobs.append((module_runner, module_work_home, job_number))
+					job_number += 1
 
 		# Run the list of jobs
 		ppa_job_runner = Pool(self.max_parallel_threads)

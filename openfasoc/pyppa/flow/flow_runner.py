@@ -1,11 +1,14 @@
-from typing import Union, TypedDict
+from typing import Union, TypedDict, Any
 
 from os import makedirs, path
 from shutil import copyfile
+from mako.template import Template
 import re
 
 from ..tools.blueprint import SynthTool, SynthStats, APRTool, FloorplanningStats, PowerReport, VerilogSimTool
 from ..tools.utils import call_util_script
+
+from ..utils.config_sweep import ParameterSweepDict, ParameterListDict
 
 from .common_config import FlowCommonConfigDict, FlowCommonConfig
 from .platform_config import FlowPlatformConfigDict, FlowPlatformConfig
@@ -22,15 +25,18 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 	tools: FlowTools
 	configopts: Union[FlowConfigDict, dict]
 	config: FlowConfigDict
+	hyperparameters: dict[str, Any]
 
 	def __init__(
 		self,
 		tools: FlowTools,
-		configopts: Union[FlowConfigDict, dict]
+		configopts: Union[FlowConfigDict, dict],
+		hyperparameters: dict[str, Any]
 	):
 		self.tools = tools
 		self.configopts = configopts.copy()
 		self.config = configopts.copy()
+		self.hyperparameters = hyperparameters
 
 		FlowCommonConfig.__init__(self)
 		FlowPlatformConfig.__init__(self)
@@ -91,8 +97,20 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		self.set('DONT_USE_LIBS', dont_use_libs)
 		self.set('DONT_USE_SC_LIB', self.get('DONT_USE_LIBS'))
 
-		# Set yosys-abc clock period to first "clk_period" value or "-period" value found in sdc file
 		with open(self.get('SDC_FILE')) as sdc_file:
+			# Move the SDC file into the objects dir and add the hyperparameters to it
+			new_sdc_file_path = path.join(self.get('OBJECTS_DIR'), path.basename(self.get('SDC_FILE')))
+
+			with open(self.get('SDC_FILE')) as sdc_template_file:
+				sdc_template = Template(text=sdc_template_file.read())
+
+				with open(new_sdc_file_path, "w") as new_sdc_file:
+					new_sdc_file.write(sdc_template.render(**self.hyperparameters))
+
+				# Update the SDC file path
+				self.set('SDC_FILE', new_sdc_file_path)
+
+			# Set yosys-abc clock period to first "clk_period" value or "-period" value found in sdc file
 			# Match for set clk_period or -period statements
 			clk_period_matches = re.search(pattern="^set\s+clk_period\s+(\S+).*|.*-period\s+(\S+).*", flags=re.MULTILINE, string=sdc_file.read())
 

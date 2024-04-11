@@ -32,7 +32,11 @@ gcd_runner = PPARunner(
 				'VERILOG_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
 				'USE_STA_VCD': True
 			},
-			'parameters': {}
+			'hyperparameters': {
+				'period': {
+					'values': [10, 20, 30]
+				}
+			}
 		}
 	]
 )
