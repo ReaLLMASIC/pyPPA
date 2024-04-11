@@ -147,6 +147,9 @@ class PPARunner:
 	def clean_runs(self):
 		rmtree(self.global_flow_config.get('WORK_HOME'))
 
+	def get_runs(self, module_name: str) -> list[ModuleRun]:
+		return self.runs[module_name]
+
 	def print_stats(self, file: Optional[str] = None):
 		write_to = open(file, 'w') if file is not None else None
 
