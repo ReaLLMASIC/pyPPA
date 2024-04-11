@@ -14,8 +14,8 @@ class Iverilog(VerilogSimTool):
 	def run_sim(
 		self,
 		verilog_files: list[str],
+		testbench_files: list[str],
 		testbench_module: str,
-		testbench_file: str,
 		obj_dir: str,
 		vcd_file: str,
 		log_dir: str,
@@ -30,8 +30,7 @@ class Iverilog(VerilogSimTool):
 			args=[
 				'-o', testbench_module,
 				'-s', testbench_module,
-				path.abspath(testbench_file),
-				*[path.abspath(file) for file in verilog_files]
+				*[path.abspath(file) for file in verilog_files + testbench_files]
 			],
 			logfile=path.join(log_dir, 'iverilog_compile.log'),
 			cwd=objects_dir,

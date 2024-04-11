@@ -30,8 +30,8 @@ gcd_runner = PPARunner(
 				'RUN_POSTSYNTH_SIM': {
 					'values': [True, False]
 				},
-				'PRESYNTH_TESTBENCH': path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v'),
-				'POSTSYNTH_TESTBENCH': path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v'),
+				'PRESYNTH_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
+				'POSTSYNTH_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
 				'USE_STA_VCD': True,
 				'STA_VCD_TYPE': 'postsynth'
 			},

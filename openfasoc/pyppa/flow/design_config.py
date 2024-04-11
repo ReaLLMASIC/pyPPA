@@ -18,10 +18,8 @@ class __DesignCommonConfig(TypedDict):
 	"""Clock period to be used by STA during synthesis. Default value read from `constraint.sdc`."""
 	RUN_PRESYNTH_SIM: bool
 	"""Runs pre-synthesis Verilog simulations to generate a VCD file."""
-	PRESYNTH_TESTBENCH: str
-	"""Pre-synthesis Verilog simulation testbench file."""
-	PRESYNTH_VCD: str
-	"""Path to a presynthesis simulation VCD file."""
+	PRESYNTH_TESTBENCH_FILES: list[str]
+	"""Pre-synthesis Verilog simulation testbench files."""
 	PRESYNTH_TESTBENCH_MODULE: str
 	"""The Verilog module name of the pre-synthesis simulation testbench."""
 	PRESYNTH_VCD_NAME: str
@@ -33,8 +31,8 @@ class __DesignSynthConfig(TypedDict):
 	"""The list of cells to preserve the hierarchy of during synthesis."""
 	RUN_POSTSYNTH_SIM: bool
 	"""Runs post-synthesis Verilog simulations to generate a VCD file."""
-	POSTSYNTH_TESTBENCH: str
-	"""Post-synthesis Verilog simulation testbench file."""
+	POSTSYNTH_TESTBENCH_FILES: list[str]
+	"""Post-synthesis Verilog simulation testbench files."""
 	POSTSYNTH_TESTBENCH_MODULE: str
 	"""The Verilog module name of the post-synthesis simulation testbench."""
 	POSTSYNTH_VCD_NAME: str
@@ -91,17 +89,18 @@ class FlowDesignConfig:
 	def get_env(self, init_env: Optional[dict]):
 		env = {**init_env} if init_env is not None else {**self.config}
 
-		# Recursively read directories in verilog_files
-		verilog_paths = []
+		# Recursively read directories for verilog file lists
+		for key in ('VERILOG_FILES', 'PRESYNTH_TESTBENCH_FILES', 'POSTSYNTH_TESTBENCH_FILES'):
+			if key in self.config:
+				verilog_paths = []
+				for verilog_path in self.config[key]:
+					if path.exists(verilog_path):
+						if path.isdir(verilog_path):
+							verilog_paths.extend(enumerate_dir_recursive(verilog_path))
+						else:
+							verilog_paths.append(verilog_path)
 
-		for verilog_path in self.config['VERILOG_FILES']:
-			if path.exists(verilog_path):
-				if path.isdir(verilog_path):
-					verilog_paths.extend(enumerate_dir_recursive(verilog_path))
-				else:
-					verilog_paths.append(verilog_path)
-
-		env['VERILOG_FILES'] = ' '.join(verilog_paths)
+				env[key] = ' '.join(verilog_paths)
 
 		# List options
 		for key in ('PRESERVE_CELLS', 'DIE_AREA', 'CORE_AREA'):
