@@ -111,7 +111,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		dumpfile_dir = self.tools['verilog_sim_tool'].run_sim(
 			verilog_files=self.get('VERILOG_FILES'),
 			testbench_module=self.get('PRESYNTH_TESTBENCH_MODULE'),
-			testbench_file=self.get('PRESYNTH_TESTBENCH'),
+			testbench_files=self.get('PRESYNTH_TESTBENCH_FILES'),
 			obj_dir=sim_dir,
 			vcd_file=self.get('PRESYNTH_VCD_NAME'),
 			log_dir=self.get('LOG_DIR'),
@@ -133,7 +133,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		dumpfile_dir = self.tools['verilog_sim_tool'].run_sim(
 			verilog_files=[self.get('FORMAL_PDK_VERILOG'), path.join(self.get('RESULTS_DIR'), '1_synth.v')],
 			testbench_module=self.get('POSTSYNTH_TESTBENCH_MODULE'),
-			testbench_file=self.get('POSTSYNTH_TESTBENCH'),
+			testbench_files=self.get('POSTSYNTH_TESTBENCH_FILES'),
 			obj_dir=sim_dir,
 			vcd_file=self.get('POSTSYNTH_VCD_NAME'),
 			log_dir=self.get('LOG_DIR'),
