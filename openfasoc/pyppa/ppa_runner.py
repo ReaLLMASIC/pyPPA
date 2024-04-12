@@ -162,10 +162,13 @@ class PPARunner:
 
 				for stat in run['synth_stats']:
 					if stat == 'cell_counts':
-						formatted_cell_counts = []
+						# Sort the cell counts in descending order
+						sorted_cell_counts = [(cell, count) for cell, count in run['synth_stats']['cell_counts'].items()]
+						sorted_cell_counts.sort(1, reverse=True)
 
-						for cell in run['synth_stats']['cell_counts']:
-							formatted_cell_counts.append(f"{cell} ({run['synth_stats']['cell_counts'][cell]})")
+						formatted_cell_counts = []
+						for cell, count in sorted_cell_counts:
+							formatted_cell_counts.append(f"{cell} ({count})")
 
 						print(f"		{stat}: {', '.join(formatted_cell_counts)}", file=write_to)
 					else:
