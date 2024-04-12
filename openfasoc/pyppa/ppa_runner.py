@@ -118,7 +118,6 @@ class PPARunner:
 		# Preprocess platform files
 		module_runner.preprocess()
 
-		verilog_simulations_run = False
 		# Run presynthesis simulations if enabled
 		if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'presynth':
 			module_runner.verilog_sim()
