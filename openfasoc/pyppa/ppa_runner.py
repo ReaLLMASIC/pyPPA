@@ -9,6 +9,7 @@ from .tools.yosys import SynthStats
 from .tools.openroad import FloorplanningStats, PowerReport
 
 from .utils.config_sweep import ParameterSweepDict, ParameterListDict, get_configs_iterator
+from .utils.time import TimeElapsed
 
 class ModuleConfig(TypedDict):
 	name: str
@@ -21,9 +22,17 @@ class ModuleRun(TypedDict):
 	run_dir: str
 	flow_config: FlowConfigDict
 	hyperparameters: dict[str, Any]
+
+	preprocess_time: TimeElapsed
+
 	synth_stats: SynthStats
+	synth_time: TimeElapsed
+
 	floorplanning_stats: FloorplanningStats
 	power_report: PowerReport
+	floorplanning_Time: TimeElapsed
+
+	total_time_taken: TimeElapsed
 
 class PPARunner:
 	design_name: str
@@ -116,21 +125,25 @@ class PPARunner:
 
 	def __ppa_job__(self, module_runner: FlowRunner, module_work_home: str, job_number: int) -> ModuleRun:
 		# Preprocess platform files
-		module_runner.preprocess()
+		preprocess_time = module_runner.preprocess()
 
 		# Run presynthesis simulations if enabled
 		if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'presynth':
-			module_runner.verilog_sim()
+			_, sim_time = module_runner.verilog_sim()
 
 		# Synthesis
-		synth_stats = module_runner.synthesis()
+		synth_stats, synth_time = module_runner.synthesis()
 
 		# Run postsynthesis simulations if enabled
 		if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'postsynth':
-			module_runner.verilog_sim()
+			_, sim_time = module_runner.verilog_sim()
 
 		# Run floorplanning and generate power report
-		fp_stats, power_report = module_runner.floorplan()
+		fp_stats, power_report, floorplanning_time = module_runner.floorplan()
+
+		total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, floorplanning_time)
+
+		print(f"Completed PPA job #{job_number}. Time taken: {total_time_taken.format()}.")
 
 		return {
 			'name': module_runner.get('DESIGN_NAME'),
@@ -138,9 +151,17 @@ class PPARunner:
 			'run_dir': module_work_home,
 			'flow_config': module_runner.configopts,
 			'hyperparameters': module_runner.hyperparameters,
+
+			'preprocess_time': preprocess_time,
+
 			'synth_stats': synth_stats,
+			'synth_time': synth_time,
+
 			'floorplanning_stats': fp_stats,
-			'power_report': power_report
+			'power_report': power_report,
+			'floorplanning_Time': floorplanning_time,
+
+			'total_time_taken': total_time_taken
 		}
 
 	def clean_runs(self):

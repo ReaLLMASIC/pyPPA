@@ -9,6 +9,7 @@ from ..tools.blueprint import SynthTool, SynthStats, APRTool, FloorplanningStats
 from ..tools.utils import call_util_script
 
 from ..utils.config_sweep import ParameterSweepDict, ParameterListDict
+from ..utils.time import start_time_count, get_elapsed_time, TimeElapsed
 
 from .common_config import FlowCommonConfigDict, FlowCommonConfig
 from .platform_config import FlowPlatformConfigDict, FlowPlatformConfig
@@ -64,8 +65,9 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 			)
 		)
 
-	def preprocess(self):
+	def preprocess(self) -> TimeElapsed:
 		print(f"Started preprocessing for module `{self.get('DESIGN_NAME')}`.")
+		start_time = start_time_count()
 
 		# Create output directories
 		makedirs(path.join(self.get('OBJECTS_DIR'), 'lib'), exist_ok = True)
@@ -76,7 +78,6 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 
 		# Mark libraries as dont use
 		dont_use_libs = []
-
 
 		for libfile in self.get('LIB_FILES'):
 			output_file = path.join(self.get('OBJECTS_DIR'), 'lib', path.basename(libfile))
@@ -119,10 +120,14 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 				if clk_period_matches is not None and len(clk_period_matches.groups()) > 0:
 					self.set('ABC_CLOCK_PERIOD_IN_PS', float(clk_period_matches.group(1)))
 
-		print(f"Preprocessing completed for module `{self.get('DESIGN_NAME')}`.")
+		elapsed_time = get_elapsed_time(start_time)
+		print(f"Preprocessing completed for module `{self.get('DESIGN_NAME')}`. Time taken: {elapsed_time.format()}.")
 
-	def verilog_sim(self) -> str:
-		print(f"Started {'Pre-synthesis' if self.get('VERILOG_SIM_TYPE') == 'presynth' else 'Post-synthesis'} Verilog simulations.")
+		return elapsed_time
+
+	def verilog_sim(self) -> tuple[str, TimeElapsed]:
+		print(f"Started {'Pre-synthesis' if self.get('VERILOG_SIM_TYPE') == 'presynth' else 'Post-synthesis'} Verilog simulations for module `{self.get('DESIGN_NAME')}`.")
+		start_time = start_time_count()
 		sim_dir = path.join(self.get('OBJECTS_DIR'), f"{self.get('VERILOG_SIM_TYPE')}_sim")
 
 		if not path.exists(sim_dir):
@@ -141,8 +146,14 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		dumpfile_path = path.join(dumpfile_dir, self.get('VERILOG_VCD_NAME'))
 		self.set('STA_VCD_FILE', dumpfile_path)
 
-	def synthesis(self) -> SynthStats:
+		elapsed_time = get_elapsed_time(start_time)
+		print(f"Completed {'Pre-synthesis' if self.get('VERILOG_SIM_TYPE') == 'presynth' else 'Post-synthesis'} Verilog simulations for module `{self.get('DESIGN_NAME')}`. Time taken: {elapsed_time.format()}.")
+
+		return dumpfile_path, elapsed_time
+
+	def synthesis(self) -> tuple[SynthStats, TimeElapsed]:
 		print(f"Started synthesis for module `{self.get('DESIGN_NAME')}`.")
+		start_time = start_time_count()
 
 		SYNTH_OUTPUT_FILE = path.join(self.get('RESULTS_DIR'), '1_1_yosys.v')
 
@@ -152,22 +163,25 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		copyfile(SYNTH_OUTPUT_FILE, path.join(self.get('RESULTS_DIR'), '1_synth.v'))
 		copyfile(self.get('SDC_FILE'), path.join(self.get('RESULTS_DIR'), '1_synth.sdc'))
 
-		print(f"Synthesis completed for {self.get('DESIGN_NAME')}.")
+		elapsed_time = get_elapsed_time(start_time)
+		print(f"Synthesis completed for {self.get('DESIGN_NAME')}. Time taken: {elapsed_time.format()}.")
 
 		with open(path.join(self.get('REPORTS_DIR'), 'synth_stat.json')) as statsfile:
 			stats = self.tools['synth_tool'].parse_synth_stats(statsfile.read())
 
-			return stats
+			return stats, elapsed_time
 
-	def floorplan(self) -> tuple[FloorplanningStats, PowerReport]:
+	def floorplan(self) -> tuple[FloorplanningStats, PowerReport, TimeElapsed]:
 		print(f"Started floorplanning for module `{self.get('DESIGN_NAME')}`.")
+		start_time = start_time_count()
 
 		makedirs(self.get('RESULTS_DIR'), exist_ok = True)
 		makedirs(self.get('LOG_DIR'), exist_ok = True)
 
 		self.tools['apr_tool'].run_floorplanning(self.get_env(), self.get('LOG_DIR'))
 
-		print(f"Floorplanning completed for module `{self.get('DESIGN_NAME')}`.")
+		elapsed_time = get_elapsed_time(start_time)
+		print(f"Floorplanning completed for module `{self.get('DESIGN_NAME')}`. Time taken: {elapsed_time.format()}.")
 
 		with open(path.join(self.get('LOG_DIR'), '2_1_floorplan.log')) as logfile:
 			fp_stats = self.tools['apr_tool'].parse_floorplanning_stats(raw_stats=logfile.read())
@@ -175,4 +189,4 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 			with open(path.join(self.get('REPORTS_DIR'), '1_synth_power_report.txt')) as report_txt:
 				power_report = self.tools['apr_tool'].parse_power_report(raw_report=report_txt.read())
 
-				return fp_stats, power_report
+				return fp_stats, power_report, elapsed_time
