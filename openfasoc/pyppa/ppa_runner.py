@@ -164,7 +164,7 @@ class PPARunner:
 					if stat == 'cell_counts':
 						# Sort the cell counts in descending order
 						sorted_cell_counts = [(cell, count) for cell, count in run['synth_stats']['cell_counts'].items()]
-						sorted_cell_counts.sort(1, reverse=True)
+						sorted_cell_counts.sort(key=lambda x: x[1], reverse=True)
 
 						formatted_cell_counts = []
 						for cell, count in sorted_cell_counts:
