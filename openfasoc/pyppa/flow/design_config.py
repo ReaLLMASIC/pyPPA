@@ -81,8 +81,6 @@ class FlowDesignConfig:
 
 		# Set the default verilog sim dumpfile names as {DESIGN_NAME}.vcd
 		self.config['VERILOG_VCD_NAME'] = self.config.get('VERILOG_VCD_NAME', f"{self.config['DESIGN_NAME']}.vcd")
-	def get_env(self, init_env: Optional[dict]):
-		env = {**init_env} if init_env is not None else {**self.config}
 
 		# Recursively read directories for verilog file lists
 		for key in ('VERILOG_FILES', 'VERILOG_TESTBENCH_FILES'):
@@ -95,10 +93,13 @@ class FlowDesignConfig:
 						else:
 							verilog_paths.append(verilog_path)
 
-				env[key] = ' '.join(verilog_paths)
+				self.config[key] = verilog_paths
+
+	def get_env(self, init_env: Optional[dict]):
+		env = {**init_env} if init_env is not None else {**self.config}
 
 		# List options
-		for key in ('PRESERVE_CELLS', 'DIE_AREA', 'CORE_AREA'):
+		for key in ('PRESERVE_CELLS', 'DIE_AREA', 'CORE_AREA', 'VERILOG_FILES', 'VERILOG_TESTBENCH_FILES'):
 			if key in self.config:
 				env[key] = ' '.join(self.config[key])
 
