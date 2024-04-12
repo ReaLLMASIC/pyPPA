@@ -9,7 +9,7 @@ from .tools.yosys import SynthStats
 from .tools.openroad import FloorplanningStats, PowerReport
 
 from .utils.config_sweep import ParameterSweepDict, ParameterListDict, get_configs_iterator
-from .utils.time import TimeElapsed
+from .utils.time import TimeElapsed, start_time_count,get_elapsed_time
 
 class ModuleConfig(TypedDict):
 	name: str
@@ -63,6 +63,8 @@ class PPARunner:
 			self.runs[module['name']] = []
 
 	def run_ppa_analysis(self):
+		start_time = start_time_count()
+
 		# List of flow jobs to run
 		jobs = []
 
@@ -122,6 +124,8 @@ class PPARunner:
 		ppa_job_runner = Pool(self.max_parallel_threads)
 		for run in ppa_job_runner.starmap(self.__ppa_job__, jobs):
 			self.runs[run['name']].append(run)
+
+		print(f"Completed PPA analysis. Total time elapsed: {get_elapsed_time(start_time).format()}.")
 
 	def __ppa_job__(self, module_runner: FlowRunner, module_work_home: str, job_number: int) -> ModuleRun:
 		# Preprocess platform files
