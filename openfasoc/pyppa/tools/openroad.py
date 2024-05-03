@@ -37,7 +37,7 @@ class OpenROAD(APRTool):
 	def __parse_postsynth_ppa_stats(self, log_dir: str, reports_dir: str) -> PostSynthPPAStats:
 		parsed_stats: PostSynthPPAStats = {}
 
-		with open(log_dir, '1_2_postsynth_ppa.log') as logfile:
+		with open(path.join(log_dir, '1_2_postsynth_ppa.log')) as logfile:
 			raw_stats = logfile.read()
 
 			seq_captures = re.findall('Sequential Cells Count: (\d+)', raw_stats)
@@ -67,7 +67,7 @@ class OpenROAD(APRTool):
 	def __parse_power_report(self, reports_dir: str) -> PowerReport:
 		parsed_report: PowerReport = {}
 
-		with open(reports_dir, '1_synth_power_report.txt') as report_txt:
+		with open(path.join(reports_dir, '1_synth_power_report.txt')) as report_txt:
 			raw_report = report_txt.read()
 
 			parse_total_percent = False
