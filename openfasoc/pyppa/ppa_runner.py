@@ -204,13 +204,12 @@ class PPARunner:
 							formatted_sta_results.append(f"{clk['clk_name']} (period: {clk['clk_period']}, slack: {clk['clk_slack']})")
 
 						print(f"		{stat}: {', '.join(formatted_sta_results)}", file=write_to)
+					elif stat == 'power_report':
+						formatted_power_report = []
+
+						for metric in run['ppa_stats'][stat]:
+							formatted_power_report.append(f"{metric} - {run['ppa_stats'][stat][metric]}")
+
+							print(f"		{stat}: {', '.join(formatted_power_report)}", file=write_to)
 					else:
 						print(f"		{stat}: {run['ppa_stats'][stat]}", file=write_to)
-
-				for stat in run['ppa_stats']['power_report']:
-					formatted_power_report = []
-
-					for metric in run['ppa_stats']['power_report'][stat]:
-						formatted_power_report.append(f"{metric} - {run['ppa_stats']['power_report'][stat][metric]}")
-
-					print(f"		{stat}: {', '.join(formatted_power_report)}", file=write_to)
