@@ -5,7 +5,7 @@ from shutil import copyfile
 from mako.template import Template
 import re
 
-from ..tools.blueprint import SynthTool, SynthStats, APRTool, FloorplanningStats, PowerReport, VerilogSimTool
+from ..tools.blueprint import SynthTool, SynthStats, APRTool, PostSynthPPAStats, PowerReport, VerilogSimTool
 from ..tools.utils import call_util_script
 
 from ..utils.time import start_time_count, get_elapsed_time, TimeElapsed
@@ -170,7 +170,21 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 
 			return stats, elapsed_time
 
-	def floorplan(self) -> tuple[FloorplanningStats, PowerReport, TimeElapsed]:
+	def postsynth_ppa(self) -> tuple[PostSynthPPAStats, TimeElapsed]:
+		print(f"Started post-synthesis PPA for module `{self.get('DESIGN_NAME')}`.")
+		start_time = start_time_count()
+
+		makedirs(self.get('RESULTS_DIR'), exist_ok = True)
+		makedirs(self.get('LOG_DIR'), exist_ok = True)
+
+		ppa_stats = self.tools['apr_tool'].run_postsynth_ppa(self.get_env(), self.get('LOG_DIR'))
+
+		elapsed_time = get_elapsed_time(start_time)
+		print(f"Post-synthesis PPA completed for module `{self.get('DESIGN_NAME')}`. Time taken: {elapsed_time.format()}.")
+
+		return ppa_stats, elapsed_time
+
+	def floorplan(self) -> TimeElapsed:
 		print(f"Started floorplanning for module `{self.get('DESIGN_NAME')}`.")
 		start_time = start_time_count()
 
@@ -182,10 +196,4 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		elapsed_time = get_elapsed_time(start_time)
 		print(f"Floorplanning completed for module `{self.get('DESIGN_NAME')}`. Time taken: {elapsed_time.format()}.")
 
-		with open(path.join(self.get('LOG_DIR'), '2_1_floorplan.log')) as logfile:
-			fp_stats = self.tools['apr_tool'].parse_floorplanning_stats(raw_stats=logfile.read())
-
-			with open(path.join(self.get('REPORTS_DIR'), '1_synth_power_report.txt')) as report_txt:
-				power_report = self.tools['apr_tool'].parse_power_report(raw_report=report_txt.read())
-
-				return fp_stats, power_report, elapsed_time
+		return elapsed_time

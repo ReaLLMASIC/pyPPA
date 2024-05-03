@@ -5,8 +5,7 @@ import json
 from multiprocessing import Pool
 
 from .flow import FlowRunner, FlowConfigDict, FlowTools
-from .tools.yosys import SynthStats
-from .tools.openroad import FloorplanningStats, PowerReport
+from .tools.blueprint import PostSynthPPAStats, PowerReport, SynthStats
 
 from .utils.config_sweep import ParameterSweepDict, ParameterListDict, get_configs_iterator
 from .utils.time import TimeElapsed, start_time_count,get_elapsed_time
@@ -28,9 +27,9 @@ class ModuleRun(TypedDict):
 	synth_stats: SynthStats
 	synth_time: TimeElapsed
 
-	floorplanning_stats: FloorplanningStats
+	ppa_stats: PostSynthPPAStats
 	power_report: PowerReport
-	floorplanning_Time: TimeElapsed
+	ppa_time: TimeElapsed
 
 	total_time_taken: TimeElapsed
 
@@ -142,10 +141,10 @@ class PPARunner:
 		if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'postsynth':
 			_, sim_time = module_runner.verilog_sim()
 
-		# Run floorplanning and generate power report
-		fp_stats, power_report, floorplanning_time = module_runner.floorplan()
+		# Run post-synth PPA and generate power report
+		ppa_stats, ppa_time = module_runner.postsynth_ppa()
 
-		total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, floorplanning_time)
+		total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, ppa_time)
 
 		print(f"Completed PPA job #{job_number}. Time taken: {total_time_taken.format()}.")
 
@@ -161,9 +160,8 @@ class PPARunner:
 			'synth_stats': synth_stats,
 			'synth_time': synth_time,
 
-			'floorplanning_stats': fp_stats,
-			'power_report': power_report,
-			'floorplanning_Time': floorplanning_time,
+			'ppa_stats': ppa_stats,
+			'ppa_time': ppa_time,
 
 			'total_time_taken': total_time_taken
 		}
@@ -198,16 +196,16 @@ class PPARunner:
 					else:
 						print(f"		{stat}: {run['synth_stats'][stat]}", file=write_to)
 
-				for stat in run['floorplanning_stats']:
+				for stat in run['ppa_stats']:
 					if stat == 'sta':
 						formatted_sta_results = []
 
-						for clk in run['floorplanning_stats']['sta'].values():
+						for clk in run['ppa_stats']['sta'].values():
 							formatted_sta_results.append(f"{clk['clk_name']} (period: {clk['clk_period']}, slack: {clk['clk_slack']})")
 
 						print(f"		{stat}: {', '.join(formatted_sta_results)}", file=write_to)
 					else:
-						print(f"		{stat}: {run['floorplanning_stats'][stat]}", file=write_to)
+						print(f"		{stat}: {run['ppa_stats'][stat]}", file=write_to)
 
 				for stat in run['power_report']:
 					formatted_power_report = []

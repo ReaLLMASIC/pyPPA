@@ -19,8 +19,7 @@ gcd_runner = PPARunner(
 		'VERILOG_FILES': [
 			path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'rtl', 'softmax.v')
 		],
-		'DESIGN_DIR': path.join('..', 'HW', 'comp', 'vector_engine'),
-		'CORE_UTILIZATION': 40
+		'DESIGN_DIR': path.join('..', 'HW', 'comp', 'vector_engine')
 	},
 	modules=[
 		{

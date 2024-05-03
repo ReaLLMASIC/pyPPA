@@ -53,11 +53,6 @@ class STAReport(TypedDict):
 	clk_period: float
 	clk_slack: float
 
-class FloorplanningStats(TypedDict):
-	num_sequential_cells: int
-	num_combinational_cells: int
-	sta: dict[str, STAReport]
-
 class PowerReportEntry(TypedDict):
 	internal_power: str
 	switching_power: str
@@ -80,17 +75,20 @@ class PowerReport(TypedDict):
 	total: PowerReportEntry
 	total_percentages: PowerReportTotalPercentages
 
+class PostSynthPPAStats(TypedDict):
+	num_sequential_cells: int
+	num_combinational_cells: int
+	sta: dict[str, STAReport]
+	power_report: PowerReport
+
 class APRTool(FlowTool):
+	def run_postsynth_ppa(self, env: dict[str, str], log_dir: str, reports_dir: str) -> PostSynthPPAStats:
+		"""Runs postsynthesis PPA."""
+		pass
+
 	def run_floorplanning(self, env: dict[str, str], log_dir: str = ""):
 		"""Runs the floorplanning script."""
 		pass
-
-	def parse_floorplanning_stats(self, raw_stats: str) -> FloorplanningStats:
-		"""Parses general floorplanning stats."""
-		pass
-
-	def parse_power_report(self, raw_report: str) -> PowerReport:
-		"""Parses the power report"""
 
 class VerilogSimTool(FlowTool):
 	def run_sim(self,
