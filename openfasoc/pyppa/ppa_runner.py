@@ -210,6 +210,6 @@ class PPARunner:
 						for metric in run['ppa_stats'][stat]:
 							formatted_power_report.append(f"{metric} - {run['ppa_stats'][stat][metric]}")
 
-							print(f"		{stat}: {', '.join(formatted_power_report)}", file=write_to)
+						print(f"		{stat}: {', '.join(formatted_power_report)}", file=write_to)
 					else:
 						print(f"		{stat}: {run['ppa_stats'][stat]}", file=write_to)
