@@ -177,7 +177,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		makedirs(self.get('RESULTS_DIR'), exist_ok = True)
 		makedirs(self.get('LOG_DIR'), exist_ok = True)
 
-		ppa_stats = self.tools['apr_tool'].run_postsynth_ppa(self.get_env(), self.get('LOG_DIR'))
+		ppa_stats = self.tools['apr_tool'].run_postsynth_ppa(self.get_env(), self.get('LOG_DIR'), self.get('REPORTS_DIR'))
 
 		elapsed_time = get_elapsed_time(start_time)
 		print(f"Post-synthesis PPA completed for module `{self.get('DESIGN_NAME')}`. Time taken: {elapsed_time.format()}.")
