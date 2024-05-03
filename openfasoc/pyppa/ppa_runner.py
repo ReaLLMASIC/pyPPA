@@ -205,11 +205,9 @@ class PPARunner:
 
 						print(f"		{stat}: {', '.join(formatted_sta_results)}", file=write_to)
 					elif stat == 'power_report':
-						formatted_power_report = []
+						for power_type in run['ppa_stats'][stat]:
+							formatted_power_report = [f"{metric} - {run['ppa_stats'][stat][power_type][metric]}" for metric in run['ppa_stats'][stat][power_type]]
 
-						for metric in run['ppa_stats'][stat]:
-							formatted_power_report.append(f"{metric} - {run['ppa_stats'][stat][metric]}")
-
-						print(f"		{stat}: {', '.join(formatted_power_report)}", file=write_to)
+							print(f"		{power_type} power: {', '.join(formatted_power_report)}", file=write_to)
 					else:
 						print(f"		{stat}: {run['ppa_stats'][stat]}", file=write_to)
