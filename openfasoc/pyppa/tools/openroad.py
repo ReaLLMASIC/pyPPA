@@ -6,6 +6,9 @@ class OpenROAD(APRTool):
 	def __init__(self, scripts_dir: str, default_args: list[str] = [], cmd: str = 'openroad'):
 		super().__init__(scripts_dir, default_args + ['-exit', '-no_init'], cmd)
 
+	def _call_tool(self, args: list[str], env: dict | None, logfile: str | None, cwd: str | None = None):
+		return super()._call_tool(args, {**env, 'SCRIPTS_DIR': self.scripts_dir}, logfile, cwd)
+
 	def __run_step(self, step_name: str, script: str, env: dict[str, str], log_dir: str):
 		script_path = path.join(self.scripts_dir, f'{script}.tcl')
 		metricsfile_path = path.join(log_dir, f'{step_name}.json')

@@ -8,7 +8,6 @@ import re
 from ..tools.blueprint import SynthTool, SynthStats, APRTool, FloorplanningStats, PowerReport, VerilogSimTool
 from ..tools.utils import call_util_script
 
-from ..utils.config_sweep import ParameterSweepDict, ParameterListDict
 from ..utils.time import start_time_count, get_elapsed_time, TimeElapsed
 
 from .common_config import FlowCommonConfigDict, FlowCommonConfig

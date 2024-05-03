@@ -7,6 +7,9 @@ class Yosys(SynthTool):
 	def __init__(self, scripts_dir: str, default_args: list[str] = [], cmd: str = 'yosys'):
 		super().__init__(scripts_dir, default_args + ['-v', '3', '-sv'], cmd)
 
+	def _call_tool(self, args: list[str], env: dict | None, logfile: str | None, cwd: str | None = None):
+		return super()._call_tool(args, {**env, 'SCRIPTS_DIR': self.scripts_dir}, logfile, cwd)
+
 	def run_synth(self, env: dict[str, str], log_dir: str = ""):
 		self._call_tool(
 			args=["-c", path.join(self.scripts_dir, f'synth.tcl')],
