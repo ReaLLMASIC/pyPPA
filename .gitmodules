@@ -1,0 +1,3 @@
+[submodule "openfasoc/platforms"]
+	path = openfasoc/platforms
+	url = https://github.com/idea-fasoc/platforms
