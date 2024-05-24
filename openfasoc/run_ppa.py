@@ -4,7 +4,7 @@ from pyppa import PPARunner
 from pyppa.tools.yosys import Yosys
 from pyppa.tools.openroad import OpenROAD
 from pyppa.tools.iverilog import Iverilog
-from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
+from .config import SKY130HD_PLATFORM_CONFIG
 
 gcd_runner = PPARunner(
 	design_name="vector_engine",
