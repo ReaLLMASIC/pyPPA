@@ -68,6 +68,9 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		print(f"Started preprocessing for module `{self.get('DESIGN_NAME')}`.")
 		start_time = start_time_count()
 
+		# Add formal pdk verilog (cells blackbox) to the list of verilog files
+		self.set('VERILOG_FILES', [self.get('FORMAL_PDK_VERILOG'), *self.get('VERILOG_FILES')])
+
 		# Create output directories
 		makedirs(path.join(self.get('OBJECTS_DIR'), 'lib'), exist_ok = True)
 		makedirs(self.get('RESULTS_DIR'), exist_ok = True)
