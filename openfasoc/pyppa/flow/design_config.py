@@ -23,7 +23,7 @@ class __STAConfig(TypedDict):
 	VERILOG_SIM_TYPE: str
 	"""`presynth` (Pre synthesis) or `postsynth` (Post synthesis)"""
 	VERILOG_TESTBENCH_FILES: list[str]
-	"""Verilog simulation testbench files."""
+	"""Verilog simulation testbench files. The files can use Mako's templating syntax with the hyperparameters."""
 	VERILOG_TESTBENCH_MODULE: str
 	"""The Verilog module name of the simulation testbench."""
 	VERILOG_VCD_NAME: str

@@ -135,10 +135,28 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		if not path.exists(sim_dir):
 			makedirs(sim_dir)
 
+		# Process the template Verilog testbench files and store them in sim_dir/tb
+		processed_tb_dir = path.join(sim_dir, 'tb')
+		if not path.exists(processed_tb_dir):
+			makedirs(processed_tb_dir)
+
+		# The paths to the processed testbench files
+		final_tb_files = []
+
+		for filepath in self.get('VERILOG_TESTBENCH_FILES'):
+			with open(filepath) as file:
+				filename = path.basename(filepath)
+				processed_filepath = path.join(processed_tb_dir, filename)
+				template = Template(text=file.read())
+
+				with open(processed_filepath, "w") as new_sdc_file:
+					new_sdc_file.write(template.render(**self.hyperparameters))
+					final_tb_files.append(processed_filepath)
+
 		dumpfile_dir = self.tools['verilog_sim_tool'].run_sim(
 			verilog_files=[self.get('FORMAL_PDK_VERILOG'), path.join(self.get('RESULTS_DIR'), '1_synth.v')] if self.get('VERILOG_SIM_TYPE') == 'postsynth' else self.get('VERILOG_FILES'),
 			testbench_module=self.get('VERILOG_TESTBENCH_MODULE'),
-			testbench_files=self.get('VERILOG_TESTBENCH_FILES'),
+			testbench_files=final_tb_files,
 			obj_dir=sim_dir,
 			vcd_file=self.get('VERILOG_VCD_NAME'),
 			log_dir=self.get('LOG_DIR'),
