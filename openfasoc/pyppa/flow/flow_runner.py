@@ -68,6 +68,24 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		print(f"Started preprocessing for module `{self.get('DESIGN_NAME')}`.")
 		start_time = start_time_count()
 
+		# Add hyperparameters to source verilog templates
+		processed_verilog_dir = path.join(self.get('WORK_HOME'), 'src')
+		if not path.exists(processed_verilog_dir):
+			makedirs(processed_verilog_dir)
+
+		processed_verilog_files = []
+		for filepath in self.get('VERILOG_FILES'):
+			with open(filepath) as file:
+				filename = path.basename(filepath)
+				processed_filepath = path.join(processed_verilog_dir, filename)
+				template = Template(text=file.read())
+
+				with open(processed_filepath, "w") as new_sdc_file:
+					new_sdc_file.write(template.render(**self.hyperparameters))
+					processed_verilog_files.append(processed_filepath)
+
+		self.set('VERILOG_FILES', processed_verilog_files)
+
 		# Add formal pdk verilog (cells blackbox) to the list of verilog files
 		self.set('VERILOG_FILES', [self.get('FORMAL_PDK_VERILOG'), *self.get('VERILOG_FILES')])
 
