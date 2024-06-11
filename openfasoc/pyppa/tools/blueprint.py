@@ -81,13 +81,9 @@ class PostSynthPPAStats(TypedDict):
 	sta: dict[str, STAReport]
 	power_report: PowerReport
 
-class APRTool(FlowTool):
+class PPATool(FlowTool):
 	def run_postsynth_ppa(self, env: dict[str, str], log_dir: str, reports_dir: str) -> PostSynthPPAStats:
 		"""Runs postsynthesis PPA."""
-		pass
-
-	def run_floorplanning(self, env: dict[str, str], log_dir: str = ""):
-		"""Runs the floorplanning script."""
 		pass
 
 class VerilogSimTool(FlowTool):

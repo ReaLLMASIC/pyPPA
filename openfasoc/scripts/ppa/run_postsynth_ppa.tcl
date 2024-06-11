@@ -1,10 +1,10 @@
 source $::env(SCRIPTS_DIR)/load.tcl
 load_design 1_synth.v 1_synth.sdc "Loaded synthesized design."
 
-source $::env(SCRIPTS_DIR)/ppa/report_best_period.tcl
+source $::env(SCRIPTS_DIR)/report_best_period.tcl
 report_best_period "1_synth"
 
-source $::env(SCRIPTS_DIR)/ppa/write_power_report.tcl
+source $::env(SCRIPTS_DIR)/write_power_report.tcl
 write_power_report "1_synth"
 
 # Log sequential and combinational cell counts

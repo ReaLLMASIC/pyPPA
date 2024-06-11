@@ -5,7 +5,7 @@ from shutil import copyfile
 from mako.template import Template
 import re
 
-from ..tools.blueprint import SynthTool, SynthStats, APRTool, PostSynthPPAStats, PowerReport, VerilogSimTool
+from ..tools.blueprint import SynthTool, SynthStats, PPATool, PostSynthPPAStats, PowerReport, VerilogSimTool
 from ..tools.utils import call_util_script
 
 from ..utils.time import start_time_count, get_elapsed_time, TimeElapsed
@@ -19,7 +19,7 @@ FlowConfigDict = Union[FlowCommonConfigDict, FlowPlatformConfigDict, FlowDesignC
 class FlowTools(TypedDict):
 	verilog_sim_tool: VerilogSimTool
 	synth_tool: SynthTool
-	apr_tool: APRTool
+	ppa_tool: PPATool
 
 class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 	tools: FlowTools

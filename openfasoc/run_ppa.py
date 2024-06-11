@@ -10,8 +10,8 @@ gcd_runner = PPARunner(
 	design_name="vector_engine",
 	tools={
 		'verilog_sim_tool': Iverilog(scripts_dir=path.join('scripts', 'iverilog')),
-		'synth_tool': Yosys(scripts_dir=path.join('scripts', 'orfs')),
-		'apr_tool': OpenROAD(scripts_dir=path.join('scripts', 'orfs'))
+		'synth_tool': Yosys(scripts_dir=path.join('scripts', 'synth')),
+		'ppa_tool': OpenROAD(scripts_dir=path.join('scripts', 'ppa'))
 	},
 	global_flow_config={
 		**SKY130HD_PLATFORM_CONFIG,

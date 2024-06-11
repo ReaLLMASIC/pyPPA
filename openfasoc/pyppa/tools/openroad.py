@@ -1,8 +1,8 @@
 from os import path
 import re
-from .blueprint import APRTool, PostSynthPPAStats, PowerReport
+from .blueprint import PPATool, PostSynthPPAStats, PowerReport
 
-class OpenROAD(APRTool):
+class OpenROAD(PPATool):
 	def __init__(self, scripts_dir: str, default_args: list[str] = [], cmd: str = 'openroad'):
 		super().__init__(scripts_dir, default_args + ['-exit', '-no_init'], cmd)
 
@@ -17,22 +17,8 @@ class OpenROAD(APRTool):
 		self._call_tool([script_path, "-metrics", metricsfile_path], env, logfile_path)
 
 	def run_postsynth_ppa(self, env: dict[str, str], log_dir: str, reports_dir: str) -> PostSynthPPAStats:
-		self.__run_step('1_2_postsynth_ppa', 'ppa/run_postsynth_ppa', env, log_dir)
+		self.__run_step('1_2_postsynth_ppa', 'run_postsynth_ppa', env, log_dir)
 		return self.__parse_postsynth_ppa_stats(log_dir, reports_dir)
-
-	def run_floorplanning(self, env: dict[str, str], log_dir: str = ""):
-		# STEP 1: Translate verilog to odb
-		self.__run_step('2_1_floorplan', 'floorplan', env, log_dir)
-		# STEP 2: IO Placement (random)
-		self.__run_step('2_2_floorplan_io', 'io_placement_random', env, log_dir)
-		# STEP 3: Timing Driven Mixed Sized Placement
-		self.__run_step('2_3_floorplan_tdms', 'tdms_place', env, log_dir)
-		# STEP 4: Macro Placement
-		self.__run_step('2_4_floorplan_macro', 'macro_place', env, log_dir)
-		# STEP 5: Tapcell and Welltie insertion
-		self.__run_step('2_5_floorplan_tapcell', 'tapcell', env, log_dir)
-		# STEP 6: PDN generation
-		self.__run_step('2_6_floorplan_pdn', 'pdn', env, log_dir)
 
 	def __parse_postsynth_ppa_stats(self, log_dir: str, reports_dir: str) -> PostSynthPPAStats:
 		parsed_stats: PostSynthPPAStats = {}
