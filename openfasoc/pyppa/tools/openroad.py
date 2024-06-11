@@ -35,8 +35,8 @@ class OpenROAD(PPATool):
 			# Capture STA results
 			parsed_stats['sta'] = {}
 
-			clk_period_captures = re.findall('Clock ([^\s]+) period ([\d\.]+)', raw_stats)
-			clk_slack_captures = re.findall('Clock ([^\s]+) slack ([\d\.\-]+)', raw_stats)
+			clk_period_captures = re.findall('Clock ([^\s]+) min period ([\d\.]+)', raw_stats)
+			clk_slack_captures = re.findall('Clock ([^\s]+) worst slack ([\d\.\-]+)', raw_stats)
 
 			for (captures, prop) in [(clk_period_captures, 'clk_period'), (clk_slack_captures, 'clk_slack')]:
 				for capture in captures:

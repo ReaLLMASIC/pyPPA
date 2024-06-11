@@ -16,8 +16,8 @@ proc report_best_period {step} {
       set slack [sta::time_sta_ui [sta::worst_slack_cmd "max"]]
       if { $slack < 1e30 } {
         set ref_period [expr ($period - $slack) * (1.0 - $margin/100.0)]
-        utl::info "FLW" 8 "Clock $clk_name period [format %.3f $ref_period]"
-        utl::info "FLW" 9 "Clock $clk_name slack [format %.3f $slack]"
+        utl::info "FLW" 8 "Clock $clk_name min period [format %.3f $ref_period]"
+        utl::info "FLW" 9 "Clock $clk_name worst slack [format %.3f $slack]"
       } else {
         utl::warn "FLW" 13 "No constrained path found. Skipping sdc update."
       }
