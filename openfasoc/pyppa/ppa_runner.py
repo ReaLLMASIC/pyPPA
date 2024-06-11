@@ -148,7 +148,7 @@ class PPARunner:
 
 		print(f"Completed PPA job #{job_number}. Time taken: {total_time_taken.format()}.")
 
-		return {
+		ppa_stats = {
 			'name': module_runner.get('DESIGN_NAME'),
 			'job_number': job_number,
 			'run_dir': module_work_home,
@@ -165,6 +165,13 @@ class PPARunner:
 
 			'total_time_taken': total_time_taken
 		}
+
+		with open(path.join(module_work_home, 'ppa.json'), 'w') as ppa_file:
+			json.dump(
+				ppa_stats,
+				ppa_file,
+				indent=2
+			)
 
 	def clean_runs(self):
 		rmtree(self.global_flow_config.get('WORK_HOME'))
