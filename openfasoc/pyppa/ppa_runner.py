@@ -166,12 +166,19 @@ class PPARunner:
 			'total_time_taken': total_time_taken
 		}
 
+		class DefaultEncoder(json.JSONEncoder):
+			def default(self, o):
+				return o.__dict__
+
 		with open(path.join(module_work_home, 'ppa.json'), 'w') as ppa_file:
 			json.dump(
 				ppa_stats,
 				ppa_file,
-				indent=2
+				indent=2,
+				cls=DefaultEncoder
 			)
+
+		return ppa_stats
 
 	def clean_runs(self):
 		rmtree(self.global_flow_config.get('WORK_HOME'))
