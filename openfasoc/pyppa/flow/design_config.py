@@ -6,8 +6,6 @@ class __DesignCommonConfig(TypedDict):
 	"""The common design configuration."""
 	DESIGN_NAME: str
 	"""The name of the design."""
-	PLATFORM: str
-	"""The process design kit to be used."""
 	VERILOG_FILES: list[str]
 	"""The paths to the design Verilog files."""
 	SDC_FILE: str

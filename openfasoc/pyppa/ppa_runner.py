@@ -4,7 +4,7 @@ from shutil import rmtree
 import json
 from multiprocessing import Pool
 
-from .flow import FlowRunner, FlowConfigDict, FlowTools
+from .flow import FlowRunner, FlowConfigDict, FlowPlatformConfigDict, FlowTools
 from .tools.blueprint import PostSynthPPAStats, PowerReport, SynthStats
 
 from .utils.config_sweep import ParameterSweepDict, ParameterListDict, get_configs_iterator
@@ -36,6 +36,7 @@ class ModuleRun(TypedDict):
 class PPARunner:
 	design_name: str
 	tools: FlowTools
+	platform_config: FlowPlatformConfigDict
 	global_flow_config: FlowConfigDict
 	modules: list[ModuleConfig]
 	runs: dict[str, list[ModuleRun]] = {}
@@ -46,6 +47,7 @@ class PPARunner:
 		self,
 		design_name: str,
 		tools: FlowTools,
+		platform_config: FlowPlatformConfigDict,
 		global_flow_config: FlowConfigDict,
 		modules: list[ModuleConfig],
 		max_parallel_threads: int = 8,
@@ -53,6 +55,7 @@ class PPARunner:
 	):
 		self.design_name = design_name
 		self.tools = tools
+		self.platform_config = platform_config
 		self.global_flow_config = global_flow_config
 		self.modules = modules
 		self.work_home = work_home if work_home != None else path.abspath(path.join('.', 'runs', design_name))
@@ -108,6 +111,7 @@ class PPARunner:
 					module_runner: FlowRunner = FlowRunner(
 						self.tools,
 						{
+							**self.platform_config,
 							**self.global_flow_config,
 							**job_flow_config,
 							'DESIGN_NAME': module['name'],

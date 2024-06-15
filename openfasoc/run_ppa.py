@@ -13,8 +13,8 @@ gcd_runner = PPARunner(
 		'synth_tool': Yosys(scripts_dir=path.join('scripts', 'synth')),
 		'ppa_tool': OpenROAD(scripts_dir=path.join('scripts', 'ppa'))
 	},
+	platform_config=SKY130HD_PLATFORM_CONFIG,
 	global_flow_config={
-		**SKY130HD_PLATFORM_CONFIG,
 		'PLATFORM': 'sky130hd',
 		'VERILOG_FILES': [
 			path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'rtl', 'softmax.v')

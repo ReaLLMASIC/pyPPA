@@ -3,6 +3,8 @@ from os import path
 
 class __PlatformCommonConfig(TypedDict):
 	"""The common platform configuration."""
+	PLATFORM: str
+	"""The process design kit to be used."""
 	PROCESS: int
 	"""The process node."""
 	TECH_LEF: str
