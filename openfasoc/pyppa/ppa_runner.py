@@ -268,6 +268,7 @@ class PPARunner:
 			while True: # This might be a bad idea
 				iter_params = job_args['optimizer'](iteration_number, prev_iter_module_run)
 				opt_complete = iter_params['opt_complete']
+				iteration_number += 1
 
 				if opt_complete:
 					break
@@ -322,13 +323,12 @@ class PPARunner:
 
 				total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, ppa_time)
 
-				iteration_number += 1
 				print(f"Completed Optimization PPA iteration #{iteration_number}. Time taken: {total_time_taken.format()}.")
 
 				prev_iter_module_run: ModuleRun = {
 					'mode': 'opt',
 					'name': module_runner.get('DESIGN_NAME'),
-					'job_number': job_args['job_number'],
+					'job_number': iteration_number,
 					'run_dir': job_args['module_work_home'],
 					'flow_config': module_runner.configopts,
 					'hyperparameters': module_runner.hyperparameters,
