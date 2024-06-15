@@ -7,7 +7,7 @@ from pyppa.tools.iverilog import Iverilog
 from config import SKY130HD_PLATFORM_CONFIG
 
 def example_optimizer(iter_number, prev_iter_module_run):
-	if iter_number >= 1:
+	if prev_iter_module_run is not None and prev_iter_module_run['synth_stats'] < 30_000:
 		return {
 			'opt_complete': True
 		}
@@ -15,10 +15,7 @@ def example_optimizer(iter_number, prev_iter_module_run):
 	return {
 		'opt_complete': False,
 		'flow_config': {
-			'RUN_VERILOG_SIM': True,
-			'VERILOG_SIM_TYPE': 'postsynth',
-			'VERILOG_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
-			'USE_STA_VCD': True
+			'ABC_AREA': not prev_iter_module_run['flow_config']['ABC_AREA'] if prev_iter_module_run is not None else False
 		},
 		'hyperparameters': {
 			'clk_period': 10
@@ -41,21 +38,21 @@ gcd_runner = PPARunner(
 		'DESIGN_DIR': path.join('..', 'HW', 'comp', 'vector_engine')
 	},
 	modules=[
-		{
-			'name': 'softmax',
-			'mode': 'sweep',
-			'flow_config': {
-				'RUN_VERILOG_SIM': True,
-				'VERILOG_SIM_TYPE': 'postsynth',
-				'VERILOG_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
-				'USE_STA_VCD': True
-			},
-			'hyperparameters': {
-				'clk_period': {
-					'values': [10, 20, 30]
-				}
-			}
-		},
+		# {
+		# 	'name': 'softmax',
+		# 	'mode': 'sweep',
+		# 	'flow_config': {
+		# 		'RUN_VERILOG_SIM': True,
+		# 		'VERILOG_SIM_TYPE': 'postsynth',
+		# 		'VERILOG_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
+		# 		'USE_STA_VCD': True
+		# 	},
+		# 	'hyperparameters': {
+		# 		'clk_period': {
+		# 			'values': [10, 20, 30]
+		# 		}
+		# 	}
+		# },
 		{
 			'name': 'softmax',
 			'mode': 'opt',
