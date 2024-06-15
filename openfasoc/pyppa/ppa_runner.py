@@ -16,6 +16,7 @@ class NextParamsReturnType(TypedDict):
 	hyperparameters: Union[dict, None]
 
 class ModuleRun(TypedDict):
+	mode: Literal['sweep', 'opt']
 	name: str
 	"""The name of the Verilog module."""
 	job_number: int
@@ -44,7 +45,7 @@ class ModuleRun(TypedDict):
 	total_time_taken: TimeElapsed
 	"""The total time elapsed in the run."""
 
-Optimizer: TypeAlias = Union[Callable[[int, Union[ModuleRun, None]], NextParamsReturnType], None]
+Optimizer: TypeAlias = Callable[[int, Union[ModuleRun, None]], NextParamsReturnType]
 
 class ModuleSweepConfig(TypedDict):
 	name: str
@@ -53,8 +54,8 @@ class ModuleSweepConfig(TypedDict):
 	"""Either `opt` (Optimization) or `sweep`.
 
 	In `sweep` mode, `hyperparameters` and `flow_config` dicts are provided that list either arrays of values for each parameter or a dict of `min`, `max`, and `step` to sweep. Every possible combination of the values each parameter can take will be swept and the corresponding PPA resutls will be reported."""
-	hyperparameters: Union[dict[str, Union[ParameterSweepDict, ParameterListDict, Any]], None]
-	flow_config: Union[Union[dict[str, Union[ParameterSweepDict, ParameterListDict]], FlowConfigDict], None]
+	hyperparameters: dict[str, Union[ParameterSweepDict, ParameterListDict, Any]]
+	flow_config: Union[dict[str, Union[ParameterSweepDict, ParameterListDict]], FlowConfigDict]
 
 class ModuleOptConfig(TypedDict):
 	name: str
@@ -69,7 +70,7 @@ class ModuleOptConfig(TypedDict):
 	Return `{`opt_complete`: False, `flow_config`: {...}, `hyperparameters`: {...}} to suggest the next set of flow config parameters and hyperparameters to test.
 
 	The function should accept the following arguments:
-	- `iteration_number`: The nth iteration will have an iteration number of `n`. A `0` iteration number represents the start of the optimization and will have no PPA results.
+	- `iteration_number`: The iteration number for the _previous_ iteration. A `0` iteration number represents the start of the optimization and will have no PPA results.
 	- `ppa_results`: A dict of type `ModuleRun` that contains the flow configuration, hyperparameters, times taken, and PPA stats of the previous iteration. The format of this dictionary is identical to the PPA results returned in the `sweep` mode.
 	"""
 
@@ -229,6 +230,7 @@ class PPARunner:
 			print(f"Completed PPA job #{job_args['job_number']}. Time taken: {total_time_taken.format()}.")
 
 			ppa_stats: ModuleRun = {
+				'mode': 'sweep',
 				'name': module_runner.get('DESIGN_NAME'),
 				'job_number': job_args['job_number'],
 				'run_dir': job_args['module_work_home'],
@@ -320,9 +322,11 @@ class PPARunner:
 
 				total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, ppa_time)
 
+				iteration_number += 1
 				print(f"Completed Optimization PPA iteration #{iteration_number}. Time taken: {total_time_taken.format()}.")
 
 				prev_iter_module_run: ModuleRun = {
+					'mode': 'opt',
 					'name': module_runner.get('DESIGN_NAME'),
 					'job_number': job_args['job_number'],
 					'run_dir': job_args['module_work_home'],
@@ -352,6 +356,7 @@ class PPARunner:
 						cls=DefaultEncoder
 					)
 
+			print(f"Optimization job complete for module {job_args['module_name']}.")
 			return prev_iter_module_run
 
 	def clean_runs(self):

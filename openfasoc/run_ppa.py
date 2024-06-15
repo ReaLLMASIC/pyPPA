@@ -6,6 +6,25 @@ from pyppa.tools.openroad import OpenROAD
 from pyppa.tools.iverilog import Iverilog
 from config import SKY130HD_PLATFORM_CONFIG
 
+def example_optimizer(iter_number, prev_iter_module_run):
+	if iter_number >= 1:
+		return {
+			'opt_complete': True
+		}
+
+	return {
+		'opt_complete': False,
+		'flow_config': {
+			'RUN_VERILOG_SIM': True,
+			'VERILOG_SIM_TYPE': 'postsynth',
+			'VERILOG_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
+			'USE_STA_VCD': True
+		},
+		'hyperparameters': {
+			'clk_period': 10
+		}
+	}
+
 gcd_runner = PPARunner(
 	design_name="vector_engine",
 	tools={
@@ -36,12 +55,14 @@ gcd_runner = PPARunner(
 					'values': [10, 20, 30]
 				}
 			}
+		},
+		{
+			'name': 'softmax',
+			'mode': 'opt',
+			'optimizer': example_optimizer
 		}
 	]
 )
-
-def sorter(x):
-	return x[1]
 
 gcd_runner.run_ppa_analysis()
 gcd_runner.print_stats('ppa.txt')
