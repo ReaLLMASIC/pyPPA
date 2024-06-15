@@ -7,7 +7,7 @@ from pyppa.tools.iverilog import Iverilog
 from config import SKY130HD_PLATFORM_CONFIG
 
 def example_optimizer(iter_number, prev_iter_module_run):
-	if prev_iter_module_run is not None and prev_iter_module_run['synth_stats'] < 30_000:
+	if prev_iter_module_run is not None and prev_iter_module_run['synth_stats']['num_cells'] < 30_000:
 		return {
 			'opt_complete': True
 		}
@@ -15,7 +15,7 @@ def example_optimizer(iter_number, prev_iter_module_run):
 	return {
 		'opt_complete': False,
 		'flow_config': {
-			'ABC_AREA': not prev_iter_module_run['flow_config']['ABC_AREA'] if prev_iter_module_run is not None else False
+			'ABC_AREA': not prev_iter_module_run['flow_config']['ABC_AREA'] if prev_iter_module_run is not None else True
 		},
 		'hyperparameters': {
 			'clk_period': 10
