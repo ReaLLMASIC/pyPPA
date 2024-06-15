@@ -329,7 +329,7 @@ class PPARunner:
 					'mode': 'opt',
 					'name': module_runner.get('DESIGN_NAME'),
 					'job_number': iteration_number,
-					'run_dir': job_args['module_work_home'],
+					'run_dir': iter_work_home,
 					'flow_config': module_runner.configopts,
 					'hyperparameters': module_runner.hyperparameters,
 
