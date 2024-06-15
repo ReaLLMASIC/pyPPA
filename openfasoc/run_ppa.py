@@ -6,8 +6,14 @@ from pyppa.tools.openroad import OpenROAD
 from pyppa.tools.iverilog import Iverilog
 from config import SKY130HD_PLATFORM_CONFIG
 
-def example_optimizer(iter_number, prev_iter_module_run):
+def example_optimizer(prev_iter_number, prev_iter_module_run):
 	if prev_iter_module_run is not None and prev_iter_module_run['synth_stats']['num_cells'] < 30_000:
+		return {
+			'opt_complete': True
+		}
+
+	if prev_iter_number >= 2:
+		print("Optimizatino could not converge. Stopping optimization.")
 		return {
 			'opt_complete': True
 		}
