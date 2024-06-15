@@ -24,6 +24,7 @@ gcd_runner = PPARunner(
 	modules=[
 		{
 			'name': 'softmax',
+			'mode': 'sweep',
 			'flow_config': {
 				'RUN_VERILOG_SIM': True,
 				'VERILOG_SIM_TYPE': 'postsynth',

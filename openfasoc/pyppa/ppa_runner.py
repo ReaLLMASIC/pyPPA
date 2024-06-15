@@ -1,4 +1,4 @@
-from typing import TypedDict, Union, Any, Optional
+from typing import TypedDict, Union, Any, Optional, Callable, TypeAlias, Literal
 from os import path, mkdir, makedirs
 from shutil import rmtree
 import json
@@ -10,28 +10,63 @@ from .tools.blueprint import PostSynthPPAStats, PowerReport, SynthStats
 from .utils.config_sweep import ParameterSweepDict, ParameterListDict, get_configs_iterator
 from .utils.time import TimeElapsed, start_time_count,get_elapsed_time
 
-class ModuleConfig(TypedDict):
-	name: str
-	hyperparameters: dict[str, Union[ParameterSweepDict, ParameterListDict, Any]]
-	flow_config: Union[dict[str, Union[ParameterSweepDict, ParameterListDict]], FlowConfigDict]
+class NextParamsReturnType(TypedDict):
+	opt_complete: bool
+	flow_config: Union[FlowConfigDict, None]
+	hyperparameters: Union[dict, None]
 
 class ModuleRun(TypedDict):
 	name: str
+	"""The name of the Verilog module."""
 	job_number: int
 	run_dir: str
+	"""The path to the directory in which the job was run."""
 	flow_config: FlowConfigDict
+	"""The complete flow configuration for the run."""
 	hyperparameters: dict[str, Any]
+	"""The set of hyperparameters used for the run."""
 
 	preprocess_time: TimeElapsed
+	"""The time taken for the preprocessing step."""
 
 	synth_stats: SynthStats
+	"""The synthesis stats."""
 	synth_time: TimeElapsed
+	"""The time taken for the synthesis step."""
 
 	ppa_stats: PostSynthPPAStats
+	"""The PPA stats."""
 	power_report: PowerReport
+	"""The power report."""
 	ppa_time: TimeElapsed
+	"""The time taken for the post-synthesis PPA step."""
 
 	total_time_taken: TimeElapsed
+	"""The total time elapsed in the run."""
+
+Optimizer: TypeAlias = Union[Callable[[int, ModuleRun], NextParamsReturnType], None]
+class ModuleConfig(TypedDict):
+	name: str
+	"""The name of the Verilog module to run the PPA analysis on."""
+	mode: Literal['opt', 'sweep']
+	"""Either `opt` (Optimization) or `sweep`.
+
+	In `opt` mode, the `optimizer` function provides the next set of parameters to try and the PPA results of each iteration are given as parameter to the function.
+
+	In `sweep` mode, `hyperparameters` and `flow_config` dicts are provided that list either arrays of values for each parameter or a dict of `min`, `max`, and `step` to sweep. Every possible combination of the values each parameter can take will be swept and the corresponding PPA resutls will be reported."""
+
+	optimizer: Optimizer
+	"""A function that evaluates the previous iteration's PPA results and suggests the next set of parameters to test. Return `{'opt_complete': True}` to mark the completion of the optimization either by meeting the target or otherwise.
+
+	Return `{`opt_complete`: False, `flow_config`: {...}, `hyperparameters`: {...}} to suggest the next set of flow config parameters and hyperparameters to test.
+
+	The function should accept the following arguments:
+	- `iteration_number`: The nth iteration will have an iteration number of `n`. A `0` iteration number represents the start of the optimization and will have no PPA results.
+	- `ppa_results`: A dict of type `ModuleRun` that contains the flow configuration, hyperparameters, times taken, and PPA stats of the previous iteration. The format of this dictionary is identical to the PPA results returned in the `sweep` mode.
+	"""
+
+	hyperparameters: Union[dict[str, Union[ParameterSweepDict, ParameterListDict, Any]], None]
+	flow_config: Union[Union[dict[str, Union[ParameterSweepDict, ParameterListDict]], FlowConfigDict], None]
 
 class PPARunner:
 	design_name: str
@@ -78,50 +113,61 @@ class PPARunner:
 		for module in self.modules:
 			print(f"Running PPA for module `{module['name']}`.")
 
-			# Generate module specific configs
-			configs_iterator = get_configs_iterator(module['flow_config'])
+			if module['mode'] == "opt": # Optimization mode
+				# Run the optmizer
+				configs = print()
+			else: # Sweep mode
+				# Generate module specific configs
+				configs_iterator = get_configs_iterator(module['flow_config'])
 
-			# Iterate over configs and add jobs
-			job_number = 1
-			for (job_flow_config, _) in configs_iterator.iterate():
-				hyperparams_iterator = get_configs_iterator(module['hyperparameters'])
+				# Iterate over configs and add jobs
+				job_number = 1
+				for (job_flow_config, _) in configs_iterator.iterate():
+					hyperparams_iterator = get_configs_iterator(module['hyperparameters'])
 
-				# Iterate over each hyperparameter as well
-				for (hyperparam_config, _) in hyperparams_iterator:
-					module_work_home = path.join(self.work_home, module['name'], str(job_number))
+					# Iterate over each hyperparameter as well
+					for (hyperparam_config, _) in hyperparams_iterator:
+						module_work_home = path.join(self.work_home, module['name'], str(job_number))
 
-					# Create a clean module work home
-					if path.exists(module_work_home):
-						rmtree(module_work_home)
-					makedirs(module_work_home)
+						# Create a clean module work home
+						if path.exists(module_work_home):
+							rmtree(module_work_home)
+						makedirs(module_work_home)
 
-					# Write all the configurations to a file
-					with open(path.join(module_work_home, 'config.json'), 'w') as config_file:
-						json.dump(
+						# Write all the configurations to a file
+						with open(path.join(module_work_home, 'config.json'), 'w') as config_file:
+							json.dump(
+								{
+									'module': module['name'],
+									'job_number': job_number,
+									'flow_config': job_flow_config,
+									'hyperparameters': hyperparam_config
+								},
+								config_file,
+								indent=2
+							)
+
+						module_runner: FlowRunner = FlowRunner(
+							self.tools,
 							{
-								'module': module['name'],
-								'job_number': job_number,
-								'flow_config': job_flow_config,
-								'hyperparameters': hyperparam_config
+								**self.platform_config,
+								**self.global_flow_config,
+								**job_flow_config,
+								'DESIGN_NAME': module['name'],
+								'WORK_HOME': module_work_home
 							},
-							config_file,
-							indent=2
+							hyperparam_config
 						)
 
-					module_runner: FlowRunner = FlowRunner(
-						self.tools,
-						{
-							**self.platform_config,
-							**self.global_flow_config,
-							**job_flow_config,
-							'DESIGN_NAME': module['name'],
-							'WORK_HOME': module_work_home
-						},
-						hyperparam_config
-					)
+						job_args: self.PPASweepJobArgs = {
+							'mode': 'sweep',
+							'module_runner': module_runner,
+							'module_work_home': module_work_home,
+							'job_number': job_number
+						}
 
-					jobs.append((module_runner, module_work_home, job_number))
-					job_number += 1
+						jobs.append([job_args])
+						job_number += 1
 
 		# Run the list of jobs
 		ppa_job_runner = Pool(self.max_parallel_threads)
@@ -130,59 +176,77 @@ class PPARunner:
 
 		print(f"Completed PPA analysis. Total time elapsed: {get_elapsed_time(start_time).format()}.")
 
-	def __ppa_job__(self, module_runner: FlowRunner, module_work_home: str, job_number: int) -> ModuleRun:
-		# Preprocess platform files
-		preprocess_time = module_runner.preprocess()
+	class PPASweepJobArgs(TypedDict):
+		mode: Literal['sweep']
+		module_runner: FlowRunner
+		module_work_home: str
+		job_number: int
 
-		# Run presynthesis simulations if enabled
-		if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'presynth':
-			_, sim_time = module_runner.verilog_sim()
+	class PPAOptJobArgs(TypedDict):
+		mode: Literal['opt']
+		job_work_home: str
+		optimizer: Optimizer
 
-		# Synthesis
-		synth_stats, synth_time = module_runner.synthesis()
+	def __ppa_job__(
+		self,
+		job_args: Union[PPASweepJobArgs, PPAOptJobArgs]
+	) -> ModuleRun:
+		if job_args['mode'] == "sweep":
+			module_runner = job_args['module_runner']
+			# Preprocess platform files
+			preprocess_time = module_runner.preprocess()
 
-		# Run postsynthesis simulations if enabled
-		if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'postsynth':
-			_, sim_time = module_runner.verilog_sim()
+			# Run presynthesis simulations if enabled
+			if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'presynth':
+				_, sim_time = module_runner.verilog_sim()
 
-		# Run post-synth PPA and generate power report
-		ppa_stats, ppa_time = module_runner.postsynth_ppa()
+			# Synthesis
+			synth_stats, synth_time = module_runner.synthesis()
 
-		total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, ppa_time)
+			# Run postsynthesis simulations if enabled
+			if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'postsynth':
+				_, sim_time = module_runner.verilog_sim()
 
-		print(f"Completed PPA job #{job_number}. Time taken: {total_time_taken.format()}.")
+			# Run post-synth PPA and generate power report
+			ppa_stats, ppa_time = module_runner.postsynth_ppa()
 
-		ppa_stats = {
-			'name': module_runner.get('DESIGN_NAME'),
-			'job_number': job_number,
-			'run_dir': module_work_home,
-			'flow_config': module_runner.configopts,
-			'hyperparameters': module_runner.hyperparameters,
+			total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, ppa_time)
 
-			'preprocess_time': preprocess_time,
+			print(f"Completed PPA job #{job_args['job_number']}. Time taken: {total_time_taken.format()}.")
 
-			'synth_stats': synth_stats,
-			'synth_time': synth_time,
+			ppa_stats = {
+				'name': module_runner.get('DESIGN_NAME'),
+				'job_number': job_args['job_number'],
+				'run_dir': job_args['module_work_home'],
+				'flow_config': module_runner.configopts,
+				'hyperparameters': module_runner.hyperparameters,
 
-			'ppa_stats': ppa_stats,
-			'ppa_time': ppa_time,
+				'preprocess_time': preprocess_time,
 
-			'total_time_taken': total_time_taken
-		}
+				'synth_stats': synth_stats,
+				'synth_time': synth_time,
 
-		class DefaultEncoder(json.JSONEncoder):
-			def default(self, o):
-				return o.__dict__
+				'ppa_stats': ppa_stats,
+				'ppa_time': ppa_time,
 
-		with open(path.join(module_work_home, 'ppa.json'), 'w') as ppa_file:
-			json.dump(
-				ppa_stats,
-				ppa_file,
-				indent=2,
-				cls=DefaultEncoder
-			)
+				'total_time_taken': total_time_taken
+			}
 
-		return ppa_stats
+			class DefaultEncoder(json.JSONEncoder):
+				def default(self, o):
+					return o.__dict__
+
+			with open(path.join(job_args['module_work_home'], 'ppa.json'), 'w') as ppa_file:
+				json.dump(
+					ppa_stats,
+					ppa_file,
+					indent=2,
+					cls=DefaultEncoder
+				)
+
+			return ppa_stats
+		else:
+			print("Optimization job")
 
 	def clean_runs(self):
 		rmtree(self.global_flow_config.get('WORK_HOME'))
