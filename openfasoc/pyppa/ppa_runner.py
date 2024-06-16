@@ -262,6 +262,7 @@ class PPARunner:
 
 	def __get_ppa_results__(
 		runner: FlowRunner,
+		mode: Literal['sweep', 'opt'],
 		job_number: int,
 		run_dir: str
 	) -> ModuleRun:
@@ -285,7 +286,7 @@ class PPARunner:
 		total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, ppa_time)
 
 		results: ModuleRun = {
-			'mode': 'sweep',
+			'mode': mode,
 			'name': runner.get('DESIGN_NAME'),
 			'job_number': job_number,
 			'run_dir': run_dir,
@@ -317,7 +318,7 @@ class PPARunner:
 		if job_args['mode'] == "sweep": # Sweep job
 			module_runner = job_args['module_runner']
 
-			ppa_stats: ModuleRun = PPARunner.__get_ppa_results__(module_runner, job_args['job_number'], job_args['module_work_home'])
+			ppa_stats: ModuleRun = PPARunner.__get_ppa_results__(module_runner, job_args['mode'], job_args['job_number'], job_args['module_work_home'])
 
 			print(f"Completed PPA job #{job_args['job_number']}. Time taken: {ppa_stats['total_time_taken'].format()}.")
 
@@ -364,7 +365,7 @@ class PPARunner:
 			)
 
 			# Get the results for this iteration
-			iter_results: ModuleRun = PPARunner.__get_ppa_results__(module_runner, iteration_number, iter_work_home)
+			iter_results: ModuleRun = PPARunner.__get_ppa_results__(module_runner, job_args['mode'], iteration_number, iter_work_home)
 
 			print(f"Completed Optimization PPA iteration #{iteration_number}. Time taken: {iter_results['total_time_taken'].format()}.")
 
@@ -382,6 +383,7 @@ class PPARunner:
 			}
 
 			self.jobs_queue.append(next_iter_job_args)
+			return iter_results
 
 	def clean_runs(self):
 		rmtree(self.global_flow_config.get('WORK_HOME'))
