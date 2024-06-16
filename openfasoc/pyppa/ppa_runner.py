@@ -177,7 +177,7 @@ class PPARunner:
 						makedirs(module_work_home)
 
 						# Write all the configurations to a file
-						self.__save_config__(
+						PPARunner.__save_config__(
 							module_work_home,
 							module['name'],
 							job_number,
@@ -286,6 +286,11 @@ class PPARunner:
 
 		return results
 
+	def __getstate__(self):
+		self_dict = self.__dict__.copy()
+		del self_dict['job_runner']
+		return self_dict
+
 	def __ppa_job__(
 		self,
 		job_args: Union[PPASweepJobArgs, PPAOptJobArgs]
@@ -293,11 +298,11 @@ class PPARunner:
 		if job_args['mode'] == "sweep": # Sweep job
 			module_runner = job_args['module_runner']
 
-			ppa_stats: ModuleRun = self.__get_ppa_results__(module_runner, job_args['job_number'], job_args['module_work_home'])
+			ppa_stats: ModuleRun = PPARunner.__get_ppa_results__(module_runner, job_args['job_number'], job_args['module_work_home'])
 
 			print(f"Completed PPA job #{job_args['job_number']}. Time taken: {ppa_stats['total_time_taken'].format()}.")
 
-			self.__save_ppa__(job_args['module_work_home'], ppa_stats)
+			PPARunner.__save_ppa__(job_args['module_work_home'], ppa_stats)
 			return ppa_stats
 		else: # Optimization job
 			prev_iter_module_run: Union[ModuleRun, None] = None
@@ -318,7 +323,7 @@ class PPARunner:
 				makedirs(iter_work_home)
 
 				# Write all the configurations to a file
-				self.__save_config__(
+				PPARunner.__save_config__(
 					iter_work_home,
 					job_args['module_name'],
 					iteration_number,
@@ -338,11 +343,11 @@ class PPARunner:
 					iter_params['hyperparameters']
 				)
 
-				prev_iter_module_run: ModuleRun = self.__get_ppa_results__(module_runner, job_args['job_number'], job_args['module_work_home'])
+				prev_iter_module_run: ModuleRun = PPARunner.__get_ppa_results__(module_runner, iteration_number, iter_work_home)
 
 				print(f"Completed Optimization PPA iteration #{iteration_number}. Time taken: {prev_iter_module_run['total_time_taken'].format()}.")
 
-				self.__save_ppa__(iter_work_home, prev_iter_module_run)
+				PPARunner.__save_ppa__(iter_work_home, prev_iter_module_run)
 
 			print(f"Optimization job complete for module {job_args['module_name']}.")
 			return prev_iter_module_run
