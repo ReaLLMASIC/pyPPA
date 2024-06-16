@@ -1,8 +1,9 @@
-from typing import TypedDict, Union, Any, Optional, Callable, TypeAlias, Literal
+from typing import TypedDict, Union, Any, Optional, Callable, TypeAlias, Literal, Type
 from os import path, mkdir, makedirs
 from shutil import rmtree
 import json
 from multiprocessing import Pool
+from multiprocessing.pool import Pool as PoolClass
 
 from .flow import FlowRunner, FlowConfigDict, FlowPlatformConfigDict, FlowTools
 from .tools.blueprint import PostSynthPPAStats, PowerReport, SynthStats
@@ -85,6 +86,7 @@ class PPARunner:
 	runs: dict[str, list[ModuleRun]] = {}
 	work_home: str
 	max_parallel_threads: int = 4
+	job_runner: Type[PoolClass]
 
 	def __init__(
 		self,
@@ -103,6 +105,7 @@ class PPARunner:
 		self.modules = modules
 		self.work_home = work_home if work_home != None else path.abspath(path.join('.', 'runs', design_name))
 		self.max_parallel_threads = max_parallel_threads
+		self.job_runner = Pool(self.max_parallel_threads)
 
 		for module in modules:
 			self.runs[module['name']] = []
@@ -184,8 +187,7 @@ class PPARunner:
 						job_number += 1
 
 		# Run the list of jobs
-		ppa_job_runner = Pool(self.max_parallel_threads)
-		for run in ppa_job_runner.starmap(self.__ppa_job__, jobs):
+		for run in self.job_runner.starmap(self.__ppa_job__, jobs):
 			self.runs[run['name']].append(run)
 
 		print(f"Completed PPA analysis. Total time elapsed: {get_elapsed_time(start_time).format()}.")
