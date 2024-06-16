@@ -306,8 +306,6 @@ class PPARunner:
 			for flow_config in get_configs_iterator(job_args['flow_config']):
 				# And every hyperparameter config
 				for hyperparameters in get_configs_iterator(job_args['hyperparameters']):
-					flow_runner = FlowRunner()
-
 					# Create a clean iteration work home
 					iter_work_home = path.join(job_args['job_work_home'], str(iteration_number))
 					if path.exists(iter_work_home):
@@ -399,10 +397,11 @@ class PPARunner:
 					)
 
 					# Add the subjob to the subjob queue
-					subjobs.append((flow_runner, iter_work_home, iteration_number))
+					subjobs.append((flow_runner, suggestion_work_home, iteration_number))
 
 				# Run all the subjobs and give it back to the optimizer for evaluation
 				prev_iter_module_runs = subjob_runner.starmap(self.__ppa_runner__, subjobs)
+				subjobs = []
 
 	def __ppa_runner__(
 		self,

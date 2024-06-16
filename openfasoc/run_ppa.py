@@ -15,7 +15,7 @@ def example_optimizer(prev_iter_number, prev_iter_ppa_runs):
 				}
 
 	if prev_iter_number >= 2:
-		print("Optimizatino could not converge. Stopping optimization.")
+		print("Optimization could not converge. Stopping optimization.")
 		return {
 			'opt_complete': True
 		}
@@ -34,7 +34,7 @@ def example_optimizer(prev_iter_number, prev_iter_ppa_runs):
 			},
 			{
 				'flow_config': {
-					'ABC_AREA': True
+					'ABC_AREA': False
 				},
 				'hyperparameters': {
 					'clk_period': 10
@@ -51,6 +51,8 @@ gcd_runner = PPARunner(
 		'ppa_tool': OpenROAD(scripts_dir=path.join('scripts', 'ppa'))
 	},
 	platform_config=SKY130HD_PLATFORM_CONFIG,
+	max_concurrent_jobs=2,
+	threads_per_job=2,
 	global_flow_config={
 		'PLATFORM': 'sky130hd',
 		'VERILOG_FILES': [
@@ -60,21 +62,21 @@ gcd_runner = PPARunner(
 	}
 )
 
-# gcd_runner.add_job({
-# 	'name': 'softmax',
-# 	'mode': 'sweep',
-# 	'flow_config': {
-# 		'RUN_VERILOG_SIM': True,
-# 		'VERILOG_SIM_TYPE': 'postsynth',
-# 		'VERILOG_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
-# 		'USE_STA_VCD': True
-# 	},
-# 	'hyperparameters': {
-# 		'clk_period': {
-# 			'values': [10, 20, 30]
-# 		}
-# 	}
-# })
+gcd_runner.add_job({
+	'name': 'softmax',
+	'mode': 'sweep',
+	'flow_config': {
+		'RUN_VERILOG_SIM': True,
+		'VERILOG_SIM_TYPE': 'postsynth',
+		'VERILOG_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
+		'USE_STA_VCD': True
+	},
+	'hyperparameters': {
+		'clk_period': {
+			'values': [10, 20, 30]
+		}
+	}
+})
 gcd_runner.add_job({
 	'name': 'softmax',
 	'mode': 'opt',
