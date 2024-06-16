@@ -154,7 +154,9 @@ class PPARunner:
 					'mode': 'opt',
 					'module_name': module['name'],
 					'job_work_home': path.join(self.work_home, f"{module['name']}_opt"),
-					'optimizer': module['optimizer']
+					'optimizer': module['optimizer'],
+					'prev_iter_module_run': None,
+					'iteration_number': 0
 				}
 
 				self.jobs_queue.append(job_args)
@@ -239,6 +241,8 @@ class PPARunner:
 		module_name: str
 		job_work_home: str
 		optimizer: Optimizer
+		prev_iter_module_run: Union[ModuleRun, None]
+		iteration_number: int
 
 	def __save_ppa__(
 		work_home: str,
@@ -320,52 +324,64 @@ class PPARunner:
 			PPARunner.__save_ppa__(job_args['module_work_home'], ppa_stats)
 			return ppa_stats
 		else: # Optimization job
-			prev_iter_module_run: Union[ModuleRun, None] = None
-			iteration_number: int = 0
+			prev_iter_module_run = job_args['prev_iter_module_run']
+			iteration_number = job_args['iteration_number']
 
-			while True: # This might be a bad idea
-				iter_params = job_args['optimizer'](iteration_number, prev_iter_module_run)
-				opt_complete = iter_params['opt_complete']
-				iteration_number += 1
+			iter_params = job_args['optimizer'](iteration_number, prev_iter_module_run)
+			opt_complete = iter_params['opt_complete']
+			iteration_number += 1
 
-				if opt_complete:
-					break
+			if opt_complete:
+				print(f"Optimization job complete for module {job_args['module_name']}.")
+				return prev_iter_module_run
 
-				# Create a clean iteration work home
-				iter_work_home = path.join(job_args['job_work_home'], str(iteration_number))
-				if path.exists(iter_work_home):
-					rmtree(iter_work_home)
-				makedirs(iter_work_home)
+			# Create a clean iteration work home
+			iter_work_home = path.join(job_args['job_work_home'], str(iteration_number))
+			if path.exists(iter_work_home):
+				rmtree(iter_work_home)
+			makedirs(iter_work_home)
 
-				# Write all the configurations to a file
-				PPARunner.__save_config__(
-					iter_work_home,
-					job_args['module_name'],
-					iteration_number,
-					iter_params['flow_config'],
-					iter_params['hyperparameters']
-				)
+			# Write all the configurations to a file
+			PPARunner.__save_config__(
+				iter_work_home,
+				job_args['module_name'],
+				iteration_number,
+				iter_params['flow_config'],
+				iter_params['hyperparameters']
+			)
 
-				module_runner: FlowRunner = FlowRunner(
-					self.tools,
-					{
-						**self.platform_config,
-						**self.global_flow_config,
-						**iter_params['flow_config'],
-						'DESIGN_NAME': job_args['module_name'],
-						'WORK_HOME': iter_work_home
-					},
-					iter_params['hyperparameters']
-				)
+			# Create a flow runner for this iteration
+			module_runner: FlowRunner = FlowRunner(
+				self.tools,
+				{
+					**self.platform_config,
+					**self.global_flow_config,
+					**iter_params['flow_config'],
+					'DESIGN_NAME': job_args['module_name'],
+					'WORK_HOME': iter_work_home
+				},
+				iter_params['hyperparameters']
+			)
 
-				prev_iter_module_run: ModuleRun = PPARunner.__get_ppa_results__(module_runner, iteration_number, iter_work_home)
+			# Get the results for this iteration
+			iter_results: ModuleRun = PPARunner.__get_ppa_results__(module_runner, iteration_number, iter_work_home)
 
-				print(f"Completed Optimization PPA iteration #{iteration_number}. Time taken: {prev_iter_module_run['total_time_taken'].format()}.")
+			print(f"Completed Optimization PPA iteration #{iteration_number}. Time taken: {iter_results['total_time_taken'].format()}.")
 
-				PPARunner.__save_ppa__(iter_work_home, prev_iter_module_run)
+			# Save the results for the run
+			PPARunner.__save_ppa__(iter_work_home, iter_results)
 
-			print(f"Optimization job complete for module {job_args['module_name']}.")
-			return prev_iter_module_run
+			# Add the next iteration job to the job queue
+			next_iter_job_args: self.PPAOptJobArgs = {
+				'mode': 'opt',
+				'module_name': job_args['module_name'],
+				'job_work_home': job_args['job_work_home'],
+				'optimizer': job_args['optimizer'],
+				'prev_iter_module_run': iter_results,
+				'iteration_number': iteration_number
+			}
+
+			self.jobs_queue.append(next_iter_job_args)
 
 	def clean_runs(self):
 		rmtree(self.global_flow_config.get('WORK_HOME'))
