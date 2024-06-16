@@ -110,6 +110,31 @@ class PPARunner:
 		for module in modules:
 			self.runs[module['name']] = []
 
+	class ConfigSave(TypedDict):
+		module: str
+		job_number: int
+		flow_config: dict
+		hyperparameters: dict
+
+	def __save_config__(
+		work_home: str,
+		module: str,
+		job_number: int,
+		flow_config: dict,
+		hyperparameters: dict
+	):
+		with open(path.join(work_home, 'config.json'), 'w') as config_file:
+			json.dump(
+				{
+					'module': module,
+					'job_number': job_number,
+					'flow_config': flow_config,
+					'hyperparameters': hyperparameters
+				},
+				config_file,
+				indent=2
+			)
+
 	def run_ppa_analysis(self):
 		start_time = start_time_count()
 
@@ -152,17 +177,12 @@ class PPARunner:
 						makedirs(module_work_home)
 
 						# Write all the configurations to a file
-						with open(path.join(module_work_home, 'config.json'), 'w') as config_file:
-							json.dump(
-								{
-									'module': module['mode'],
-									'job_number': job_number,
-									'flow_config': job_flow_config,
-									'hyperparameters': hyperparam_config
-								},
-								config_file,
-								indent=2
-							)
+						self.__save_config__(
+							module_work_home,
+							module['name'],
+							job_flow_config,
+							hyperparam_config
+						)
 
 						module_runner: FlowRunner = FlowRunner(
 							self.tools,
@@ -204,64 +224,79 @@ class PPARunner:
 		job_work_home: str
 		optimizer: Optimizer
 
+	def __save_ppa__(
+		work_home: str,
+		ppa_results: ModuleRun
+	):
+		class DefaultEncoder(json.JSONEncoder):
+			def default(self, o):
+				return o.__dict__
+
+		with open(path.join(work_home, 'ppa.json'), 'w') as ppa_file:
+			json.dump(
+				ppa_results,
+				ppa_file,
+				indent=2,
+				cls=DefaultEncoder
+			)
+
+	def __get_ppa_results__(
+		runner: FlowRunner,
+		job_number: int,
+		run_dir: str
+	) -> ModuleRun:
+		# Preprocess platform files
+		preprocess_time = runner.preprocess()
+
+		# Run presynthesis simulations if enabled
+		if runner.get('RUN_VERILOG_SIM') and runner.get('VERILOG_SIM_TYPE') == 'presynth':
+			_, sim_time = runner.verilog_sim()
+
+		# Synthesis
+		synth_stats, synth_time = runner.synthesis()
+
+		# Run postsynthesis simulations if enabled
+		if runner.get('RUN_VERILOG_SIM') and runner.get('VERILOG_SIM_TYPE') == 'postsynth':
+			_, sim_time = runner.verilog_sim()
+
+		# Run post-synth PPA and generate power report
+		ppa_stats, ppa_time = runner.postsynth_ppa()
+
+		total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, ppa_time)
+
+		results: ModuleRun = {
+			'mode': 'sweep',
+			'name': runner.get('DESIGN_NAME'),
+			'job_number': job_number,
+			'run_dir': run_dir,
+			'flow_config': runner.configopts,
+			'hyperparameters': runner.hyperparameters,
+
+			'preprocess_time': preprocess_time,
+
+			'synth_stats': synth_stats,
+			'synth_time': synth_time,
+
+			'ppa_stats': ppa_stats,
+			'ppa_time': ppa_time,
+
+			'total_time_taken': total_time_taken
+		}
+
+		return results
+
 	def __ppa_job__(
 		self,
 		job_args: Union[PPASweepJobArgs, PPAOptJobArgs]
 	) -> ModuleRun:
 		if job_args['mode'] == "sweep": # Sweep job
 			module_runner = job_args['module_runner']
-			# Preprocess platform files
-			preprocess_time = module_runner.preprocess()
 
-			# Run presynthesis simulations if enabled
-			if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'presynth':
-				_, sim_time = module_runner.verilog_sim()
+			ppa_stats: ModuleRun = self.__get_ppa_results__(module_runner, job_args['job_number'], job_args['module_work_home'])
 
-			# Synthesis
-			synth_stats, synth_time = module_runner.synthesis()
+			print(f"Completed PPA job #{job_args['job_number']}. Time taken: {ppa_stats['total_time_taken'].format()}.")
 
-			# Run postsynthesis simulations if enabled
-			if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'postsynth':
-				_, sim_time = module_runner.verilog_sim()
-
-			# Run post-synth PPA and generate power report
-			ppa_stats, ppa_time = module_runner.postsynth_ppa()
-
-			total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, ppa_time)
-
-			print(f"Completed PPA job #{job_args['job_number']}. Time taken: {total_time_taken.format()}.")
-
-			ppa_stats: ModuleRun = {
-				'mode': 'sweep',
-				'name': module_runner.get('DESIGN_NAME'),
-				'job_number': job_args['job_number'],
-				'run_dir': job_args['module_work_home'],
-				'flow_config': module_runner.configopts,
-				'hyperparameters': module_runner.hyperparameters,
-
-				'preprocess_time': preprocess_time,
-
-				'synth_stats': synth_stats,
-				'synth_time': synth_time,
-
-				'ppa_stats': ppa_stats,
-				'ppa_time': ppa_time,
-
-				'total_time_taken': total_time_taken
-			}
-
-			class DefaultEncoder(json.JSONEncoder):
-				def default(self, o):
-					return o.__dict__
-
-			with open(path.join(job_args['module_work_home'], 'ppa.json'), 'w') as ppa_file:
-				json.dump(
-					ppa_stats,
-					ppa_file,
-					indent=2,
-					cls=DefaultEncoder
-				)
-
+			self.__save_ppa__(job_args['module_work_home'], ppa_stats)
 			return ppa_stats
 		else: # Optimization job
 			prev_iter_module_run: Union[ModuleRun, None] = None
@@ -282,17 +317,13 @@ class PPARunner:
 				makedirs(iter_work_home)
 
 				# Write all the configurations to a file
-				with open(path.join(iter_work_home, 'config.json'), 'w') as config_file:
-					json.dump(
-						{
-							'module': job_args['module_name'],
-							'iteration_number': iteration_number,
-							'flow_config': iter_params['flow_config'],
-							'hyperparameters': iter_params['hyperparameters']
-						},
-						config_file,
-						indent=2
-					)
+				self.__save_config__(
+					iter_work_home,
+					job_args['module_name'],
+					iteration_number,
+					iter_params['flow_config'],
+					iter_params['hyperparameters']
+				)
 
 				module_runner: FlowRunner = FlowRunner(
 					self.tools,
@@ -306,57 +337,11 @@ class PPARunner:
 					iter_params['hyperparameters']
 				)
 
-				# Preprocess platform files
-				preprocess_time = module_runner.preprocess()
+				prev_iter_module_run: ModuleRun = self.__get_ppa_results__(module_runner, job_args['job_number'], job_args['module_work_home'])
 
-				# Run presynthesis simulations if enabled
-				if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'presynth':
-					_, sim_time = module_runner.verilog_sim()
+				print(f"Completed Optimization PPA iteration #{iteration_number}. Time taken: {prev_iter_module_run['total_time_taken'].format()}.")
 
-				# Synthesis
-				synth_stats, synth_time = module_runner.synthesis()
-
-				# Run postsynthesis simulations if enabled
-				if module_runner.get('RUN_VERILOG_SIM') and module_runner.get('VERILOG_SIM_TYPE') == 'postsynth':
-					_, sim_time = module_runner.verilog_sim()
-
-				# Run post-synth PPA and generate power report
-				ppa_stats, ppa_time = module_runner.postsynth_ppa()
-
-				total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, ppa_time)
-
-				print(f"Completed Optimization PPA iteration #{iteration_number}. Time taken: {total_time_taken.format()}.")
-
-				prev_iter_module_run: ModuleRun = {
-					'mode': 'opt',
-					'name': module_runner.get('DESIGN_NAME'),
-					'job_number': iteration_number,
-					'run_dir': iter_work_home,
-					'flow_config': module_runner.configopts,
-					'hyperparameters': module_runner.hyperparameters,
-
-					'preprocess_time': preprocess_time,
-
-					'synth_stats': synth_stats,
-					'synth_time': synth_time,
-
-					'ppa_stats': ppa_stats,
-					'ppa_time': ppa_time,
-
-					'total_time_taken': total_time_taken
-				}
-
-				class DefaultEncoder(json.JSONEncoder):
-					def default(self, o):
-						return o.__dict__
-
-				with open(path.join(iter_work_home, 'ppa.json'), 'w') as ppa_file:
-					json.dump(
-						prev_iter_module_run,
-						ppa_file,
-						indent=2,
-						cls=DefaultEncoder
-					)
+				self.__save_ppa__(iter_work_home, prev_iter_module_run)
 
 			print(f"Optimization job complete for module {job_args['module_name']}.")
 			return prev_iter_module_run
