@@ -3,7 +3,7 @@ from os import path, mkdir, makedirs
 from shutil import rmtree
 import json
 from multiprocessing import Pool
-from multiprocessing.pool import Pool as PoolClass
+from multiprocessing.pool import ThreadPool
 
 from .flow import FlowRunner, FlowConfigDict, FlowPlatformConfigDict, FlowTools
 from .tools.blueprint import PostSynthPPAStats, PowerReport, SynthStats
@@ -11,16 +11,18 @@ from .tools.blueprint import PostSynthPPAStats, PowerReport, SynthStats
 from .utils.config_sweep import ParameterSweepDict, ParameterListDict, get_configs_iterator
 from .utils.time import TimeElapsed, start_time_count,get_elapsed_time
 
-class NextParamsReturnType(TypedDict):
-	opt_complete: bool
+class OptSuggestion(TypedDict):
 	flow_config: Union[FlowConfigDict, None]
 	hyperparameters: Union[dict, None]
 
-class ModuleRun(TypedDict):
-	mode: Literal['sweep', 'opt']
-	name: str
+class NextParamsReturnType(TypedDict):
+	opt_complete: bool
+	next_suggestions: Union[list[OptSuggestion], None]
+
+class PPARun(TypedDict):
+	module_name: str
 	"""The name of the Verilog module."""
-	job_number: int
+	iteration_number: int
 	run_dir: str
 	"""The path to the directory in which the job was run."""
 	flow_config: FlowConfigDict
@@ -46,19 +48,22 @@ class ModuleRun(TypedDict):
 	total_time_taken: TimeElapsed
 	"""The total time elapsed in the run."""
 
-Optimizer: TypeAlias = Callable[[int, Union[ModuleRun, None]], NextParamsReturnType]
-
-class ModuleSweepConfig(TypedDict):
+FlowConfigSweepDict: TypeAlias = Union[dict[str, Union[ParameterSweepDict, ParameterListDict]], FlowConfigDict]
+HyperparameterSweepDict: TypeAlias = dict[str, Union[ParameterSweepDict, ParameterListDict, Any]]
+class SweepJobConfig(TypedDict):
 	name: str
 	"""The name of the Verilog module to run the PPA analysis on."""
 	mode: Literal['sweep']
 	"""Either `opt` (Optimization) or `sweep`.
 
 	In `sweep` mode, `hyperparameters` and `flow_config` dicts are provided that list either arrays of values for each parameter or a dict of `min`, `max`, and `step` to sweep. Every possible combination of the values each parameter can take will be swept and the corresponding PPA resutls will be reported."""
-	hyperparameters: dict[str, Union[ParameterSweepDict, ParameterListDict, Any]]
-	flow_config: Union[dict[str, Union[ParameterSweepDict, ParameterListDict]], FlowConfigDict]
+	hyperparameters: HyperparameterSweepDict
+	flow_config: FlowConfigSweepDict
+	max_threads: Union[int, None]
+	"""The number of allowable threads to use for the job. The global `threads_per_job` is used if this is not set."""
 
-class ModuleOptConfig(TypedDict):
+Optimizer: TypeAlias = Callable[[int, Union[list[PPARun], None]], NextParamsReturnType]
+class OptJobConfig(TypedDict):
 	name: str
 	"""The name of the Verilog module to run the PPA analysis on."""
 	mode: Literal['opt']
@@ -66,28 +71,34 @@ class ModuleOptConfig(TypedDict):
 
 	In `opt` mode, the `optimizer` function provides the next set of parameters to try and the PPA results of each iteration are given as parameter to the function."""
 	optimizer: Optimizer
-	"""A function that evaluates the previous iteration's PPA results and suggests the next set of parameters to test. Return `{'opt_complete': True}` to mark the completion of the optimization either by meeting the target or otherwise.
+	"""A function that evaluates the previous iteration's PPA results (list) and suggests the next list of set of parameters to test. Return `{'opt_complete': True}` to mark the completion of the optimization either by meeting the target or otherwise.
 
 	Return `{`opt_complete`: False, `flow_config`: {...}, `hyperparameters`: {...}} to suggest the next set of flow config parameters and hyperparameters to test.
 
 	The function should accept the following arguments:
 	- `iteration_number`: The iteration number for the _previous_ iteration. A `0` iteration number represents the start of the optimization and will have no PPA results.
-	- `ppa_results`: A dict of type `ModuleRun` that contains the flow configuration, hyperparameters, times taken, and PPA stats of the previous iteration. The format of this dictionary is identical to the PPA results returned in the `sweep` mode.
+	- `ppa_results`: A list of dicts of type `PPARun` that contains the flow configuration, hyperparameters, times taken, and PPA stats of the previous iteration. The format of this dictionary is identical to the PPA results returned in the `sweep` mode.
 	"""
+	max_threads: Union[int, None]
+	"""The number of allowable threads to use for the job. The global `threads_per_job` is used if this is not set."""
 
-ModuleConfig: TypeAlias = Union[ModuleSweepConfig, ModuleOptConfig]
+JobConfig: TypeAlias = Union[SweepJobConfig, OptJobConfig]
+
+class JobRun(TypedDict):
+	job: JobConfig
+	ppa_runs: list[PPARun]
 
 class PPARunner:
 	design_name: str
 	tools: FlowTools
 	platform_config: FlowPlatformConfigDict
 	global_flow_config: FlowConfigDict
-	modules: list[ModuleConfig]
-	sweep_runs: dict[str, list[ModuleRun]] = {}
-	opt_runs: dict[str, list[ModuleRun]] = {}
+	jobs: list[JobConfig]
+	job_runs: list[JobRun] = []
 	work_home: str
-	max_parallel_threads: int = 4
-	job_runner: Type[PoolClass]
+	max_concurrent_jobs: int = 1
+	threads_per_job: int = 4
+	job_runner: Type[ThreadPool]
 	jobs_queue: list[Union['PPAOptJobArgs', 'PPASweepJobArgs']] = []
 
 	def __init__(
@@ -96,22 +107,20 @@ class PPARunner:
 		tools: FlowTools,
 		platform_config: FlowPlatformConfigDict,
 		global_flow_config: FlowConfigDict,
-		modules: list[ModuleConfig],
-		max_parallel_threads: int = 8,
+		jobs: list[JobConfig] = [],
+		max_concurrent_jobs: int = 1,
+		threads_per_job: int = 4,
 		work_home: Optional[str] = None
 	):
 		self.design_name = design_name
 		self.tools = tools
 		self.platform_config = platform_config
 		self.global_flow_config = global_flow_config
-		self.modules = modules
+		self.jobs = jobs
 		self.work_home = work_home if work_home != None else path.abspath(path.join('.', 'runs', design_name))
-		self.max_parallel_threads = max_parallel_threads
-		self.job_runner = Pool(self.max_parallel_threads)
-
-		for module in modules:
-			self.sweep_runs[module['name']] = []
-			self.opt_runs[module['name']] = []
+		self.max_concurrent_jobs = max_concurrent_jobs
+		self.threads_per_job = threads_per_job
+		self.job_runner = ThreadPool(self.max_concurrent_jobs)
 
 	class ConfigSave(TypedDict):
 		module: str
@@ -122,7 +131,7 @@ class PPARunner:
 	def __save_config__(
 		work_home: str,
 		module: str,
-		job_number: int,
+		iteration_number: int,
 		flow_config: dict,
 		hyperparameters: dict
 	):
@@ -130,7 +139,7 @@ class PPARunner:
 			json.dump(
 				{
 					'module': module,
-					'job_number': job_number,
+					'iteration_number': iteration_number,
 					'flow_config': flow_config,
 					'hyperparameters': hyperparameters
 				},
@@ -138,7 +147,10 @@ class PPARunner:
 				indent=2
 			)
 
-	def run_ppa_analysis(self):
+	def add_job(self, job: JobConfig):
+		self.jobs.append(job)
+
+	def run_all_jobs(self):
 		start_time = start_time_count()
 
 		# Clear contents of the work home
@@ -146,68 +158,40 @@ class PPARunner:
 			rmtree(self.work_home)
 			mkdir(self.work_home)
 
-		for module in self.modules:
-			print(f"Running PPA for module `{module['name']}`.")
+		while len(self.jobs) > 0:
+			job = self.jobs.pop(0)
 
-			if module['mode'] == "opt": # Optimization mode
+			job_work_home = path.join(self.work_home, f"{job['name']}_{job['mode']}")
+			# Create a clean job work home
+			if path.exists(job_work_home):
+				rmtree(job_work_home)
+			makedirs(job_work_home)
+
+			print(f"Running PPA for module `{job['name']}`.")
+
+			if job['mode'] == "opt": # Optimization mode
 				job_args: self.PPAOptJobArgs = {
+					'job_config': job,
 					'mode': 'opt',
-					'module_name': module['name'],
-					'job_work_home': path.join(self.work_home, f"{module['name']}_opt"),
-					'optimizer': module['optimizer'],
-					'prev_iter_module_run': None,
-					'iteration_number': 0
+					'module_name': job['name'],
+					'job_work_home': job_work_home,
+					'max_threads': job.get('max_threads', self.threads_per_job),
+					'optimizer': job['optimizer']
 				}
 
 				self.jobs_queue.append(job_args)
-			elif module['mode'] == 'sweep': # Sweep mode
-				# Generate module specific configs
-				configs_iterator = get_configs_iterator(module['flow_config'])
+			elif job['mode'] == 'sweep': # Sweep mode
+				job_args: self.PPASweepJobArgs = {
+					'job_config': job,
+					'mode': 'sweep',
+					'module_name': job['name'],
+					'max_threads': job.get('max_threads', self.threads_per_job),
+					'job_work_home': job_work_home,
+					'flow_config': job['flow_config'],
+					'hyperparameters': job['hyperparameters']
+				}
 
-				# Iterate over configs and add jobs
-				job_number = 1
-				for (job_flow_config, _) in configs_iterator.iterate():
-					hyperparams_iterator = get_configs_iterator(module['hyperparameters'])
-
-					# Iterate over each hyperparameter as well
-					for (hyperparam_config, _) in hyperparams_iterator:
-						module_work_home = path.join(self.work_home, f"{module['name']}_sweep", str(job_number))
-
-						# Create a clean module work home
-						if path.exists(module_work_home):
-							rmtree(module_work_home)
-						makedirs(module_work_home)
-
-						# Write all the configurations to a file
-						PPARunner.__save_config__(
-							module_work_home,
-							module['name'],
-							job_number,
-							job_flow_config,
-							hyperparam_config
-						)
-
-						module_runner: FlowRunner = FlowRunner(
-							self.tools,
-							{
-								**self.platform_config,
-								**self.global_flow_config,
-								**job_flow_config,
-								'DESIGN_NAME': module['name'],
-								'WORK_HOME': module_work_home
-							},
-							hyperparam_config
-						)
-
-						job_args: self.PPASweepJobArgs = {
-							'mode': 'sweep',
-							'module_runner': module_runner,
-							'module_work_home': module_work_home,
-							'job_number': job_number
-						}
-
-						self.jobs_queue.append(job_args)
-						job_number += 1
+				self.jobs_queue.append(job_args)
 
 		# Run the list of jobs
 		self.clear_job_queue()
@@ -215,38 +199,38 @@ class PPARunner:
 		print(f"Completed PPA analysis. Total time elapsed: {get_elapsed_time(start_time).format()}.")
 
 	def clear_job_queue(self):
-		while len(self.jobs_queue) > 0:
-			# Remove all jobs from the queue
-			to_be_run = self.jobs_queue
-			self.jobs_queue = []
+		"""Recursively clears the job queue. Adds new jobs (if any) to the pool once previous jobs have been cleared."""
+		to_be_run = self.jobs_queue
+		self.jobs_queue = []
 
-			# Run the jobs
-			runs = self.job_runner.starmap(self.__ppa_job__, [[args] for args in to_be_run])
+		# Run the jobs
+		job_runs = self.job_runner.starmap(self.__job_runner__, [[args] for args in to_be_run])
 
-			# Save the runs
-			for run in runs:
-				if run['mode'] == 'sweep':
-					self.sweep_runs[run['name']].append(run)
-				else:
-					self.opt_runs[run['name']].append(run)
+		self.job_runs.extend(job_runs)
+
+		if len(self.jobs_queue) > 0:
+			self.clear_job_queue()
 
 	class PPASweepJobArgs(TypedDict):
+		job_config: JobConfig
 		mode: Literal['sweep']
-		module_runner: FlowRunner
-		module_work_home: str
-		job_number: int
+		job_work_home: str
+		module_name: str
+		max_threads: int
+		flow_config: FlowConfigSweepDict
+		hyperparameters: HyperparameterSweepDict
 
 	class PPAOptJobArgs(TypedDict):
+		job_config: JobConfig
 		mode: Literal['opt']
-		module_name: str
 		job_work_home: str
+		module_name: str
+		max_threads: int
 		optimizer: Optimizer
-		prev_iter_module_run: Union[ModuleRun, None]
-		iteration_number: int
 
 	def __save_ppa__(
 		work_home: str,
-		ppa_results: ModuleRun
+		ppa_results: PPARun
 	):
 		class DefaultEncoder(json.JSONEncoder):
 			def default(self, o):
@@ -262,10 +246,9 @@ class PPARunner:
 
 	def __get_ppa_results__(
 		runner: FlowRunner,
-		mode: Literal['sweep', 'opt'],
 		job_number: int,
 		run_dir: str
-	) -> ModuleRun:
+	) -> PPARun:
 		# Preprocess platform files
 		preprocess_time = runner.preprocess()
 
@@ -285,8 +268,7 @@ class PPARunner:
 
 		total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, ppa_time)
 
-		results: ModuleRun = {
-			'mode': mode,
+		results: PPARun = {
 			'name': runner.get('DESIGN_NAME'),
 			'job_number': job_number,
 			'run_dir': run_dir,
@@ -311,91 +293,146 @@ class PPARunner:
 		del self_dict['job_runner']
 		return self_dict
 
-	def __ppa_job__(
+	def __job_runner__(
 		self,
 		job_args: Union[PPASweepJobArgs, PPAOptJobArgs]
-	) -> ModuleRun:
+	) -> list[JobRun]:
+		subjob_runner = Pool(job_args['max_threads'])
+		subjobs = []
+
 		if job_args['mode'] == "sweep": # Sweep job
-			module_runner = job_args['module_runner']
+			iteration_number = 1
+			# Iterate every possible flow config
+			for flow_config in get_configs_iterator(job_args['flow_config']):
+				# And every hyperparameter config
+				for hyperparameters in get_configs_iterator(job_args['hyperparameters']):
+					flow_runner = FlowRunner()
 
-			ppa_stats: ModuleRun = PPARunner.__get_ppa_results__(module_runner, job_args['mode'], job_args['job_number'], job_args['module_work_home'])
+					# Create a clean iteration work home
+					iter_work_home = path.join(job_args['job_work_home'], str(iteration_number))
+					if path.exists(iter_work_home):
+						rmtree(iter_work_home)
+					makedirs(iter_work_home)
 
-			print(f"Completed PPA job #{job_args['job_number']}. Time taken: {ppa_stats['total_time_taken'].format()}.")
+					# Write all the configurations to a file
+					PPARunner.__save_config__(
+						iter_work_home,
+						job_args['module_name'],
+						iteration_number,
+						flow_config,
+						hyperparameters
+					)
 
-			PPARunner.__save_ppa__(job_args['module_work_home'], ppa_stats)
-			return ppa_stats
-		else: # Optimization job
-			prev_iter_module_run = job_args['prev_iter_module_run']
-			iteration_number = job_args['iteration_number']
+					# Create a flow runner for this iteration
+					flow_runner: FlowRunner = FlowRunner(
+						self.tools,
+						{
+							**self.platform_config,
+							**self.global_flow_config,
+							**flow_config,
+							'DESIGN_NAME': job_args['module_name'],
+							'WORK_HOME': iter_work_home
+						},
+						hyperparameters
+					)
 
-			iter_params = job_args['optimizer'](iteration_number, prev_iter_module_run)
-			opt_complete = iter_params['opt_complete']
-			iteration_number += 1
+					# Add the subjob to the subjob queue
+					subjobs.append((flow_runner, iter_work_home, iteration_number))
 
-			if opt_complete:
-				print(f"Optimization job complete for module {job_args['module_name']}.")
-				return prev_iter_module_run
-
-			# Create a clean iteration work home
-			iter_work_home = path.join(job_args['job_work_home'], str(iteration_number))
-			if path.exists(iter_work_home):
-				rmtree(iter_work_home)
-			makedirs(iter_work_home)
-
-			# Write all the configurations to a file
-			PPARunner.__save_config__(
-				iter_work_home,
-				job_args['module_name'],
-				iteration_number,
-				iter_params['flow_config'],
-				iter_params['hyperparameters']
-			)
-
-			# Create a flow runner for this iteration
-			module_runner: FlowRunner = FlowRunner(
-				self.tools,
-				{
-					**self.platform_config,
-					**self.global_flow_config,
-					**iter_params['flow_config'],
-					'DESIGN_NAME': job_args['module_name'],
-					'WORK_HOME': iter_work_home
-				},
-				iter_params['hyperparameters']
-			)
-
-			# Get the results for this iteration
-			iter_results: ModuleRun = PPARunner.__get_ppa_results__(module_runner, job_args['mode'], iteration_number, iter_work_home)
-
-			print(f"Completed Optimization PPA iteration #{iteration_number}. Time taken: {iter_results['total_time_taken'].format()}.")
-
-			# Save the results for the run
-			PPARunner.__save_ppa__(iter_work_home, iter_results)
-
-			# Add the next iteration job to the job queue
-			next_iter_job_args: self.PPAOptJobArgs = {
-				'mode': 'opt',
-				'module_name': job_args['module_name'],
-				'job_work_home': job_args['job_work_home'],
-				'optimizer': job_args['optimizer'],
-				'prev_iter_module_run': iter_results,
-				'iteration_number': iteration_number
+			# Run (Sweep) all the subjobs
+			ppa_runs = subjob_runner.starmap(self.__ppa_runner__, subjobs)
+			job_run: JobRun = {
+				'job': job_args['job_config'],
+				'ppa_runs': ppa_runs
 			}
 
-			self.jobs_queue.append(next_iter_job_args)
-			return iter_results
+			return job_run
+		else: # Optimization job
+			prev_iter_module_runs: Union[list[PPARun], None] = None
+			iteration_number = 0
+
+			while True:
+				iter_params = job_args['optimizer'](iteration_number, prev_iter_module_runs)
+				opt_complete = iter_params['opt_complete']
+				iteration_number += 1
+
+				if opt_complete:
+					print(f"Optimization job complete for module {job_args['module_name']}.")
+					return {
+						'job': job_args['job_config'],
+						'ppa_runs': prev_iter_module_runs
+					}
+
+				# Create a clean iteration work home
+				iter_work_home = path.join(job_args['job_work_home'], str(iteration_number))
+				if path.exists(iter_work_home):
+					rmtree(iter_work_home)
+				makedirs(iter_work_home)
+
+				for i, suggestion in enumerate(iter_params['next_suggestions']):
+					# Create a clean suggestion work home
+					suggestion_work_home = path.join(iter_work_home, str(i))
+					if path.exists(suggestion_work_home):
+						rmtree(suggestion_work_home)
+					makedirs(suggestion_work_home)
+
+					# Write all the configurations to a file
+					PPARunner.__save_config__(
+						suggestion_work_home,
+						job_args['module_name'],
+						iteration_number,
+						suggestion['flow_config'],
+						suggestion['hyperparameters']
+					)
+
+					# Create a flow runner for this iteration
+					flow_runner: FlowRunner = FlowRunner(
+						self.tools,
+						{
+							**self.platform_config,
+							**self.global_flow_config,
+							**suggestion['flow_config'],
+							'DESIGN_NAME': job_args['module_name'],
+							'WORK_HOME': suggestion_work_home
+						},
+						suggestion['hyperparameters']
+					)
+
+					# Add the subjob to the subjob queue
+					subjobs.append((flow_runner, iter_work_home, iteration_number))
+
+				# Run all the subjobs and give it back to the optimizer for evaluation
+				prev_iter_module_runs = subjob_runner.starmap(self.__ppa_runner__, subjobs)
+
+	def __ppa_runner__(
+		self,
+		flow_runner: FlowRunner,
+		work_home: str,
+		iteration_number: int
+	) -> PPARun:
+		# Get the results for this iteration
+		run_results: PPARun = PPARunner.__get_ppa_results__(
+			flow_runner,
+			iteration_number,
+			work_home
+		)
+
+		# Save and return the results for the run
+		PPARunner.__save_ppa__(work_home, run_results)
+		return run_results
+
 
 	def clean_runs(self):
 		rmtree(self.global_flow_config.get('WORK_HOME'))
 
-	def get_sweep_runs(self, module_name: str) -> list[ModuleRun]:
-		return self.sweep_runs[module_name]
+	def get_sweep_runs(self, module_name: str) -> list[PPARun]:
+		return self.job_runs[module_name]
 
 	def print_stats(self, file: Optional[str] = None):
 		write_to = open(file, 'w') if file is not None else None
 
-		for module_name in self.sweep_runs:
-			module_runs = self.sweep_runs[module_name]
+		for module_name in self.job_runs:
+			module_runs = self.job_runs[module_name]
 			print(f"---Module {module_name}---", file=write_to)
 
 			for (i, run) in enumerate(module_runs):
