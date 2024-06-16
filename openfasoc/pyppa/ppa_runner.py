@@ -83,10 +83,12 @@ class PPARunner:
 	platform_config: FlowPlatformConfigDict
 	global_flow_config: FlowConfigDict
 	modules: list[ModuleConfig]
-	runs: dict[str, list[ModuleRun]] = {}
+	sweep_runs: dict[str, list[ModuleRun]] = {}
+	opt_runs: dict[str, list[ModuleRun]] = {}
 	work_home: str
 	max_parallel_threads: int = 4
 	job_runner: Type[PoolClass]
+	jobs_queue: list[Union['PPAOptJobArgs', 'PPASweepJobArgs']] = []
 
 	def __init__(
 		self,
@@ -108,7 +110,8 @@ class PPARunner:
 		self.job_runner = Pool(self.max_parallel_threads)
 
 		for module in modules:
-			self.runs[module['name']] = []
+			self.sweep_runs[module['name']] = []
+			self.opt_runs[module['name']] = []
 
 	class ConfigSave(TypedDict):
 		module: str
@@ -138,9 +141,6 @@ class PPARunner:
 	def run_ppa_analysis(self):
 		start_time = start_time_count()
 
-		# List of flow jobs to run
-		jobs = []
-
 		# Clear contents of the work home
 		if path.exists(self.work_home):
 			rmtree(self.work_home)
@@ -157,7 +157,7 @@ class PPARunner:
 					'optimizer': module['optimizer']
 				}
 
-				jobs.append([job_args])
+				self.jobs_queue.append(job_args)
 			elif module['mode'] == 'sweep': # Sweep mode
 				# Generate module specific configs
 				configs_iterator = get_configs_iterator(module['flow_config'])
@@ -204,12 +204,15 @@ class PPARunner:
 							'job_number': job_number
 						}
 
-						jobs.append([job_args])
+						self.jobs_queue.append(job_args)
 						job_number += 1
 
 		# Run the list of jobs
-		for run in self.job_runner.starmap(self.__ppa_job__, jobs):
-			self.runs[run['name']].append(run)
+		for run in self.job_runner.starmap(self.__ppa_job__, [[args] for args in self.jobs_queue]):
+			if run['mode'] == 'sweep':
+				self.sweep_runs[run['name']].append(run)
+			else:
+				self.opt_runs[run['name']].append(run)
 
 		print(f"Completed PPA analysis. Total time elapsed: {get_elapsed_time(start_time).format()}.")
 
@@ -355,14 +358,14 @@ class PPARunner:
 	def clean_runs(self):
 		rmtree(self.global_flow_config.get('WORK_HOME'))
 
-	def get_runs(self, module_name: str) -> list[ModuleRun]:
-		return self.runs[module_name]
+	def get_sweep_runs(self, module_name: str) -> list[ModuleRun]:
+		return self.sweep_runs[module_name]
 
 	def print_stats(self, file: Optional[str] = None):
 		write_to = open(file, 'w') if file is not None else None
 
-		for module_name in self.runs:
-			module_runs = self.runs[module_name]
+		for module_name in self.sweep_runs:
+			module_runs = self.sweep_runs[module_name]
 			print(f"---Module {module_name}---", file=write_to)
 
 			for (i, run) in enumerate(module_runs):
