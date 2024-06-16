@@ -421,49 +421,8 @@ class PPARunner:
 		PPARunner.__save_ppa__(work_home, run_results)
 		return run_results
 
-
 	def clean_runs(self):
 		rmtree(self.global_flow_config.get('WORK_HOME'))
 
 	def get_sweep_runs(self, module_name: str) -> list[PPARun]:
 		return self.job_runs[module_name]
-
-	def print_stats(self, file: Optional[str] = None):
-		write_to = open(file, 'w') if file is not None else None
-
-		for module_name in self.job_runs:
-			module_runs = self.job_runs[module_name]
-			print(f"---Module {module_name}---", file=write_to)
-
-			for (i, run) in enumerate(module_runs):
-				print(f"	Run #{i + 1}:", file=write_to)
-
-				for stat in run['synth_stats']:
-					if stat == 'cell_counts':
-						# Sort the cell counts in descending order
-						sorted_cell_counts = [(cell, count) for cell, count in run['synth_stats']['cell_counts'].items()]
-						sorted_cell_counts.sort(key=lambda x: x[1], reverse=True)
-
-						formatted_cell_counts = []
-						for cell, count in sorted_cell_counts:
-							formatted_cell_counts.append(f"{cell} ({count})")
-
-						print(f"		{stat}: {', '.join(formatted_cell_counts)}", file=write_to)
-					else:
-						print(f"		{stat}: {run['synth_stats'][stat]}", file=write_to)
-
-				for stat in run['ppa_stats']:
-					if stat == 'sta':
-						formatted_sta_results = []
-
-						for clk in run['ppa_stats']['sta'].values():
-							formatted_sta_results.append(f"{clk['clk_name']} (period: {clk['clk_period']}, slack: {clk['clk_slack']})")
-
-						print(f"		{stat}: {', '.join(formatted_sta_results)}", file=write_to)
-					elif stat == 'power_report':
-						for power_type in run['ppa_stats'][stat]:
-							formatted_power_report = [f"{metric} - {run['ppa_stats'][stat][power_type][metric]}" for metric in run['ppa_stats'][stat][power_type]]
-
-							print(f"		{power_type} power: {', '.join(formatted_power_report)}", file=write_to)
-					else:
-						print(f"		{stat}: {run['ppa_stats'][stat]}", file=write_to)

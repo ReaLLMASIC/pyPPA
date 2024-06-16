@@ -84,4 +84,3 @@ gcd_runner.add_job({
 })
 
 gcd_runner.run_all_jobs()
-gcd_runner.print_stats('ppa.txt')
