@@ -161,19 +161,19 @@ class PPARunner:
 		while len(self.jobs) > 0:
 			job = self.jobs.pop(0)
 
-			job_work_home = path.join(self.work_home, f"{job['name']}_{job['mode']}")
+			job_work_home = path.join(self.work_home, f"{job['module_name']}_{job['mode']}")
 			# Create a clean job work home
 			if path.exists(job_work_home):
 				rmtree(job_work_home)
 			makedirs(job_work_home)
 
-			print(f"Running PPA for module `{job['name']}`.")
+			print(f"Running PPA for module `{job['module_name']}`.")
 
 			if job['mode'] == "opt": # Optimization mode
 				job_args: self.PPAOptJobArgs = {
 					'job_config': job,
 					'mode': 'opt',
-					'module_name': job['name'],
+					'module_name': job['module_name'],
 					'job_work_home': job_work_home,
 					'max_threads': job.get('max_threads', self.threads_per_job),
 					'optimizer': job['optimizer']
@@ -184,7 +184,7 @@ class PPARunner:
 				job_args: self.PPASweepJobArgs = {
 					'job_config': job,
 					'mode': 'sweep',
-					'module_name': job['name'],
+					'module_name': job['module_name'],
 					'max_threads': job.get('max_threads', self.threads_per_job),
 					'job_work_home': job_work_home,
 					'flow_config': job['flow_config'],
@@ -269,7 +269,7 @@ class PPARunner:
 		total_time_taken = TimeElapsed.combined(preprocess_time, synth_time, ppa_time)
 
 		results: PPARun = {
-			'name': runner.get('DESIGN_NAME'),
+			'module_name': runner.get('DESIGN_NAME'),
 			'job_number': job_number,
 			'run_dir': run_dir,
 			'flow_config': runner.configopts,
@@ -303,9 +303,9 @@ class PPARunner:
 		if job_args['mode'] == "sweep": # Sweep job
 			iteration_number = 1
 			# Iterate every possible flow config
-			for flow_config in get_configs_iterator(job_args['flow_config']):
+			for flow_config, _ in get_configs_iterator(job_args['flow_config']):
 				# And every hyperparameter config
-				for hyperparameters in get_configs_iterator(job_args['hyperparameters']):
+				for hyperparameters, _ in get_configs_iterator(job_args['hyperparameters']):
 					# Create a clean iteration work home
 					iter_work_home = path.join(job_args['job_work_home'], str(iteration_number))
 					if path.exists(iter_work_home):

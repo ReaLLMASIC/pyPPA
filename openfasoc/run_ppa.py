@@ -63,7 +63,7 @@ gcd_runner = PPARunner(
 )
 
 gcd_runner.add_job({
-	'name': 'softmax',
+	'module_name': 'softmax',
 	'mode': 'sweep',
 	'flow_config': {
 		'RUN_VERILOG_SIM': True,
@@ -78,7 +78,7 @@ gcd_runner.add_job({
 	}
 })
 gcd_runner.add_job({
-	'name': 'softmax',
+	'module_name': 'softmax',
 	'mode': 'opt',
 	'optimizer': example_optimizer
 })
