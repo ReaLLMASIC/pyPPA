@@ -208,13 +208,25 @@ class PPARunner:
 						job_number += 1
 
 		# Run the list of jobs
-		for run in self.job_runner.starmap(self.__ppa_job__, [[args] for args in self.jobs_queue]):
-			if run['mode'] == 'sweep':
-				self.sweep_runs[run['name']].append(run)
-			else:
-				self.opt_runs[run['name']].append(run)
+		self.clear_job_queue()
 
 		print(f"Completed PPA analysis. Total time elapsed: {get_elapsed_time(start_time).format()}.")
+
+	def clear_job_queue(self):
+		while len(self.jobs_queue) > 0:
+			# Remove all jobs from the queue
+			to_be_run = self.jobs_queue
+			self.jobs_queue = []
+
+			# Run the jobs
+			runs = self.job_runner.starmap(self.__ppa_job__, [[args] for args in to_be_run])
+
+			# Save the runs
+			for run in runs:
+				if run['mode'] == 'sweep':
+					self.sweep_runs[run['name']].append(run)
+				else:
+					self.opt_runs[run['name']].append(run)
 
 	class PPASweepJobArgs(TypedDict):
 		mode: Literal['sweep']

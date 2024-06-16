@@ -44,21 +44,21 @@ gcd_runner = PPARunner(
 		'DESIGN_DIR': path.join('..', 'HW', 'comp', 'vector_engine')
 	},
 	modules=[
-		# {
-		# 	'name': 'softmax',
-		# 	'mode': 'sweep',
-		# 	'flow_config': {
-		# 		'RUN_VERILOG_SIM': True,
-		# 		'VERILOG_SIM_TYPE': 'postsynth',
-		# 		'VERILOG_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
-		# 		'USE_STA_VCD': True
-		# 	},
-		# 	'hyperparameters': {
-		# 		'clk_period': {
-		# 			'values': [10, 20, 30]
-		# 		}
-		# 	}
-		# },
+		{
+			'name': 'softmax',
+			'mode': 'sweep',
+			'flow_config': {
+				'RUN_VERILOG_SIM': True,
+				'VERILOG_SIM_TYPE': 'postsynth',
+				'VERILOG_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
+				'USE_STA_VCD': True
+			},
+			'hyperparameters': {
+				'clk_period': {
+					'values': [10, 20, 30]
+				}
+			}
+		},
 		{
 			'name': 'softmax',
 			'mode': 'opt',
