@@ -40,8 +40,6 @@ class PPARun(TypedDict):
 
 	ppa_stats: PostSynthPPAStats
 	"""The PPA stats."""
-	power_report: PowerReport
-	"""The power report."""
 	ppa_time: TimeElapsed
 	"""The time taken for the post-synthesis PPA step."""
 
