@@ -63,10 +63,10 @@ class OpenROAD(PPATool):
 				for power_entry in ('sequential', 'combinational', 'clock', 'macro', 'pad', 'total'):
 					if values[0] == power_entry:
 						parsed_report[power_entry] = {
-							'internal_power': values[1],
-							'switching_power': values[2],
-							'leakage_power': values[3],
-							'total_power': values[4],
+							'internal_power': float(values[1]),
+							'switching_power': float(values[2]),
+							'leakage_power': float(values[3]),
+							'total_power': float(values[4]),
 							'percentage': float(values[5].replace('%', ''))
 						}
 				if parse_total_percent:

@@ -54,10 +54,10 @@ class STAReport(TypedDict):
 	clk_slack: float
 
 class PowerReportEntry(TypedDict):
-	internal_power: str
-	switching_power: str
-	leakage_power: str
-	total_power: str
+	internal_power: float
+	switching_power: float
+	leakage_power: float
+	total_power: float
 	percentage: float
 
 class PowerReportTotalPercentages(TypedDict):
