@@ -167,7 +167,7 @@ class PPARunner:
 				rmtree(job_work_home)
 			makedirs(job_work_home)
 
-			print(f"Running PPA for module `{job['module_name']}`.")
+			print(f"Running PPA {"Optimization" if job['mode'] == "opt" else "Sweep"} job for module `{job['module_name']}`.")
 
 			if job['mode'] == "opt": # Optimization mode
 				job_args: self.PPAOptJobArgs = {
@@ -196,7 +196,7 @@ class PPARunner:
 		# Run the list of jobs
 		self.clear_job_queue()
 
-		print(f"Completed PPA analysis. Total time elapsed: {get_elapsed_time(start_time).format()}.")
+		print(f"Completed all jobs. Total time elapsed: {get_elapsed_time(start_time).format()}.")
 
 	def clear_job_queue(self):
 		"""Recursively clears the job queue. Adds new jobs (if any) to the pool once previous jobs have been cleared."""
