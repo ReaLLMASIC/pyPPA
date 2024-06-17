@@ -353,7 +353,7 @@ class PPARunner:
 
 			while True:
 				next_iter: OptimizerReturnType = job_args['optimizer'](iteration_number, prev_iter_module_runs, context)
-				opt_complete = next_iter['opt_complete']
+				opt_complete = next_iter.get('opt_complete', False)
 				context = next_iter.get('context', None)
 				iteration_number += 1
 
