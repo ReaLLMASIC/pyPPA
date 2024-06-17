@@ -15,9 +15,10 @@ class OptSuggestion(TypedDict):
 	flow_config: Union[FlowConfigDict, None]
 	hyperparameters: Union[dict, None]
 
-class NextParamsReturnType(TypedDict):
+class OptimizerReturnType(TypedDict):
 	opt_complete: bool
 	next_suggestions: Union[list[OptSuggestion], None]
+	context: Union[Any, None]
 
 class PPARun(TypedDict):
 	module_name: str
@@ -60,7 +61,7 @@ class SweepJobConfig(TypedDict):
 	max_threads: Union[int, None]
 	"""The number of allowable threads to use for the job. The global `threads_per_job` is used if this is not set."""
 
-Optimizer: TypeAlias = Callable[[int, Union[list[PPARun], None]], NextParamsReturnType]
+Optimizer: TypeAlias = Callable[[int, Union[list[PPARun]], Any], OptimizerReturnType]
 class OptJobConfig(TypedDict):
 	name: str
 	"""The name of the Verilog module to run the PPA analysis on."""
@@ -71,11 +72,12 @@ class OptJobConfig(TypedDict):
 	optimizer: Optimizer
 	"""A function that evaluates the previous iteration's PPA results (list) and suggests the next list of set of parameters to test. Return `{'opt_complete': True}` to mark the completion of the optimization either by meeting the target or otherwise.
 
-	Return `{`opt_complete`: False, `flow_config`: {...}, `hyperparameters`: {...}} to suggest the next set of flow config parameters and hyperparameters to test.
+	Return `{`opt_complete`: False, `flow_config`: {...}, `hyperparameters`: {...}, `context`: {...}} to suggest the next set of flow config parameters and hyperparameters to test. The `context` field is an optional value that will be given as argument for the next iteration.
 
 	The function should accept the following arguments:
 	- `iteration_number`: The iteration number for the _previous_ iteration. A `0` iteration number represents the start of the optimization and will have no PPA results.
 	- `ppa_results`: A list of dicts of type `PPARun` that contains the flow configuration, hyperparameters, times taken, and PPA stats of the previous iteration. The format of this dictionary is identical to the PPA results returned in the `sweep` mode.
+	- `context`: The same context that was provided in the previous iteration
 	"""
 	max_threads: Union[int, None]
 	"""The number of allowable threads to use for the job. The global `threads_per_job` is used if this is not set."""
@@ -347,10 +349,12 @@ class PPARunner:
 		else: # Optimization job
 			prev_iter_module_runs: Union[list[PPARun], None] = None
 			iteration_number = 0
+			context = None
 
 			while True:
-				iter_params = job_args['optimizer'](iteration_number, prev_iter_module_runs)
-				opt_complete = iter_params['opt_complete']
+				next_iter: OptimizerReturnType = job_args['optimizer'](iteration_number, prev_iter_module_runs, context)
+				opt_complete = next_iter['opt_complete']
+				context = next_iter.get('context', None)
 				iteration_number += 1
 
 				if opt_complete:
@@ -360,13 +364,14 @@ class PPARunner:
 						'ppa_runs': prev_iter_module_runs
 					}
 
+
 				# Create a clean iteration work home
 				iter_work_home = path.join(job_args['job_work_home'], str(iteration_number))
 				if path.exists(iter_work_home):
 					rmtree(iter_work_home)
 				makedirs(iter_work_home)
 
-				for i, suggestion in enumerate(iter_params['next_suggestions']):
+				for i, suggestion in enumerate(next_iter['next_suggestions']):
 					# Create a clean suggestion work home
 					suggestion_work_home = path.join(iter_work_home, str(i))
 					if path.exists(suggestion_work_home):
