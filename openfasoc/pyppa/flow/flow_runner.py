@@ -65,7 +65,6 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		)
 
 	def preprocess(self) -> TimeElapsed:
-		print(f"Started preprocessing for module `{self.get('DESIGN_NAME')}`.")
 		start_time = start_time_count()
 
 		# Add hyperparameters to source verilog templates
@@ -141,12 +140,10 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 					self.set('ABC_CLOCK_PERIOD_IN_PS', float(clk_period_matches.group(1)))
 
 		elapsed_time = get_elapsed_time(start_time)
-		print(f"Preprocessing completed for module `{self.get('DESIGN_NAME')}`. Time taken: {elapsed_time.format()}.")
 
 		return elapsed_time
 
 	def verilog_sim(self) -> tuple[str, TimeElapsed]:
-		print(f"Started {'Pre-synthesis' if self.get('VERILOG_SIM_TYPE') == 'presynth' else 'Post-synthesis'} Verilog simulations for module `{self.get('DESIGN_NAME')}`.")
 		start_time = start_time_count()
 		sim_dir = path.join(self.get('OBJECTS_DIR'), f"{self.get('VERILOG_SIM_TYPE')}_sim")
 
@@ -185,12 +182,10 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		self.set('STA_VCD_FILE', dumpfile_path)
 
 		elapsed_time = get_elapsed_time(start_time)
-		print(f"Completed {'Pre-synthesis' if self.get('VERILOG_SIM_TYPE') == 'presynth' else 'Post-synthesis'} Verilog simulations for module `{self.get('DESIGN_NAME')}`. Time taken: {elapsed_time.format()}.")
 
 		return dumpfile_path, elapsed_time
 
 	def synthesis(self) -> tuple[SynthStats, TimeElapsed]:
-		print(f"Started synthesis for module `{self.get('DESIGN_NAME')}`.")
 		start_time = start_time_count()
 
 		SYNTH_OUTPUT_FILE = path.join(self.get('RESULTS_DIR'), '1_1_yosys.v')
@@ -202,7 +197,6 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		copyfile(self.get('SDC_FILE'), path.join(self.get('RESULTS_DIR'), '1_synth.sdc'))
 
 		elapsed_time = get_elapsed_time(start_time)
-		print(f"Synthesis completed for {self.get('DESIGN_NAME')}. Time taken: {elapsed_time.format()}.")
 
 		with open(path.join(self.get('REPORTS_DIR'), 'synth_stat.json')) as statsfile:
 			stats = self.tools['synth_tool'].parse_synth_stats(statsfile.read())
@@ -210,7 +204,6 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 			return stats, elapsed_time
 
 	def postsynth_ppa(self) -> tuple[PostSynthPPAStats, TimeElapsed]:
-		print(f"Started post-synthesis PPA for module `{self.get('DESIGN_NAME')}`.")
 		start_time = start_time_count()
 
 		makedirs(self.get('RESULTS_DIR'), exist_ok = True)
@@ -219,12 +212,10 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		ppa_stats = self.tools['ppa_tool'].run_postsynth_ppa(self.get_env(), self.get('LOG_DIR'), self.get('REPORTS_DIR'))
 
 		elapsed_time = get_elapsed_time(start_time)
-		print(f"Post-synthesis PPA completed for module `{self.get('DESIGN_NAME')}`. Time taken: {elapsed_time.format()}.")
 
 		return ppa_stats, elapsed_time
 
 	def floorplan(self) -> TimeElapsed:
-		print(f"Started floorplanning for module `{self.get('DESIGN_NAME')}`.")
 		start_time = start_time_count()
 
 		makedirs(self.get('RESULTS_DIR'), exist_ok = True)
@@ -233,6 +224,5 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		self.tools['ppa_tool'].run_floorplanning(self.get_env(), self.get('LOG_DIR'))
 
 		elapsed_time = get_elapsed_time(start_time)
-		print(f"Floorplanning completed for module `{self.get('DESIGN_NAME')}`. Time taken: {elapsed_time.format()}.")
 
 		return elapsed_time
