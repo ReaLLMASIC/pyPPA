@@ -167,7 +167,7 @@ class PPARunner:
 				rmtree(job_work_home)
 			makedirs(job_work_home)
 
-			print(f"Running PPA {"Optimization" if job['mode'] == "opt" else "Sweep"} job for module `{job['module_name']}`.")
+			print(f"Running PPA {'Optimization' if job['mode'] == 'opt' else 'Sweep'} job for module `{job['module_name']}`.")
 
 			if job['mode'] == "opt": # Optimization mode
 				job_args: self.PPAOptJobArgs = {
