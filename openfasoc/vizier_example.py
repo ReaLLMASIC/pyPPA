@@ -50,10 +50,13 @@ study_client = clients.Study.from_study_config(
 )
 print('Local SQL database file located at: ', service.VIZIER_DB_PATH)
 
-def fom(area: float, period: float, total_power: float):
+def fom(area: float, period: float, constraint_period: float, total_power: float):
 	area_in_mm2 = area / 1000_000 # Convert um^2 area into mm^2
-	# Period is in ns
-	return 1 / (area_in_mm2 * period * total_power)
+
+	# We try to reduce the slack to 0 to get the optimum period
+	# While also trying to reduce the area and the total power (which increases with reducing period)
+	slack = abs(constraint_period - period)
+	return 1 / (area_in_mm2 * period * total_power * slack)
 
 def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARun], previous_suggestions):
 	if prev_iter_ppa_runs is not None:
@@ -71,6 +74,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARun], previou
 			objective = fom(
 				area=run['synth_stats']['module_area'],
 				period=run['ppa_stats']['sta']['clk']['clk_period'],
+				constraint_period=constraint_period,
 				total_power=run['ppa_stats']['power_report']['total']['total_power']
 			)
 
