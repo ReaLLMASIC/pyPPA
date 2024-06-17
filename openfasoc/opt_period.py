@@ -47,7 +47,9 @@ def period_optimizer(prev_iter_number, prev_iter_ppa_runs, constraint_period):
 		best_strategy = "ABC_SPEED" if prev_iter_ppa_runs[0]['ppa_stats']['sta']['clk']['clk_period'] < prev_iter_ppa_runs[1]['ppa_stats']['sta']['clk']['clk_period'] else "ABC_AREA"
 		print(f"{best_strategy} had the lowest period. Difference: ", abs(prev_iter_ppa_runs[0]['ppa_stats']['sta']['clk']['clk_period'] - prev_iter_ppa_runs[1]['ppa_stats']['sta']['clk']['clk_period']))
 
-		if deviation < 1e-10:
+		# A threshold of 1e-4 is chosen because the openSTA
+		# script produces a period accurate only upto 3 decimal places
+		if deviation < 1e-4:
 			# If the deviation becomes small enough, stop optimizing
 			print("Optimization complete. Best period:", next_period,  "Devation:", deviation, "Best strategy:", best_strategy)
 			return {
