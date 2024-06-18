@@ -17,13 +17,21 @@ if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
   set vIdirsArgs [join $vIdirsArgs]
 }
 
-
 # Read verilog files
-foreach file $::env(VERILOG_FILES) {
-  read_verilog -defer -sv {*}$vIdirsArgs $file
+if {$::env(USE_YOSYS_SV_PLUGIN)} {
+  puts "Using the Synlig Yosys plugin for reading Verilog/SystemVerilog."
+  foreach file $::env(VERILOG_FILES) {
+    if {[file extension $file] == ".sv"} {
+      read_systemverilog -defer {*}$vIdirsArgs $file
+    } else {
+      read_verilog -defer -sv {*}$vIdirsArgs $file
+    }
+  }
+} else {
+  foreach file $::env(VERILOG_FILES) {
+    read_verilog -defer -sv {*}$vIdirsArgs $file
+  }
 }
-
-
 
 
 # Read standard cells and macros as blackbox inputs

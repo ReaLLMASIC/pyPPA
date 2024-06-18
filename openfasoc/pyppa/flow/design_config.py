@@ -35,6 +35,8 @@ class __DesignSynthConfig(TypedDict):
 	"""The synthesis design configuration."""
 	PRESERVE_CELLS: list[str]
 	"""The list of cells to preserve the hierarchy of during synthesis."""
+	USE_YOSYS_SV_PLUGIN: bool
+	"""Whether to use the [Synlig](https://github.com/chipsalliance/synlig) SystemVerilog plugin for Yosys. (Default: `False`)"""
 
 class __DesignFloorplanConfig(TypedDict):
 	"""The floorplan design configuration."""
@@ -61,7 +63,8 @@ FLOW_DESIGN_CONFIG_DEFAULTS: FlowDesignConfigDict = {
 	'PLACE_PINS_ARGS': '',
 	'RUN_VERILOG_SIM': False,
 	'USE_STA_VCD': False,
-	'STA_TB_DUT_INSTANCE': 'dut'
+	'STA_TB_DUT_INSTANCE': 'dut',
+	'USE_YOSYS_SV_PLUGIN': False
 }
 
 class FlowDesignConfig:
@@ -107,7 +110,7 @@ class FlowDesignConfig:
 				env[key] = str(self.config[key])
 
 		# Boolean options (converted to integers)
-		for key in ('ABC_AREA', 'RUN_VERILOG_SIM', 'USE_STA_VCD'):
+		for key in ('ABC_AREA', 'RUN_VERILOG_SIM', 'USE_STA_VCD', 'USE_YOSYS_SV_PLUGIN'):
 			if key in self.config:
 				env[key] = str(int(self.config[key]))
 

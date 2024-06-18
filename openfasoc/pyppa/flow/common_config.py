@@ -40,8 +40,8 @@ class __FlowConfigTools(TypedDict):
 
 	# SYNTHESIS CONFIG
 	SYNTH_ARGS: str
-	SYNTH_HIERARCHICAL: str
 	"""Optional synthesis variables for Yosys."""
+	SYNTH_HIERARCHICAL: str
 
 FlowCommonConfigDict = Union[__FlowConfigDirectories, __FlowConfigTools]
 
