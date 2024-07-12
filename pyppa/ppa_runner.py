@@ -122,12 +122,6 @@ class PPARunner:
 		self.threads_per_job = threads_per_job
 		self.job_runner = ThreadPool(self.max_concurrent_jobs)
 
-	class ConfigSave(TypedDict):
-		module: str
-		job_number: int
-		flow_config: dict
-		hyperparameters: dict
-
 	def __save_config__(
 		work_home: str,
 		module: str,
