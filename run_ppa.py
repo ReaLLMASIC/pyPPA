@@ -54,7 +54,6 @@ gcd_runner = PPARunner(
 	max_concurrent_jobs=2,
 	threads_per_job=2,
 	global_flow_config={
-		'PLATFORM': 'sky130hd',
 		'VERILOG_FILES': [
 			path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'rtl', 'softmax.v')
 		],

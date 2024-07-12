@@ -7,7 +7,7 @@ from vizier.service import pyvizier as vz
 from os import path
 
 from pyppa import PPARunner
-from pyppa.ppa_runner import PPARun
+from pyppa.ppa.ppa_runner import PPARun
 from pyppa.tools.yosys import Yosys
 from pyppa.tools.openroad import OpenROAD
 from pyppa.tools.iverilog import Iverilog
