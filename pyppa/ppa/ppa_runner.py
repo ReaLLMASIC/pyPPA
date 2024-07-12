@@ -58,12 +58,12 @@ class PPARunner:
 			rmtree(self.work_home)
 			mkdir(self.work_home)
 
-		job_number = 0
+		run_number = 0
 		while len(self.jobs) > 0:
 			job = self.jobs.pop(0)
-			job_number += 1
+			run_number += 1
 
-			job_work_home = path.join(self.work_home, f"{job_number}_{job['module_name']}_{job['mode']}")
+			job_work_home = path.join(self.work_home, f"{run_number}_{job['module_name']}_{job['mode']}")
 			# Create a clean job work home
 			if path.exists(job_work_home):
 				rmtree(job_work_home)

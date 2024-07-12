@@ -17,7 +17,8 @@ class OptimizerReturnType(TypedDict):
 class PPARun(TypedDict):
 	module_name: str
 	"""The name of the Verilog module."""
-	iteration_number: int
+	run_number: int
+	"""The index of the PPA run."""
 	run_dir: str
 	"""The path to the directory in which the job was run."""
 	flow_config: FlowConfigDict

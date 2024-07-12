@@ -24,7 +24,7 @@ def __save_ppa_results__(
 
 def __get_ppa_results__(
 	runner: FlowRunner,
-	job_number: int,
+	run_number: int,
 	run_dir: str
 ) -> PPARun:
 	# Preprocess platform files
@@ -48,7 +48,7 @@ def __get_ppa_results__(
 
 	results: PPARun = {
 		'module_name': runner.get('DESIGN_NAME'),
-		'job_number': job_number,
+		'run_number': run_number,
 		'run_dir': run_dir,
 		'flow_config': runner.configopts,
 		'hyperparameters': runner.hyperparameters,
