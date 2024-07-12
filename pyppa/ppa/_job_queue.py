@@ -8,7 +8,8 @@ from multiprocessing import Pool
 from ..utils.config_sweep import get_configs_iterator
 from ..flow import FlowRunner
 
-from ._types import PPAJobArgs, JobRun, PPARun, OptimizerReturnType
+from ._types import PPAJobArgs, PPAOptJobArgs, PPASweepJobArgs, JobRun, PPARun, OptimizerReturnType, JobConfig
+from ._ppa import __ppa_runner__
 
 def __clear_job_queue__(self):
 	"""Recursively clears the job queue. Adds new jobs (if any) to the pool once previous jobs have been cleared."""
@@ -88,7 +89,7 @@ def __job_runner__(
 				iteration_number += 1
 
 		# Run (Sweep) all the subjobs
-		ppa_runs = subjob_runner.starmap(self.__ppa_runner__, subjobs)
+		ppa_runs = subjob_runner.starmap(__ppa_runner__, subjobs)
 		job_run: JobRun = {
 			'job': job_args['job_config'],
 			'ppa_runs': ppa_runs
@@ -155,3 +156,28 @@ def __job_runner__(
 			# Run all the subjobs and give it back to the optimizer for evaluation
 			prev_iter_module_runs = subjob_runner.starmap(self.__ppa_runner__, subjobs)
 			subjobs = []
+
+def __get_job_args__(self, job: JobConfig, job_work_home: str):
+	if job['mode'] == "opt": # Optimization mode
+		job_args: PPAOptJobArgs = {
+			'job_config': job,
+			'mode': 'opt',
+			'module_name': job['module_name'],
+			'job_work_home': job_work_home,
+			'max_threads': job.get('max_threads', self.threads_per_job),
+			'optimizer': job['optimizer']
+		}
+
+		return job_args
+	elif job['mode'] == 'sweep': # Sweep mode
+		job_args: PPASweepJobArgs = {
+			'job_config': job,
+			'mode': 'sweep',
+			'module_name': job['module_name'],
+			'max_threads': job.get('max_threads', self.threads_per_job),
+			'job_work_home': job_work_home,
+			'flow_config': job['flow_config'],
+			'hyperparameters': job['hyperparameters']
+		}
+
+		return job_args
