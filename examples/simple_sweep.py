@@ -71,3 +71,11 @@ ppa_runner.add_job({
 # Finally, run all the jobs. They will be run concurrently, and each job will be assigned a number of threads to parallelize the sweep.
 # To change the number of threads assigned per job, change the `threads_per_job` argument to the PPARunner. To change the number of concurrent jobs, change the `max_concurrent_jobs` argument to the PPARunner.
 ppa_runner.run_all_jobs()
+
+# Reading the PPA results in Python
+for job_run in ppa_runner.job_runs:
+	# The `job_runs` variable contains the PPA results for each job
+	for ppa_run in job_run['ppa_runs']:
+		# Each job run contains multiple "PPA Runs", each of which represents a particular configuration that was swept
+		print(f"Results for run #{ppa_run['iteration_number']}:")
+		print(f"Total cells={ppa_run['synth_stats']['num_cells']}, Area={ppa_run['synth_stats']['module_area']}, Seq/Comb cells = {ppa_run['ppa_stats']['num_sequential_cells']}/{ppa_run['ppa_stats']['num_combinational_cells']}; Synthesis strategy: {'Area' if ppa_run['flow_config']['ABC_AREA'] else 'Speed'}")
