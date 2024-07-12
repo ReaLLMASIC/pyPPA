@@ -194,11 +194,11 @@ class PPARunner:
 				self.jobs_queue.append(job_args)
 
 		# Run the list of jobs
-		self.clear_job_queue()
+		self.__clear_job_queue()
 
 		print(f"Completed all jobs. Total time elapsed: {get_elapsed_time(start_time).format()}.")
 
-	def clear_job_queue(self):
+	def __clear_job_queue(self):
 		"""Recursively clears the job queue. Adds new jobs (if any) to the pool once previous jobs have been cleared."""
 		to_be_run = self.jobs_queue
 		self.jobs_queue = []
@@ -209,7 +209,7 @@ class PPARunner:
 		self.job_runs.extend(job_runs)
 
 		if len(self.jobs_queue) > 0:
-			self.clear_job_queue()
+			self.__clear_job_queue()
 
 	class PPASweepJobArgs(TypedDict):
 		job_config: JobConfig
