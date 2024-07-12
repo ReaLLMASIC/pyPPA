@@ -2,15 +2,18 @@
 # Given all the other parameters are constant (except the synth strategy)
 
 from os import path
+import sys
+
+sys.path.append('..')
 
 from pyppa import PPARunner
 from pyppa.tools.yosys import Yosys
 from pyppa.tools.openroad import OpenROAD
 from pyppa.tools.iverilog import Iverilog
-from config import SKY130HD_PLATFORM_CONFIG
+from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 
 gcd_runner = PPARunner(
-	design_name="vector_engine",
+	design_name="softmax",
 	tools={
 		'verilog_sim_tool': Iverilog(scripts_dir=path.join('scripts', 'iverilog')),
 		'synth_tool': Yosys(scripts_dir=path.join('scripts', 'synth')),
@@ -22,9 +25,9 @@ gcd_runner = PPARunner(
 	global_flow_config={
 		'PLATFORM': 'sky130hd',
 		'VERILOG_FILES': [
-			path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'rtl', 'softmax.v')
+			path.join(path.dirname(__file__), 'HW', 'softmax.v')
 		],
-		'DESIGN_DIR': path.join('..', 'HW', 'comp', 'vector_engine')
+		'DESIGN_DIR': path.join(path.dirname(__file__), 'HW')
 	}
 )
 

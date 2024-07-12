@@ -1,10 +1,13 @@
 from os import path
+import sys
+
+sys.path.append('..')
 
 from pyppa import PPARunner
 from pyppa.tools.yosys import Yosys
 from pyppa.tools.openroad import OpenROAD
 from pyppa.tools.iverilog import Iverilog
-from config import SKY130HD_PLATFORM_CONFIG
+from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 
 def example_optimizer(prev_iter_number, prev_iter_ppa_runs):
 	if prev_iter_ppa_runs is not None:
@@ -44,7 +47,7 @@ def example_optimizer(prev_iter_number, prev_iter_ppa_runs):
 	}
 
 gcd_runner = PPARunner(
-	design_name="vector_engine",
+	design_name="softmax",
 	tools={
 		'verilog_sim_tool': Iverilog(scripts_dir=path.join('scripts', 'iverilog')),
 		'synth_tool': Yosys(scripts_dir=path.join('scripts', 'synth')),
@@ -55,9 +58,9 @@ gcd_runner = PPARunner(
 	threads_per_job=2,
 	global_flow_config={
 		'VERILOG_FILES': [
-			path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'rtl', 'softmax.v')
+			path.join(path.dirname(__file__), 'HW', 'softmax.v')
 		],
-		'DESIGN_DIR': path.join('..', 'HW', 'comp', 'vector_engine')
+		'DESIGN_DIR': path.join(path.dirname(__file__), 'HW')
 	}
 )
 
@@ -67,7 +70,7 @@ gcd_runner.add_job({
 	'flow_config': {
 		'RUN_VERILOG_SIM': True,
 		'VERILOG_SIM_TYPE': 'postsynth',
-		'VERILOG_TESTBENCH_FILES': [path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'tb', 'softmax_tb.v')],
+		'VERILOG_TESTBENCH_FILES': [path.join(path.dirname(__file__), 'HW', 'softmax_tb.v')],
 		'USE_STA_VCD': True
 	},
 	'hyperparameters': {

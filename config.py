@@ -1,6 +1,6 @@
 from os import path
 
-PLATFORM_DIR = path.join(path.dirname(__file__), '..', 'platforms', 'sky130hd')
+PLATFORM_DIR = path.join(path.dirname(__file__), 'platforms', 'sky130hd')
 
 SKY130HD_PLATFORM_CONFIG = {
 	# General configuration

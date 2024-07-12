@@ -14,7 +14,7 @@ from pyppa.tools.iverilog import Iverilog
 from config import SKY130HD_PLATFORM_CONFIG
 
 softmax_runner = PPARunner(
-	design_name="vector_engine",
+	design_name="softmax",
 	tools={
 		'verilog_sim_tool': Iverilog(scripts_dir=path.join('scripts', 'iverilog')),
 		'synth_tool': Yosys(scripts_dir=path.join('scripts', 'synth')),
@@ -25,9 +25,9 @@ softmax_runner = PPARunner(
 	global_flow_config={
 		'PLATFORM': 'sky130hd',
 		'VERILOG_FILES': [
-			path.join('..', 'HW', 'comp', 'vector_engine', 'softmax', 'rtl', 'softmax.v')
+			path.join(path.dirname(__file__), 'HW', 'softmax.v')
 		],
-		'DESIGN_DIR': path.join('..', 'HW', 'comp', 'vector_engine')
+		'DESIGN_DIR': path.join(path.dirname(__file__), 'HW')
 	}
 )
 
