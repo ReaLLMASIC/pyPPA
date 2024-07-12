@@ -21,3 +21,5 @@ PyPPA is entirely written in Python, except for the TCL scripts called by the ED
 
 #### Usage
 See the [simple_sweep.py](./examples/simple_sweep.py) example for a parameter-sweep example and [simple_opt.py](./examples/simple_opt.py) example for an optimization example. See [vizier_opt.py](./examples/vizier_opt.py) example a more complex optimization example using the [Vizier](https://github.com/google/vizier) optimization tool.
+
+For a list of flow configuration options, see the file [design_config.py](./pyppa/flow/design_config.py).
