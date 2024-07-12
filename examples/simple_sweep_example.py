@@ -10,7 +10,7 @@ from pyppa.tools.iverilog import Iverilog
 from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 
 # Initialize a PPA runner
-gcd_runner = PPARunner(
+ppa_runner = PPARunner(
 	# Design name can be anything
 	design_name="softmax",
 	# Define the tools to be used here
@@ -31,10 +31,10 @@ gcd_runner = PPARunner(
 )
 
 # Set the platform configuration
-gcd_runner.set_platform(SKY130HD_PLATFORM_CONFIG)
+ppa_runner.set_platform(SKY130HD_PLATFORM_CONFIG)
 
 # Add a new sweep PPA job. This job sweeps a range of flow configurations and hyperparameters
-gcd_runner.add_job({
+ppa_runner.add_job({
 	# Name of the Verilog module to run the PPA job on
 	'module_name': 'softmax',
 	'mode': 'sweep',
@@ -71,4 +71,6 @@ gcd_runner.add_job({
 	}
 })
 
-gcd_runner.run_all_jobs()
+# Finally, run all the jobs. They will be run concurrently, and each job will be assigned a number of threads to parallelize the sweep.
+# To change the number of threads assigned per job, change the `threads_per_job` argument to the PPARunner. To change the number of concurrent jobs, change the `max_concurrent_jobs` argument to the PPARunner.
+ppa_runner.run_all_jobs()

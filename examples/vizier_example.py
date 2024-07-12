@@ -13,7 +13,7 @@ from pyppa.tools.openroad import OpenROAD
 from pyppa.tools.iverilog import Iverilog
 from config import SKY130HD_PLATFORM_CONFIG
 
-softmax_runner = PPARunner(
+ppa_runner = PPARunner(
 	design_name="softmax",
 	tools={
 		'verilog_sim_tool': Iverilog(scripts_dir=path.join('scripts', 'iverilog')),
@@ -113,10 +113,10 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARun], previou
 			'context': suggestions # Send suggestions as context, and they will be sent as arguments for the next run of the optimizer.
 		}
 
-softmax_runner.add_job({
+ppa_runner.add_job({
 	'module_name': 'softmax',
 	'mode': 'opt',
 	'optimizer': vizier_optimizer
 })
 
-softmax_runner.run_all_jobs()
+ppa_runner.run_all_jobs()

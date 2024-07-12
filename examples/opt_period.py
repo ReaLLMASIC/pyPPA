@@ -12,7 +12,7 @@ from pyppa.tools.openroad import OpenROAD
 from pyppa.tools.iverilog import Iverilog
 from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 
-gcd_runner = PPARunner(
+ppa_runner = PPARunner(
 	design_name="softmax",
 	tools={
 		'verilog_sim_tool': Iverilog(scripts_dir=path.join('scripts', 'iverilog')),
@@ -88,10 +88,10 @@ def period_optimizer(prev_iter_number, prev_iter_ppa_runs, constraint_period):
 		'context': next_period
 	}
 
-gcd_runner.add_job({
+ppa_runner.add_job({
 	'module_name': 'softmax',
 	'mode': 'opt',
 	'optimizer': period_optimizer
 })
 
-gcd_runner.run_all_jobs()
+ppa_runner.run_all_jobs()

@@ -46,7 +46,7 @@ def example_optimizer(prev_iter_number, prev_iter_ppa_runs):
 		]
 	}
 
-gcd_runner = PPARunner(
+ppa_runner = PPARunner(
 	design_name="softmax",
 	tools={
 		'verilog_sim_tool': Iverilog(scripts_dir=path.join('scripts', 'iverilog')),
@@ -64,25 +64,10 @@ gcd_runner = PPARunner(
 	}
 )
 
-gcd_runner.add_job({
-	'module_name': 'softmax',
-	'mode': 'sweep',
-	'flow_config': {
-		'RUN_VERILOG_SIM': True,
-		'VERILOG_SIM_TYPE': 'postsynth',
-		'VERILOG_TESTBENCH_FILES': [path.join(path.dirname(__file__), 'HW', 'softmax_tb.v')],
-		'USE_STA_VCD': True
-	},
-	'hyperparameters': {
-		'clk_period': {
-			'values': [10, 20, 30]
-		}
-	}
-})
-gcd_runner.add_job({
+ppa_runner.add_job({
 	'module_name': 'softmax',
 	'mode': 'opt',
 	'optimizer': example_optimizer
 })
 
-gcd_runner.run_all_jobs()
+ppa_runner.run_all_jobs()
