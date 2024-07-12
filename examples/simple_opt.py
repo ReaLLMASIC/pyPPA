@@ -6,9 +6,7 @@ import sys
 sys.path.append('..')
 
 from pyppa import PPARunner
-from pyppa.tools.yosys import Yosys
-from pyppa.tools.openroad import OpenROAD
-from pyppa.tools.iverilog import Iverilog
+from pyppa.tools import Yosys, OpenROAD, Iverilog
 from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 
 # Initialize a PPA runner
