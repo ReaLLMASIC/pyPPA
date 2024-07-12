@@ -282,11 +282,6 @@ class PPARunner:
 
 		return results
 
-	def __getstate__(self):
-		self_dict = self.__dict__.copy()
-		del self_dict['job_runner']
-		return self_dict
-
 	def __job_runner__(
 		self,
 		job_args: Union[PPASweepJobArgs, PPAOptJobArgs]
@@ -417,9 +412,3 @@ class PPARunner:
 		# Save and return the results for the run
 		PPARunner.__save_ppa__(work_home, run_results)
 		return run_results
-
-	def clean_runs(self):
-		rmtree(self.global_flow_config.get('WORK_HOME'))
-
-	def get_sweep_runs(self, module_name: str) -> list[PPARun]:
-		return self.job_runs[module_name]
