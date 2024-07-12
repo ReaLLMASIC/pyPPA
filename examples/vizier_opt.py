@@ -1,3 +1,4 @@
+# This is a more complex and useful optimization example that uses the Vizier optimization tool by Google for running the optimization. See https://github.com/google/vizier for more information on Vizier.
 # Install vizier using `pip install google-vizier[jax]`
 
 from vizier import service
@@ -37,7 +38,7 @@ problem.search_space.root.add_bool_param('abc_area')
 problem.metric_information.append(
     vz.MetricInformation(
         name='fom',
-		goal=vz.ObjectiveMetricGoal.MAXIMIZE
+		goal=vz.ObjectiveMetricGoal.MINIMIZE
 	)
 )
 
@@ -50,13 +51,11 @@ study_client = clients.Study.from_study_config(
 )
 print('Local SQL database file located at: ', service.VIZIER_DB_PATH)
 
-def fom(area: float, period: float, constraint_period: float, total_power: float):
+def fom(area: float, period: float, total_power: float):
 	area_in_mm2 = area / 1000_000 # Convert um^2 area into mm^2
 
-	# We try to reduce the slack to 0 to get the optimum period
-	# While also trying to reduce the area and the total power (which increases with reducing period)
-	slack = abs(constraint_period - period)
-	return 1 / (area_in_mm2 * period * total_power * slack)
+	# The objective function/figure of merit (which is minimized), is the product of the area, period, and power attempts to minimize all three.
+	return area_in_mm2 * period * total_power
 
 def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARun], previous_suggestions):
 	if prev_iter_ppa_runs is not None:
@@ -74,7 +73,6 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARun], previou
 			objective = fom(
 				area=run['synth_stats']['module_area'],
 				period=run['ppa_stats']['sta']['clk']['clk_period'],
-				constraint_period=constraint_period,
 				total_power=run['ppa_stats']['power_report']['total']['total_power']
 			)
 
@@ -82,8 +80,9 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARun], previou
 			final_measurement = vz.Measurement({'fom': objective})
 			suggestion.complete(final_measurement)
 
-	if prev_iter_number >= 10: # Go for 10 iterations
+	if prev_iter_number >= 10: # Run for 10 iterations and then stop
 		print("Optimization complete.")
+		# Print the optimal Vizier trials
 		for optimal_trial in study_client.optimal_trials():
 			optimal_trial = optimal_trial.materialize()
 			print(
@@ -99,19 +98,19 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARun], previou
 	# Assign new suggestions
 	suggestions = study_client.suggest(count=3) # Since 3 threads per job
 	return {
-			'opt_complete': False,
-			'next_suggestions': [
-				{
-					'flow_config': {
-						'ABC_AREA': bool(suggestion.parameters['abc_area'])
-					},
-					'hyperparameters': {
-						'clk_period': suggestion.parameters['constraint_period']
-					}
-				} for suggestion in suggestions
-			],
-			'context': suggestions # Send suggestions as context, and they will be sent as arguments for the next run of the optimizer.
-		}
+		'opt_complete': False,
+		'next_suggestions': [
+			{
+				'flow_config': {
+					'ABC_AREA': bool(suggestion.parameters['abc_area'])
+				},
+				'hyperparameters': {
+					'clk_period': suggestion.parameters['constraint_period']
+				}
+			} for suggestion in suggestions
+		],
+		'context': suggestions # Send suggestions as context, and they will be sent as arguments for the next run of the optimizer.
+	}
 
 ppa_runner.add_job({
 	'module_name': 'softmax',
