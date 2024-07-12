@@ -9,7 +9,10 @@ PyPPA is entirely written in Python, except for the TCL scripts called by the ED
 2. Install [Yosys](https://github.com/YosysHQ/yosys) and [OpenROAD](https://github.com/the-OpenROAD-Project/openroad) by either of the following methods:
 	- Install from `litex-hub` via Conda (recommended).
 		1. Install [Miniconda](https://docs.anaconda.com/miniconda/miniconda-install/).
-		2. Run `conda install -c litex-hub yosys openroad`.
+		2. Create a new environment: `conda create --name "pyppa" python=3.10`
+		3. Activate the new environment: `conda activate pyppa`
+		4. Run `conda install -c litex-hub yosys openroad` to install Yosys and OpenROAD.
+		5. Activate the environment to use these packages each time.
 	- OpenFASoC [installation guide](https://openfasoc.readthedocs.io/en/latest/getting-started.html) but it includes extra tools.
 	- Since PyPPA is based on the OpenROAD flow scrips (ORFS), its [documentation](https://openroad-flow-scripts.readthedocs.io/en/latest/user/UserGuide.html) can be followed to install the tools but this also includes Klayout.
 	- Build from source: [Yosys documentation](https://yosyshq.net/yosys/download.html), [OpenROAD documentation](https://openroad.readthedocs.io/en/latest/user/Build.html).
