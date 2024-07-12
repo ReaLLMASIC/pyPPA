@@ -6,7 +6,7 @@ from multiprocessing.pool import ThreadPool
 from ..flow import FlowConfigDict, FlowPlatformConfigDict, FlowTools
 from ..utils.time import start_time_count, get_elapsed_time
 
-from ._types import JobConfig, JobRun, PPAJobArgs, PPARun
+from ._types import JobConfig, JobRun, PPAJobArgs
 
 class PPARunner:
 	design_name: str
