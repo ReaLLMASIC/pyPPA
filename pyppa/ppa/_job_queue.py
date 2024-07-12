@@ -154,7 +154,7 @@ def __job_runner__(
 				subjobs.append((flow_runner, suggestion_work_home, iteration_number))
 
 			# Run all the subjobs and give it back to the optimizer for evaluation
-			prev_iter_module_runs = subjob_runner.starmap(self.__ppa_runner__, subjobs)
+			prev_iter_module_runs = subjob_runner.starmap(__ppa_runner__, subjobs)
 			subjobs = []
 
 def __get_job_args__(self, job: JobConfig, job_work_home: str):

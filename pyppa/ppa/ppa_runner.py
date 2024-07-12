@@ -21,7 +21,7 @@ class PPARunner:
 	job_runner: Type[ThreadPool]
 	jobs_queue: list[PPAJobArgs] = []
 
-	from ._job_queue import __clear_job_queue__, __get_job_args__
+	from ._job_queue import __clear_job_queue__, __get_job_args__, __job_runner__
 
 	def __init__(
 		self,
@@ -43,6 +43,9 @@ class PPARunner:
 		self.max_concurrent_jobs = max_concurrent_jobs
 		self.threads_per_job = threads_per_job
 		self.job_runner = ThreadPool(self.max_concurrent_jobs)
+
+	def set_platform(self, platform: FlowPlatformConfigDict):
+		self.platform_config = platform
 
 	def add_job(self, job: JobConfig):
 		self.jobs.append(job)
