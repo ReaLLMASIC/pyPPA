@@ -4,7 +4,7 @@
 from os import path
 import sys
 
-sys.path.append('..')
+sys.path.append(path.join(path.dirname(__file__), '..'))
 
 from pyppa import PPARunner
 from pyppa.tools import Yosys, OpenROAD, Iverilog

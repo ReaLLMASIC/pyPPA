@@ -7,6 +7,8 @@ from vizier.service import pyvizier as vz
 
 from os import path
 
+sys.path.append(path.join(path.dirname(__file__), '..'))
+
 from pyppa import PPARunner
 from pyppa.tools import Yosys, OpenROAD, Iverilog
 from pyppa.ppa.ppa_runner import PPARun
