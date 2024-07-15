@@ -6,13 +6,14 @@ from mako.template import Template
 import re
 
 from ..tools.blueprint import SynthTool, SynthStats, PPATool, PostSynthPPAStats, PowerReport, VerilogSimTool
-from ..tools.utils import call_util_script
 
 from ..utils.time import start_time_count, get_elapsed_time, TimeElapsed
 
 from .common_config import FlowCommonConfigDict, FlowCommonConfig
 from .platform_config import FlowPlatformConfigDict, FlowPlatformConfig
 from .design_config import FlowDesignConfigDict, FlowDesignConfig
+
+from ._flow_utils import markDontUse
 
 FlowConfigDict = Union[FlowCommonConfigDict, FlowPlatformConfigDict, FlowDesignConfigDict]
 
@@ -98,21 +99,16 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		# Mark libraries as dont use
 		dont_use_libs = []
 
-		for libfile in self.get('LIB_FILES'):
-			output_file = path.join(self.get('OBJECTS_DIR'), 'lib', path.basename(libfile))
-			call_util_script(
-				'markDontUse.py',
-				[
-					'-p', ' '.join(self.get('DONT_USE_CELLS')),
-					'-i', libfile,
-					'-o', output_file
-				],
-				self.get('UTILS_DIR'),
-				self.get_env(),
-				PREPROC_LOG_FILE
-			)
-
-			dont_use_libs.append(output_file)
+		with open(PREPROC_LOG_FILE, 'w') as log_file:
+			for lib_file in self.get('LIB_FILES'):
+				output_file = path.join(self.get('OBJECTS_DIR'), 'lib', path.basename(lib_file))
+				markDontUse(
+					patterns=' '.join(self.get('DONT_USE_CELLS')),
+					inputFile=lib_file,
+					outputFile=output_file,
+					logFile=log_file
+				)
+				dont_use_libs.append(output_file)
 
 		self.set('DONT_USE_LIBS', dont_use_libs)
 		self.set('DONT_USE_SC_LIB', self.get('DONT_USE_LIBS'))
