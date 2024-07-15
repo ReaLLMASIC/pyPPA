@@ -68,7 +68,7 @@ class FlowCommonConfig:
 		# Set defaults for static directories
 		self.config['DESIGN_HOME'] = self.configopts.get('DESIGN_HOME', path.join(self.config['FLOW_HOME'], 'designs'))
 		self.config['DESIGN_DIR'] = self.configopts.get('DESIGN_DIR', path.join(self.config['DESIGN_HOME'], self.config['PLATFORM'], self.config['DESIGN_NAME']))
-		self.config['UTILS_DIR'] = self.configopts.get('UTILS_DIR', path.join(self.config['FLOW_HOME'], 'util', 'orfs'))
+		self.config['UTILS_DIR'] = self.configopts.get('UTILS_DIR', path.join(self.config['FLOW_HOME'], 'util'))
 		self.config['SCRIPTS_DIR'] = self.configopts.get('SCRIPTS_DIR', path.join(self.config['FLOW_HOME'], 'scripts'))
 		self.config['PLATFORM_HOME'] = self.configopts.get('PLATFORM_HOME', path.join(self.config['FLOW_HOME'], 'platforms'))
 		self.config['PLATFORM_DIR'] = self.configopts.get('PLATFORM_DIR', path.join(self.config['PLATFORM_HOME'], self.config['PLATFORM']))
