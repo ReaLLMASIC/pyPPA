@@ -3,6 +3,8 @@ from os import path
 
 class __PlatformCommonConfig(TypedDict):
 	"""The common platform configuration."""
+	PLATFORM_DIR: str
+	"""The directory in which the platform configuration is stored."""
 	PLATFORM: str
 	"""The process design kit to be used."""
 	PROCESS: int
