@@ -9,7 +9,7 @@ class __DesignCommonConfig(TypedDict):
 	VERILOG_FILES: list[str]
 	"""The paths to the design Verilog files."""
 	SDC_FILE: str
-	"""The path to design constraint (SDC) file. Default: `[design_dir]/constraint.sdc"""
+	"""The path to design constraint (SDC) file. Default: `./constraint.sdc"""
 	ABC_AREA: bool
 	"""Whether to use `ABC_AREA` strategy for Yosys synthesis. Setting it to false will use `ABC_SPEED` strategy. Default: `False`"""
 	ABC_CLOCK_PERIOD_IN_PS: float
@@ -75,7 +75,7 @@ class FlowDesignConfig:
 		# self.configopts = configopts.copy()
 		self.config = {**FLOW_DESIGN_CONFIG_DEFAULTS, **self.config}
 
-		self.config['SDC_FILE'] = self.config.get('SDC_FILE', path.join(self.config['DESIGN_DIR'], 'constraint.sdc'))
+		self.config['SDC_FILE'] = self.config.get('SDC_FILE', 'constraint.sdc')
 
 		# Set the default verilog testbench module name as {DESIGN_NAME}_tb
 		self.config['VERILOG_TESTBENCH_MODULE'] = self.config.get('VERILOG_TESTBENCH_MODULE', f"{self.config['DESIGN_NAME']}_tb")
