@@ -7,8 +7,6 @@ class __FlowConfigDirectories(TypedDict):
 	"""The home directory for the flow scripts. Default: `.`"""
 	WORK_HOME: str
 	"""The directory in which all the outputs are generated."""
-	UTILS_DIR: str
-	"""The directory in which util functions are stored. Default: `[flow_home]/util/`"""
 	RESULTS_DIR: str
 	"""The directory in which all flow results will be generated. Default: `[flow_home]/results/[platform]/[design_name]/`"""
 	LOG_DIR: str
@@ -45,9 +43,6 @@ class FlowCommonConfig:
 		self.calculate_dirs()
 
 	def calculate_dirs(self):
-		# Set defaults for static directories
-		self.config['UTILS_DIR'] = self.configopts.get('UTILS_DIR', path.join(self.config['FLOW_HOME'], 'util'))
-
 		# Set defaults for generated directories
 		self.config['RESULTS_DIR'] = self.configopts.get('RESULTS_DIR', path.join(self.config['WORK_HOME'], 'results'))
 		self.config['LOG_DIR'] = self.configopts.get('LOG_DIR', path.join(self.config['WORK_HOME'], 'logs'))
