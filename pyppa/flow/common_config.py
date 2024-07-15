@@ -3,18 +3,16 @@ from os import path
 
 class __FlowConfigDirectories(TypedDict):
 	"""The flow directories."""
-	FLOW_HOME: str
-	"""The home directory for the flow scripts. Default: `.`"""
 	WORK_HOME: str
 	"""The directory in which all the outputs are generated."""
 	RESULTS_DIR: str
-	"""The directory in which all flow results will be generated. Default: `[flow_home]/results/[platform]/[design_name]/`"""
+	"""The directory in which all flow results will be generated. Default: `[work_home]/results`"""
 	LOG_DIR: str
-	"""The directory in which all log files will be generated. Default: `[flow_home]/logs/[platform]/[design_name]/`"""
+	"""The directory in which all log files will be generated. Default: `[work_home]/logs`"""
 	REPORTS_DIR: str
-	"""The directory in which all reports will be generated. Default: `[flow_home]/reports/[platform]/[design_name]/`"""
+	"""The directory in which all reports will be generated. Default: `[work_home]/reports`"""
 	OBJECTS_DIR: str
-	"""The directory in which all objects will be generated. Default: `[flow_home]/objects/[platform]/[design_name]/`"""
+	"""The directory in which all objects will be generated. Default: `[work_home]/objects`"""
 
 class __FlowConfigTools(TypedDict):
 	"""The tool configurations."""
@@ -27,7 +25,6 @@ class __FlowConfigTools(TypedDict):
 FlowCommonConfigDict = Union[__FlowConfigDirectories, __FlowConfigTools]
 
 FLOW_COMMON_CONFIG_DEFAULTS: FlowCommonConfigDict = {
-	'FLOW_HOME': path.abspath('.'),
 	'WORK_HOME': path.abspath('.'),
 	'SYNTH_ARGS': '-flatten'
 }
