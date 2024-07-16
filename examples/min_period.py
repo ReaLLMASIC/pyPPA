@@ -21,11 +21,10 @@ ppa_runner = PPARunner(
 	max_concurrent_jobs=2,
 	threads_per_job=2,
 	global_flow_config={
-		'PLATFORM': 'sky130hd',
 		'VERILOG_FILES': [
 			path.join(path.dirname(__file__), 'HW', 'softmax.v')
 		],
-		'DESIGN_DIR': path.join(path.dirname(__file__), 'HW')
+		'SDC_FILE': path.join(path.dirname(__file__), 'HW', 'constraint.sdc')
 	}
 )
 

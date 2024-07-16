@@ -25,8 +25,8 @@ ppa_runner = PPARunner(
 		'VERILOG_FILES': [
 			path.join(path.dirname(__file__), 'HW', 'softmax.v')
 		],
-		# The directory in which the source files are. The constraint.sdc file is read from this directory.
-		'DESIGN_DIR': path.join(path.dirname(__file__), 'HW')
+		# The constraint SDC file path.
+		'SDC_FILE': path.join(path.dirname(__file__), 'HW', 'constraint.sdc')
 	}
 )
 
