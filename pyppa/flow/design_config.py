@@ -103,22 +103,4 @@ class FlowDesignConfig:
 
 				self.config[key] = verilog_paths
 
-	def get_env(self, init_env: Optional[dict]):
-		env = {**init_env} if init_env is not None else {**self.config}
-
-		# List options
-		for key in ('DIE_AREA', 'CORE_AREA', 'VERILOG_FILES', 'VERILOG_TESTBENCH_FILES', 'PRESERVE_HIERARCHY_MODULES'):
-			if key in self.config:
-				env[key] = ' '.join(self.config[key])
-
-		# Numeric options
-		for key in ('CORE_UTILIZATION', 'CORE_ASPECT_RATIO', 'CORE_MARGIN', 'ABC_CLOCK_PERIOD_IN_PS'):
-			if key in self.config:
-				env[key] = str(self.config[key])
-
-		# Boolean options (converted to integers)
-		for key in ('ABC_AREA', 'RUN_VERILOG_SIM', 'USE_STA_VCD', 'USE_YOSYS_SV_PLUGIN', 'SYNTH_HIERARCHICAL'):
-			if key in self.config:
-				env[key] = str(int(self.config[key]))
-
-		return env
+	from ._get_env import get_env

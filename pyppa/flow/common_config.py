@@ -40,7 +40,4 @@ class FlowCommonConfig:
 		self.config['REPORTS_DIR'] = self.configopts.get('REPORTS_DIR', path.join(self.config['WORK_HOME'], 'reports'))
 		self.config['OBJECTS_DIR'] = self.configopts.get('OBJECTS_DIR', path.join(self.config['WORK_HOME'], 'objects'))
 
-	def get_env(self, init_env: Optional[dict]):
-		env = {**init_env} if init_env is not None else {**self.config}
-
-		return env
+	from ._get_env import get_env

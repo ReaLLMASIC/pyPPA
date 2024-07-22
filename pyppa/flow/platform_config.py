@@ -90,18 +90,4 @@ class FlowPlatformConfig:
 		self.config['PDN_TCL'] = self.config.get('PDN_TCL', path.join(self.config['PLATFORM_DIR'], 'pdn.tcl'))
 		self.config['TAPCELL_TCL'] = self.config.get('TAPCELL_TCL', path.join(self.config['PLATFORM_DIR'], 'tapcell.tcl'))
 
-	def get_env(self, init_env: Optional[dict]):
-		env = {**init_env} if init_env is not None else {**self.config}
-
-		for key in ('LIB_FILES', 'GDS_FILES', 'DONT_USE_CELLS', 'DONT_USE_LIBS', 'DONT_USE_SC_LIB', 'FILL_CELLS', 'TIEHI_CELL_AND_PORT', 'TIELO_CELL_AND_PORT', 'MIN_BUF_CELL_AND_PORTS', ):
-			if key in self.config:
-				env[key] = ' '.join(self.config[key])
-
-		for key in ('ABC_LOAD_IN_FF', 'PROCESS'):
-			if key in self.config:
-				env[key] = str(self.config[key])
-
-		for key in ('MACRO_PLACE_HALO', 'MACRO_PLACE_CHANNEL'):
-			env[key] = f"{self.config[key][0]} {self.config[key][1]}"
-
-		return env
+	from ._get_env import get_env
