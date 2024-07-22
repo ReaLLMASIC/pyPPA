@@ -2,7 +2,7 @@ source $::env(SCRIPTS_DIR)/synth_preamble.tcl
 
 # Generic synthesis
 if {[info exists ::env(SYNTH_HIERARCHICAL)] && $::env(SYNTH_HIERARCHICAL) != 1} {
-  append $::env(SYNTH_HIERARCHICAL) " -flatten"
+  append $::env(SYNTH_ARGS) " -flatten"
 }
 synth  -top $::env(DESIGN_NAME) {*}$::env(SYNTH_ARGS)
 
