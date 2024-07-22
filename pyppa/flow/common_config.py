@@ -17,16 +17,10 @@ class __FlowConfigDirectories(TypedDict):
 class __FlowConfigTools(TypedDict):
 	"""The tool configurations."""
 
-	# SYNTHESIS CONFIG
-	SYNTH_ARGS: str
-	"""Optional synthesis variables for Yosys."""
-	SYNTH_HIERARCHICAL: str
-
 FlowCommonConfigDict = Union[__FlowConfigDirectories, __FlowConfigTools]
 
 FLOW_COMMON_CONFIG_DEFAULTS: FlowCommonConfigDict = {
-	'WORK_HOME': path.abspath('.'),
-	'SYNTH_ARGS': '-flatten'
+	'WORK_HOME': path.abspath('.')
 }
 
 class FlowCommonConfig:

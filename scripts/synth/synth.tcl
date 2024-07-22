@@ -1,11 +1,9 @@
 source $::env(SCRIPTS_DIR)/synth_preamble.tcl
 
-if { [info exist ::env(SYNTH_HIERARCHICAL)] && $::env(SYNTH_HIERARCHICAL) == 1 && [file isfile $::env(SYNTH_STOP_MODULE_SCRIPT)] } {
-  puts "Sourcing $::env(SYNTH_STOP_MODULE_SCRIPT)"
-  source $::env(SYNTH_STOP_MODULE_SCRIPT)
-}
-
 # Generic synthesis
+if {[info exists ::env(SYNTH_HIERARCHICAL)] && $::env(SYNTH_HIERARCHICAL) != 1} {
+  append $::env(SYNTH_HIERARCHICAL) " -flatten"
+}
 synth  -top $::env(DESIGN_NAME) {*}$::env(SYNTH_ARGS)
 
 if { [info exists ::env(USE_LSORACLE)] } {

@@ -33,10 +33,14 @@ class __STAConfig(TypedDict):
 
 class __DesignSynthConfig(TypedDict):
 	"""The synthesis design configuration."""
-	PRESERVE_CELLS: list[str]
-	"""The list of cells to preserve the hierarchy of during synthesis."""
 	USE_YOSYS_SV_PLUGIN: bool
 	"""Whether to use the [Synlig](https://github.com/chipsalliance/synlig) SystemVerilog plugin for Yosys. (Default: `False`)"""
+	SYNTH_HIERARCHICAL: bool
+	"""Whether to run hierarchical synthesis. Default: `false`"""
+	PRESERVE_HIERARCHY_MODULES: list[str]
+	"""List of modules to preserve during flattening. This is applicable only if `SYNTH_HIERARCHICAL` is set to `False`."""
+	SYNTH_ARGS: str
+	"""Optional arguments given to the Yosys `synth` command."""
 
 class __DesignFloorplanConfig(TypedDict):
 	"""The floorplan design configuration."""
@@ -64,7 +68,10 @@ FLOW_DESIGN_CONFIG_DEFAULTS: FlowDesignConfigDict = {
 	'RUN_VERILOG_SIM': False,
 	'USE_STA_VCD': False,
 	'STA_TB_DUT_INSTANCE': 'dut',
-	'USE_YOSYS_SV_PLUGIN': False
+	'USE_YOSYS_SV_PLUGIN': False,
+	'SYNTH_HIERARCHICAL': False,
+	'PRESERVE_HIERARCHY_MODULES': [],
+	'SYNTH_ARGS': ''
 }
 
 class FlowDesignConfig:
@@ -100,7 +107,7 @@ class FlowDesignConfig:
 		env = {**init_env} if init_env is not None else {**self.config}
 
 		# List options
-		for key in ('PRESERVE_CELLS', 'DIE_AREA', 'CORE_AREA', 'VERILOG_FILES', 'VERILOG_TESTBENCH_FILES'):
+		for key in ('DIE_AREA', 'CORE_AREA', 'VERILOG_FILES', 'VERILOG_TESTBENCH_FILES', 'PRESERVE_HIERARCHY_MODULES'):
 			if key in self.config:
 				env[key] = ' '.join(self.config[key])
 
@@ -110,7 +117,7 @@ class FlowDesignConfig:
 				env[key] = str(self.config[key])
 
 		# Boolean options (converted to integers)
-		for key in ('ABC_AREA', 'RUN_VERILOG_SIM', 'USE_STA_VCD', 'USE_YOSYS_SV_PLUGIN'):
+		for key in ('ABC_AREA', 'RUN_VERILOG_SIM', 'USE_STA_VCD', 'USE_YOSYS_SV_PLUGIN', 'SYNTH_HIERARCHICAL'):
 			if key in self.config:
 				env[key] = str(int(self.config[key]))
 

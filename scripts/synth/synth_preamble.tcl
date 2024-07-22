@@ -51,17 +51,16 @@ if {[info exist ::env(CLKGATE_MAP_FILE)]} {
 }
 
 # Mark modules to keep from getting removed in flattening
-if {[info exist ::env(PRESERVE_CELLS)]} {
+if {[info exist ::env(PRESERVE_HIERARCHY_MODULES)] } {
   # Expand hierarchy since verilog was read in with -defer
   hierarchy -check -top $::env(DESIGN_NAME)
-  foreach cell $::env(PRESERVE_CELLS) {
-    select -module $cell
+  foreach module $::env(PRESERVE_HIERARCHY_MODULES) {
+    puts "Preserving the hierarchy of module: `$module`"
+    select -module $module
     setattr -mod -set keep_hierarchy 1
     select -clear
   }
 }
-
-
 
 if {[info exist ::env(BLOCKS)]} {
   hierarchy -check -top $::env(DESIGN_NAME)
