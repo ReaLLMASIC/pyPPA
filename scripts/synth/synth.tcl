@@ -1,10 +1,12 @@
 source $::env(SCRIPTS_DIR)/synth_preamble.tcl
 
 # Generic synthesis
+set final_synth_args $::env(SYNTH_ARGS)
 if {[info exists ::env(SYNTH_HIERARCHICAL)] && $::env(SYNTH_HIERARCHICAL) != 1} {
-  append $::env(SYNTH_ARGS) " -flatten"
+  puts "Flattening the hierarchy."
+  append final_synth_args " -flatten"
 }
-synth  -top $::env(DESIGN_NAME) {*}$::env(SYNTH_ARGS)
+synth  -top $::env(DESIGN_NAME) {*}$final_synth_args
 
 if { [info exists ::env(USE_LSORACLE)] } {
     set lso_script [open $::env(OBJECTS_DIR)/lso.script w]
