@@ -53,11 +53,6 @@ class PPARunner:
 	def run_all_jobs(self):
 		start_time = start_time_count()
 
-		# Clear contents of the work home
-		if path.exists(self.work_home):
-			rmtree(self.work_home)
-			mkdir(self.work_home)
-
 		run_number = 0
 		while len(self.jobs) > 0:
 			job = self.jobs.pop(0)
