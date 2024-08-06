@@ -1,5 +1,4 @@
 import time
-import json
 
 class TimeElapsed():
 	days: int

@@ -1,4 +1,4 @@
-from typing import TypedDict, Union, Optional
+from typing import TypedDict, Union
 from os import path
 from ..utils.path_utils import enumerate_dir_recursive
 

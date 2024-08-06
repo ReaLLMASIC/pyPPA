@@ -1,4 +1,4 @@
-from typing import TypedDict, Union, Optional
+from typing import TypedDict, Union
 from os import path
 
 class __PlatformCommonConfig(TypedDict):

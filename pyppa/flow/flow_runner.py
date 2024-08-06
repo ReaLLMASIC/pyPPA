@@ -5,7 +5,7 @@ from shutil import copyfile
 from mako.template import Template
 import re
 
-from ..tools.blueprint import SynthTool, SynthStats, PPATool, PostSynthPPAStats, PowerReport, VerilogSimTool
+from ..tools.blueprint import SynthTool, SynthStats, PPATool, PostSynthPPAStats, VerilogSimTool
 
 from ..utils.time import start_time_count, get_elapsed_time, TimeElapsed
 
@@ -111,7 +111,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 				dont_use_libs.append(output_file)
 
 		self.set('DONT_USE_LIBS', dont_use_libs)
-		self.set('DONT_USE_SC_LIB', self.get('DONT_USE_LIBS'))
+		self.set('DONT_USE_SC_LIB', self.get('DONT_USE_LIBS')[0])
 
 		with open(self.get('SDC_FILE')) as sdc_file:
 			# Move the SDC file into the objects dir and add the hyperparameters to it

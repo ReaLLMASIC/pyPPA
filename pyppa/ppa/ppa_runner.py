@@ -1,5 +1,5 @@
 from typing import Optional, Type
-from os import path, mkdir, makedirs
+from os import path, makedirs
 from shutil import rmtree
 from multiprocessing.pool import ThreadPool
 
