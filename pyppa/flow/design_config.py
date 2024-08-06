@@ -14,6 +14,8 @@ class __DesignCommonConfig(TypedDict):
 	"""Whether to use `ABC_AREA` strategy for Yosys synthesis. Setting it to false will use `ABC_SPEED` strategy. Default: `False`"""
 	ABC_CLOCK_PERIOD_IN_PS: float
 	"""Clock period to be used by STA during synthesis. Default value read from `constraint.sdc`."""
+	ADDITIONAL_LIB_FILES: list[str]
+	"""Paths to additional `.lib` files included for the design. These files are appended to the platform lib files."""
 
 class __STAConfig(TypedDict):
 	RUN_VERILOG_SIM: bool
@@ -71,7 +73,8 @@ FLOW_DESIGN_CONFIG_DEFAULTS: FlowDesignConfigDict = {
 	'USE_YOSYS_SV_PLUGIN': False,
 	'SYNTH_HIERARCHICAL': False,
 	'PRESERVE_HIERARCHY_MODULES': [],
-	'SYNTH_ARGS': ''
+	'SYNTH_ARGS': '',
+	'ADDITIONAL_LIB_FILES': []
 }
 
 class FlowDesignConfig:

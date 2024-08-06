@@ -100,7 +100,7 @@ class FlowRunner(FlowCommonConfig, FlowPlatformConfig, FlowDesignConfig):
 		dont_use_libs = []
 
 		with open(PREPROC_LOG_FILE, 'w') as log_file:
-			for lib_file in self.get('LIB_FILES'):
+			for lib_file in self.get('LIB_FILES') + self.get('ADDITIONAL_LIB_FILES'):
 				output_file = path.join(self.get('OBJECTS_DIR'), 'lib', path.basename(lib_file))
 				markDontUse(
 					patterns=' '.join(self.get('DONT_USE_CELLS')),
