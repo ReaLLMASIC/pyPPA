@@ -39,28 +39,39 @@ module relu_tb;
         // Initialize inputs
         $dumpfile("relu.vcd");
         $dumpvars(0, relu_tb);
+        clk = 0;
         rst_n = 0;
         in_fixed_data = 0;
         in_fixed_data_vld = 0;
 
         // Apply reset
-        #10 rst_n = 1;
+        @(negedge clk) rst_n = 1;
 
         // Test case 1: All positive inputs
-        #10;
+        @(negedge clk);
         in_fixed_data = {8'h80, 8'd20, 8'd30, 8'd40, 8'd50, 8'd60, 8'd70, 8'hff};
         in_fixed_data_vld = 8'b11111111;
-        #10;
+        @(negedge clk);
 
         // Test case 5: All zero input data
         in_fixed_data = {8{8'd0}};
         in_fixed_data_vld = 8'b11111111;
-        #10;
+
+        // random cases
+        repeat (500) begin
+            input_gen();
+        end
 
         // End simulation
         #20;
         $finish;
     end
 
-
+    task input_gen;
+    begin
+        @(posedge clk)
+        in_fixed_data = {$random, $random};
+        in_fixed_data_vld = $random;
+    end
+    endtask
 endmodule
