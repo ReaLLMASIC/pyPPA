@@ -9,7 +9,7 @@ from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 # Initialize a PPA runner
 ppa_runner = PPARunner(
 	# Design name can be anything
-	design_name="softmax",
+	design_name="relu",
 	# Define the tools to be used here
 	tools={
 		'verilog_sim_tool': Iverilog(scripts_dir=path.join('scripts', 'iverilog')),
@@ -20,7 +20,7 @@ ppa_runner = PPARunner(
 	global_flow_config={
 		# Source Verilog files.
 		'VERILOG_FILES': [
-			path.join(path.dirname(__file__), 'HW', 'softmax.v')
+			path.join(path.dirname(__file__), 'HW', 'relu.v')
 		],
 		# The constraint SDC file path.
 		'SDC_FILE': path.join(path.dirname(__file__), 'HW', 'constraint.sdc')
@@ -33,7 +33,7 @@ ppa_runner.set_platform(SKY130HD_PLATFORM_CONFIG)
 # Add a new sweep PPA job. This job sweeps a range of flow configurations and hyperparameters
 ppa_runner.add_job({
 	# Name of the Verilog module to run the PPA job on
-	'module_name': 'softmax',
+	'module_name': 'relu',
 	'mode': 'sweep',
 	# This dictionary sets the flow configuration options for this job only. The options set here are appended to the global_flow_config options.
 	# To use multiple sets of values (all of which will be swept), use a dictionary. See the option `ABC_AREA` below and `clk_period` in hyperparameters for more information.
@@ -43,11 +43,11 @@ ppa_runner.add_job({
 		# This sets the netlist used for running the Verilog simulations. In this case, the postsynthesis Verilog netlist will be used.
 		'VERILOG_SIM_TYPE': 'postsynth',
 		# A list of the required testbench files. The design files are automatically included and need not be added here.
-		'VERILOG_TESTBENCH_FILES': [path.join(path.dirname(__file__), 'HW', 'softmax_tb.v')],
+		'VERILOG_TESTBENCH_FILES': [path.join(path.dirname(__file__), 'HW', 'relu_tb.v')],
 		# If this option is set to true, a VCD file dumped from the simulations will be used to get more accurate power estimates.
 		'USE_STA_VCD': True,
 		# The name of the VCD file dumped. By default it is set to `module_name.vcd`
-		'VERILOG_VCD_NAME': 'softmax.vcd',
+		'VERILOG_VCD_NAME': 'relu.vcd',
 		# If the option `ABC_AREA` is set to `True`, the area-optimized synthesis strategy is used as opposed to the speed-optimized strategy. The following dictionary lists both values, and hence both the options will be swept and the PPA results will be generated for each case.
 		'ABC_AREA': {
 			'values': [True, False]
@@ -62,7 +62,7 @@ ppa_runner.add_job({
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
 			'start': 10,
-			'end': 100,
+			'end': 20,
 			'step': 10
 		}
 	}
@@ -78,4 +78,6 @@ for job_run in ppa_runner.job_runs:
 	for ppa_run in job_run['ppa_runs']:
 		# Each job run contains multiple "PPA Runs", each of which represents a particular configuration that was swept
 		print(f"Results for run #{ppa_run['run_number']}:")
+		print(f"PPA stats: {ppa_run['ppa_stats']['power_report']}")
+		print(f"STA report: {ppa_run['ppa_stats']['sta']}")
 		print(f"Total cells={ppa_run['synth_stats']['num_cells']}, Area={ppa_run['synth_stats']['module_area']}, Seq/Comb cells = {ppa_run['ppa_stats']['num_sequential_cells']}/{ppa_run['ppa_stats']['num_combinational_cells']}; Synthesis strategy: {'Area' if ppa_run['flow_config']['ABC_AREA'] else 'Speed'}")
