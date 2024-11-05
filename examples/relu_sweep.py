@@ -62,7 +62,7 @@ ppa_runner.add_job({
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
 			'start': 10,
-			'end': 20,
+			'end': 100,
 			'step': 10
 		}
 	}
@@ -78,6 +78,6 @@ for job_run in ppa_runner.job_runs:
 	for ppa_run in job_run['ppa_runs']:
 		# Each job run contains multiple "PPA Runs", each of which represents a particular configuration that was swept
 		print(f"Results for run #{ppa_run['run_number']}:")
-		print(f"PPA stats: {ppa_run['ppa_stats']['power_report']}")
-		print(f"STA report: {ppa_run['ppa_stats']['sta']}")
+		print(f"PPA stats: {ppa_run['ppa_stats']['power_report']['total']['total_power']} W")
+		print(f"STA report: {ppa_run['ppa_stats']['sta']['clk']['clk_slack']}")
 		print(f"Total cells={ppa_run['synth_stats']['num_cells']}, Area={ppa_run['synth_stats']['module_area']}, Seq/Comb cells = {ppa_run['ppa_stats']['num_sequential_cells']}/{ppa_run['ppa_stats']['num_combinational_cells']}; Synthesis strategy: {'Area' if ppa_run['flow_config']['ABC_AREA'] else 'Speed'}")
