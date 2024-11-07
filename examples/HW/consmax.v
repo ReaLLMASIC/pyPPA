@@ -89,7 +89,7 @@ module consmax #(
     genvar i;
     generate
         for (i = 0; i < 2; i = i + 1) begin: gen_conmax_lut
-            mem_sp  #(.DATA_BIT(LUT_DATA), .DEPTH(LUT_DEPTH)) lut_inst (
+            mem_sp  lut_inst (
                 .clk                (clk),
                 .addr               (lut_addr[i]),
                 .wen                (lut_wen),
