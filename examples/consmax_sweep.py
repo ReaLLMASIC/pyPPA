@@ -110,4 +110,4 @@ plt.ylabel('Power')
 plt.title("2D Scatter Plot with Poly Fit Curve of Clock Period, Power and Area")
 plt.legend()
 
-plt.savefig("../plots/consmax_sweep.png", format='png')
+plt.savefig("plots/consmax_sweep.png", format='png')
