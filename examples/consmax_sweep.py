@@ -64,9 +64,9 @@ ppa_runner.add_job({
 		# The dictionary below defines a sweep for the `clk_period` hyperparameter. All values of clk_period, starting at `10` and going upto `100` will be swept with a step of 10. i.e., 10, 20, ..., 100.
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
-			'start': 10,
-			'end': 30,
-			'step': 1
+			'start': 5,
+			'end': 10,
+			'step': 0.25
 		}
 	}
 })
@@ -87,9 +87,10 @@ for job_run in ppa_runner.job_runs:
 		clk_period.append(ppa_run['ppa_stats']['sta']['clk']['clk_period'])
 		power.append(ppa_run['ppa_stats']['power_report']['total']['total_power'])
 		area.append(ppa_run['synth_stats']['module_area'])
+		
 		print(f"Results for run #{ppa_run['run_number']}:")
 		print(f"PPA stats: {ppa_run['ppa_stats']['power_report']['total']['total_power']} W")
-		print(f"STA report: slack {ppa_run['ppa_stats']['sta']['clk']['clk_slack']} period {ppa_run['ppa_stats']['sta']['clk']['clk_period']}")
+		print(f"STA report: slack {ppa_run['ppa_stats']['sta']['clk']['clk_slack']} period {ppa_run['ppa_stats']['sta']['clk']['clk_period']} total {ppa_run['ppa_stats']['sta']['clk']['clk_period']+ppa_run['ppa_stats']['sta']['clk']['clk_slack']}")
 		print(f"Total cells={ppa_run['synth_stats']['num_cells']}, Area={ppa_run['synth_stats']['module_area']}, Seq/Comb cells = {ppa_run['ppa_stats']['num_sequential_cells']}/{ppa_run['ppa_stats']['num_combinational_cells']}; Synthesis strategy: {'Area' if ppa_run['flow_config']['ABC_AREA'] else 'Speed'}")
 
 print(clk_period)
