@@ -84,7 +84,7 @@ for job_run in ppa_runner.job_runs:
 	# The `job_runs` variable contains the PPA results for each job
 	for ppa_run in job_run['ppa_runs']:
 		# Each job run contains multiple "PPA Runs", each of which represents a particular configuration that was swept
-		clk_period.append(ppa_run['ppa_stats']['sta']['clk']['clk_period'])
+		clk_period.append(ppa_run['ppa_stats']['sta']['clk']['clk_period']+ppa_run['ppa_stats']['sta']['clk']['clk_slack'])
 		power.append(ppa_run['ppa_stats']['power_report']['total']['total_power'])
 		area.append(ppa_run['synth_stats']['module_area'])
 		
