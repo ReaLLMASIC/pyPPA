@@ -81,8 +81,8 @@ module consmax_tb;
             @(negedge clk)
             lut_waddr=i;
             rand_sign=$random%2;
-            rand_exp=$random%(2**LUT_EXP);
-            rand_man=$random%(2**LUT_MAT);
+            rand_exp=$random%(2**EXP_BIT);
+            rand_man=$random%(2**MAT_BIT);
             lut_wdata={rand_sign,rand_exp,rand_man};
         end
         lut_wen=0;
@@ -93,14 +93,14 @@ module consmax_tb;
         @(posedge clk)
         cfg_consmax_shift=$random;
         rand_sign=$random%2;
-        rand_exp=$random%(2**LUT_EXP);
-        rand_man=$random%(2**LUT_MAT);
+        rand_exp=$random%(2**EXP_BIT);
+        rand_man=$random%(2**MAT_BIT);
         idata={rand_sign,rand_exp,rand_man};
         idata_valid=1;
         @(posedge clk)
         rand_sign=$random%2;
-        rand_exp=$random%(2**LUT_EXP);
-        rand_man=$random%(2**LUT_MAT);
+        rand_exp=$random%(2**EXP_BIT);
+        rand_man=$random%(2**MAT_BIT);
         idata={rand_sign,rand_exp,rand_man};
         idata_valid=1;
 
