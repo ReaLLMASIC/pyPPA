@@ -23,8 +23,8 @@ module consmax_tb;
 
   //random floating point gen
   reg  rand_sign;
-  reg  [LUT_EXP-1:0] rand_exp;
-  reg  [LUT_MAT-1:0] rand_man;
+  reg  [EXP_BIT-1:0] rand_exp;
+  reg  [MAT_BIT-1:0] rand_man;
 
   // Instantiate the DUT
   consmax dut (
