@@ -11,7 +11,7 @@ from pyppa.tools import Yosys, OpenROAD, Iverilog
 from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 
 ppa_runner = PPARunner(
-	design_name="softmax",
+	design_name="consmax",
 	tools={
 		'verilog_sim_tool': Iverilog(scripts_dir=path.join('scripts', 'iverilog')),
 		'synth_tool': Yosys(scripts_dir=path.join('scripts', 'synth')),
@@ -22,7 +22,7 @@ ppa_runner = PPARunner(
 	threads_per_job=2,
 	global_flow_config={
 		'VERILOG_FILES': [
-			path.join(path.dirname(__file__), 'HW', 'softmax.v')
+			path.join(path.dirname(__file__), 'HW', 'consmax.v')
 		],
 		'SDC_FILE': path.join(path.dirname(__file__), 'HW', 'constraint.sdc')
 	}
@@ -86,7 +86,7 @@ def period_optimizer(prev_iter_number, prev_iter_ppa_runs, constraint_period):
 	}
 
 ppa_runner.add_job({
-	'module_name': 'softmax',
+	'module_name': 'consmax',
 	'mode': 'opt',
 	'optimizer': period_optimizer
 })
