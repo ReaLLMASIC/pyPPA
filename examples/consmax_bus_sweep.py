@@ -66,13 +66,13 @@ ppa_runner.add_job({
 		# The dictionary below defines a sweep for the `clk_period` hyperparameter. All values of clk_period, starting at `10` and going upto `100` will be swept with a step of 10. i.e., 10, 20, ..., 100.
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
-			'start': 6,
-			'end': 7,
-			'step': 0.5
+			'start': 7,
+			'end': 10,
+			'step': 0.25
 		},
 		'num_head': {
 			'start': 1,
-			'end': 2,
+			'end': 4,
 			'step': 1
         }
 	}
@@ -107,24 +107,24 @@ print(clk_period)
 print(power)
 print(area)
 
-coefficients = np.polyfit(clk_period, power, 2)  # 2 is the degree of the polynomial
-poly_fit = np.poly1d(coefficients)
+# coefficients = np.polyfit(clk_period, power, 2)  # 2 is the degree of the polynomial
+# poly_fit = np.poly1d(coefficients)
 
-period_fit = np.linspace(min(clk_period), max(clk_period), 100)
-power_fit = poly_fit(period_fit)
+# period_fit = np.linspace(min(clk_period), max(clk_period), 100)
+# power_fit = poly_fit(period_fit)
 
-# plot the sweep results
-plt.figure(figsize=(10, 6))
-sc = plt.scatter(clk_period, power, c=area, cmap='Reds', s=100, alpha=0.7, edgecolors='black', marker='o', label="Data Points")
-plt.plot(period_fit, power_fit, color='red', linewidth=2, label="Poly Fit Curve (Degree 2)")
-plt.colorbar(sc, label='Area')  
+# # plot the sweep results
+# plt.figure(figsize=(10, 6))
+# sc = plt.scatter(clk_period, power, c=area, cmap='Reds', s=100, alpha=0.7, edgecolors='black', marker='o', label="Data Points")
+# plt.plot(period_fit, power_fit, color='red', linewidth=2, label="Poly Fit Curve (Degree 2)")
+# plt.colorbar(sc, label='Area')  
 
-plt.xlabel('Clock Period')
-plt.ylabel('Power')
-plt.title("2D Scatter Plot with Poly Fit Curve of Clock Period, Power and Area")
-plt.legend()
+# plt.xlabel('Clock Period')
+# plt.ylabel('Power')
+# plt.title("2D Scatter Plot with Poly Fit Curve of Clock Period, Power and Area")
+# plt.legend()
 
-plt.savefig("plots/consmax_bus_sweep.png", format='png')
+# plt.savefig("plots/consmax_bus_sweep.png", format='png')
 
 data_by_heads = defaultdict(lambda: {'clk_period': [], 'power': [], 'area': []})
 
@@ -155,14 +155,14 @@ for heads, data in data_by_heads.items():
         s=100, 
         alpha=0.7, 
         edgecolors='black', 
-        marker='o', 
-        label=f"Num of Heads: {heads})"
+        marker='o'
+        # .label=f"Num of Heads: {heads}"
     )
     plt.plot(
         period_fit, 
         power_fit, 
         linewidth=2, 
-        label=f"Num of Heads: {heads})"
+        label=f"Num of Heads: {heads}"
     )
 
 # Add color bar for area
