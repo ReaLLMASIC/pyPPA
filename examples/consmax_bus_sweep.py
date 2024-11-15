@@ -95,8 +95,9 @@ for job_run in ppa_runner.job_runs:
 		area.append(ppa_run['synth_stats']['module_area'])
 		
 		print(f"Results for run #{ppa_run['run_number']}:")
+		print(f"Num of heads: {ppa_run['hyperparameters']['num_head']}")
 		print(f"PPA stats: {ppa_run['ppa_stats']['power_report']['total']['total_power']} W")
-		print(f"STA report: slack {ppa_run['ppa_stats']['sta']['clk']['clk_slack']} period {ppa_run['ppa_stats']['sta']['clk']['clk_period']} total {ppa_run['ppa_stats']['sta']['clk']['clk_period']+ppa_run['ppa_stats']['sta']['clk']['clk_slack']}")
+		print(f"STA report: slack {ppa_run['ppa_stats']['sta']['clk']['clk_slack']} period {ppa_run['ppa_stats']['sta']['clk']['clk_period']} total {ppa_run['ppa_stats']['sta']['clk']['clk_period']+ppa_run['ppa_stats']['sta']['clk']['clk_slack']} {ppa_run['hyperparameters']['clk_period']}")
 		print(f"Total cells={ppa_run['synth_stats']['num_cells']}, Area={ppa_run['synth_stats']['module_area']}, Seq/Comb cells = {ppa_run['ppa_stats']['num_sequential_cells']}/{ppa_run['ppa_stats']['num_combinational_cells']}; Synthesis strategy: {'Area' if ppa_run['flow_config']['ABC_AREA'] else 'Speed'}")
 
 print(clk_period)
