@@ -106,8 +106,23 @@ power_fit = poly_fit(period_fit)
 
 # plot the sweep results
 plt.figure(figsize=(10, 6))
-sc = plt.scatter(clk_period, power, c=area, cmap='Reds', s=100, alpha=0.7, edgecolors='black', marker='o', label="Data Points")
-plt.plot(period_fit, power_fit, color='red', linewidth=2, label="Poly Fit Curve (Degree 2)")
+sc = plt.scatter(clk_period, power, c=area, cmap='Reds', s=100, alpha=0.7, edgecolors='black', marker='o', label="OpenROAD")
+plt.plot(period_fit, power_fit, color='red', linewidth=2)
+
+power = [4.846, 4.66, 4.487, 4.327, 4.178, 4.039, 3.908, 3.786, 3.671, 3.563, 3.462]
+clk_period = [5.0, 5.2, 5.4, 5.6, 5.8, 6.0, 6.2, 6.4, 6.6, 6.8, 7.0] 
+area = [20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313]
+
+
+coefficients = np.polyfit(clk_period, power, 2)  # 2 is the degree of the polynomial
+poly_fit = np.poly1d(coefficients)
+
+period_fit = np.linspace(min(clk_period), max(clk_period), 100)
+power_fit = poly_fit(period_fit)
+
+sc1 = plt.scatter(clk_period, power, c=area, cmap='Blues', s=100, alpha=0.7, edgecolors='black', marker='x', label="Design Compiler")
+plt.plot(period_fit, power_fit, color='blue', linewidth=2)
+
 plt.colorbar(sc, label='Area')  
 
 plt.xlabel('Clock Period')
