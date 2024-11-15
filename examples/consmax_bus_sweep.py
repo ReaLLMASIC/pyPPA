@@ -65,10 +65,15 @@ ppa_runner.add_job({
 		# The dictionary below defines a sweep for the `clk_period` hyperparameter. All values of clk_period, starting at `10` and going upto `100` will be swept with a step of 10. i.e., 10, 20, ..., 100.
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
-			'start': 7,
-			'end': 15,
+			'start': 5,
+			'end': 7,
 			'step': 1
-		}
+		},
+		'num_head': {
+			'start': 1,
+			'end': 5,
+			'step': 1
+        }
 	}
 })
 
