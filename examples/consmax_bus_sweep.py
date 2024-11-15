@@ -5,6 +5,7 @@ sys.path.append(path.join(path.dirname(__file__), '..'))
 from pyppa import PPARunner
 from pyppa.tools import Yosys, OpenROAD, Iverilog
 from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
+from collections import defaultdict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -54,7 +55,7 @@ ppa_runner.add_job({
 		# If the option `ABC_AREA` is set to `True`, the area-optimized synthesis strategy is used as opposed to the speed-optimized strategy. The following dictionary lists both values, and hence both the options will be swept and the PPA results will be generated for each case.
 		'ABC_AREA': {
 			# 'values': [True, False]
-			'values': [True]
+			'values': [True, False]
 		}
 	},
 	# Hyperparameters are used defined parameters that can be inserted in the source files using the Mako templating syntax. See https://www.makotemplates.org/ for more information.
@@ -67,7 +68,7 @@ ppa_runner.add_job({
 		'clk_period': {
 			'start': 6,
 			'end': 7,
-			'step': 1
+			'step': 0.5
 		},
 		'num_head': {
 			'start': 1,
@@ -84,6 +85,7 @@ ppa_runner.run_all_jobs()
 clk_period = []
 power = []
 area = []
+numofheads = []
 
 # Reading the PPA results in Python
 for job_run in ppa_runner.job_runs:
@@ -93,6 +95,7 @@ for job_run in ppa_runner.job_runs:
 		clk_period.append(ppa_run['ppa_stats']['sta']['clk']['clk_period']+ppa_run['ppa_stats']['sta']['clk']['clk_slack'])
 		power.append(ppa_run['ppa_stats']['power_report']['total']['total_power'])
 		area.append(ppa_run['synth_stats']['module_area'])
+		numofheads.append(ppa_run['hyperparameters']['num_head'])
 		
 		print(f"Results for run #{ppa_run['run_number']}:")
 		print(f"Num of heads: {ppa_run['hyperparameters']['num_head']}")
@@ -122,3 +125,54 @@ plt.title("2D Scatter Plot with Poly Fit Curve of Clock Period, Power and Area")
 plt.legend()
 
 plt.savefig("plots/consmax_bus_sweep.png", format='png')
+
+data_by_heads = defaultdict(lambda: {'clk_period': [], 'power': [], 'area': []})
+
+for i in range(len(numofheads)):
+    key = numofheads[i]
+    data_by_heads[key]['clk_period'].append(clk_period[i])
+    data_by_heads[key]['power'].append(power[i])
+    data_by_heads[key]['area'].append(area[i])
+
+# Create the plot
+plt.figure(figsize=(10, 6))
+
+for heads, data in data_by_heads.items():
+    # Perform polynomial fit for each group
+    coefficients = np.polyfit(data['clk_period'], data['power'], 2)
+    poly_fit = np.poly1d(coefficients)
+
+    # Generate fitted curve data
+    period_fit = np.linspace(min(data['clk_period']), max(data['clk_period']), 100)
+    power_fit = poly_fit(period_fit)
+
+    # Plot scatter points and fit curve
+    sc = plt.scatter(
+        data['clk_period'], 
+        data['power'], 
+        c=data['area'], 
+        cmap='Reds', 
+        s=100, 
+        alpha=0.7, 
+        edgecolors='black', 
+        marker='o', 
+        label=f"Num of Heads: {heads})"
+    )
+    plt.plot(
+        period_fit, 
+        power_fit, 
+        linewidth=2, 
+        label=f"Num of Heads: {heads})"
+    )
+
+# Add color bar for area
+plt.colorbar(sc, label='Area')
+
+# Add labels and title
+plt.xlabel('Clock Period')
+plt.ylabel('Power')
+plt.title("Scatter Plot with Poly Fit Curves for Clock Period, Power, and Area")
+plt.legend()
+
+# Save the plot
+plt.savefig("plots/consmax_bus_sweep_multiple_curves.png", format='png')
