@@ -34,7 +34,7 @@ module consmax_bus_tb;
   
   parameter GBUS_DATA = 32;
   parameter GBUS_WIDTH = 4;
-  parameter NUM_HEAD = 4;
+  parameter NUM_HEAD = ${num_head};
 
   // Signals
   reg clk, rstn;

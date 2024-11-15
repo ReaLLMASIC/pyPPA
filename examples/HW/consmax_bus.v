@@ -36,7 +36,7 @@ module consmax_bus #(
 
     parameter   GBUS_DATA = 32, // Global Bus Data Width
     parameter   GBUS_WIDTH = 4,   // Global Bus Address Width
-    parameter   NUM_HEAD  = 4    // Number of Heads
+    parameter   NUM_HEAD  = ${num_head}    // Number of Heads
 )(
     input                       clk,
     input                       rstn,
