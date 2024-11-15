@@ -119,10 +119,10 @@ module consmax #(
     // );
 
     // use fpmult for fixed data format
-    fpmult fpmul_inst (
-        .fout(lut_product),
-        .f1(lut_rdata[0]),
-        .f2(lut_rdata[1])
+    fmul fpmul_inst (
+        .result(lut_product),
+        .a_in(lut_rdata[0]),
+        .b_in(lut_rdata[1])
     );
 
     // Convert FP to INT
@@ -265,64 +265,137 @@ endmodule
 // If either is zero (zero MSB of mantissa) then output is zero
 // If e1+e2<129 the result is zero (underflow)
 ///////////////////////////////////////////////////////////	
-module fpmult (fout, f1, f2);
+// module fpmult (fout, f1, f2);
 
-	input [17:0] f1, f2 ;
-	output [17:0] fout ;
+// 	input [17:0] f1, f2 ;
+// 	output [17:0] fout ;
 	
-	wire [17:0] fout ;
-	reg sout ;
-	reg [8:0] mout ;
-	reg [8:0] eout ; // 9-bits for overflow
+// 	wire [17:0] fout ;
+// 	reg sout ;
+// 	reg [8:0] mout ;
+// 	reg [8:0] eout ; // 9-bits for overflow
 	
-	wire s1, s2;
-	wire [8:0] m1, m2 ;
-	wire [8:0] e1, e2, sum_e1_e2 ; // extend to 9 bits to avoid overflow
-	wire [17:0] mult_out ;	// raw multiplier output
+// 	wire s1, s2;
+// 	wire [8:0] m1, m2 ;
+// 	wire [8:0] e1, e2, sum_e1_e2 ; // extend to 9 bits to avoid overflow
+// 	wire [17:0] mult_out ;	// raw multiplier output
 	
-	// parse f1
-	assign s1 = f1[17]; 	// sign
-	assign e1 = {1'b0, f1[16:9]};	// exponent
-	assign m1 = f1[8:0] ;	// mantissa
-	// parse f2
-	assign s2 = f2[17];
-	assign e2 = {1'b0, f2[16:9]};
-	assign m2 = f2[8:0] ;
+// 	// parse f1
+// 	assign s1 = f1[17]; 	// sign
+// 	assign e1 = {1'b0, f1[16:9]};	// exponent
+// 	assign m1 = f1[8:0] ;	// mantissa
+// 	// parse f2
+// 	assign s2 = f2[17];
+// 	assign e2 = {1'b0, f2[16:9]};
+// 	assign m2 = f2[8:0] ;
 	
-	// first step in mult is to add extended exponents
-	assign sum_e1_e2 = e1 + e2 ;
+// 	// first step in mult is to add extended exponents
+// 	assign sum_e1_e2 = e1 + e2 ;
 	
-	// build output
-	// raw integer multiply
-	// unsigned_mult mm(mult_out, m1, m2);
-	assign mult_out=m1*m2;
+// 	// build output
+// 	// raw integer multiply
+// 	// unsigned_mult mm(mult_out, m1, m2);
+// 	assign mult_out=m1*m2;
 	 
-	// assemble output bits
-	assign fout = {sout, eout[7:0], mout} ;
+// 	// assemble output bits
+// 	assign fout = {sout, eout[7:0], mout} ;
 	
-	always @(*)
-	begin
-		// if either is denormed or exponents are too small
-		if ((m1[8]==1'd0) || (m2[8]==1'd0) || (sum_e1_e2 < 9'h82)) 
-		begin 
-			mout = 0;
-			eout = 0;
-			sout = 0; // output sign
-		end
-		else // both inputs are nonzero and no exponent underflow
-		begin
-			sout = s1 ^ s2 ; // output sign
-			if (mult_out[17]==1)
-			begin // MSB of product==1 implies normalized -- result >=0.5
-				eout = sum_e1_e2 - 9'h80;
-				mout = mult_out[17:9] ;
-			end
-			else // MSB of product==0 implies result <0.5, so shift ome left
-			begin
-				eout = sum_e1_e2 - 9'h81;
-				mout = mult_out[16:8] ;
-			end	
-		end // nonzero mult logic
-	end // always @(*)
+// 	always @(*)
+// 	begin
+// 		// if either is denormed or exponents are too small
+// 		if ((m1[8]==1'd0) || (m2[8]==1'd0) || (sum_e1_e2 < 9'h82)) 
+// 		begin 
+// 			mout = 0;
+// 			eout = 0;
+// 			sout = 0; // output sign
+// 		end
+// 		else // both inputs are nonzero and no exponent underflow
+// 		begin
+// 			sout = s1 ^ s2 ; // output sign
+// 			if (mult_out[17]==1)
+// 			begin // MSB of product==1 implies normalized -- result >=0.5
+// 				eout = sum_e1_e2 - 9'h80;
+// 				mout = mult_out[17:9] ;
+// 			end
+// 			else // MSB of product==0 implies result <0.5, so shift ome left
+// 			begin
+// 				eout = sum_e1_e2 - 9'h81;
+// 				mout = mult_out[16:8] ;
+// 			end	
+// 		end // nonzero mult logic
+// 	end // always @(*)
 	
+// endmodule
+
+`define BIT_W 16
+`define M_W 7
+`define EXP_W 8
+
+module fmul(
+      input [`BIT_W-1:0] a_in,
+      input [`BIT_W-1:0] b_in,
+      output [`BIT_W-1:0] result
+    );
+    
+    reg [`M_W+`M_W:0] mul_fix_out;
+    
+    // Multiply mantissas with implied leading 1
+    always @(*) begin
+        mul_fix_out = {1'b1, a_in[`M_W-1:0]} * {1'b1, b_in[`M_W-1:0]};
+    end
+    
+    // Zero check
+    reg zero_check;
+    always @(*) begin
+        if ((a_in[`BIT_W-2:`M_W] == 0) || (b_in[`BIT_W-2:`M_W] == 0)) begin
+            zero_check = 1'b1;
+        end else begin
+            zero_check = 1'b0;
+        end
+    end
+    
+    // Generate mantissa for the result
+    reg [`M_W-1:0] M_result;
+    always @(*) begin
+        case (mul_fix_out[`M_W+`M_W:`M_W+`M_W-1])
+            2'b01: M_result = mul_fix_out[`M_W+`M_W-2:`M_W];
+            2'b10, 2'b11: M_result = mul_fix_out[`M_W+`M_W-1:`M_W+1];
+            default: M_result = mul_fix_out[`M_W+`M_W-1:`M_W+1];
+        endcase
+    end
+    
+    // Overflow check
+    reg [`EXP_W:0] e_result0;
+    reg [`EXP_W-1:0] e_result;
+    reg overflow;
+    
+    always @(*) begin
+        overflow = (zero_check ||
+                    ({1'b0, a_in[`BIT_W-2:`M_W]} + {1'b0, b_in[`BIT_W-2:`M_W]} + mul_fix_out[`M_W+`M_W]) < (2'b00 << (`EXP_W - 1)) ||
+                    ({1'b0, a_in[`BIT_W-2:`M_W]} + {1'b0, b_in[`BIT_W-2:`M_W]} + mul_fix_out[`M_W+`M_W]) > `EXP_W'hFF);
+        
+        if (~zero_check) begin
+            if (overflow) begin
+                e_result0 = {(`EXP_W+1){1'b1}};
+            end else begin
+                e_result0 = ({1'b0, a_in[`BIT_W-2:`M_W]} + {1'b0, b_in[`BIT_W-2:`M_W]} + mul_fix_out[`M_W+`M_W]) - (2'b00 << (`EXP_W - 1));
+            end
+        end else begin
+            e_result0 = 0;
+        end
+        e_result = e_result0[`EXP_W-1:0];
+    end
+    
+    // Sign calculation
+    wire sign;
+    assign sign = a_in[`BIT_W-1] ^ b_in[`BIT_W-1];
+    
+    // Overflow mask
+    wire [`M_W-1:0] overflow_mask;
+    assign overflow_mask = overflow ? 0 : {(`M_W){1'b1}};
+    
+    // Final result assignment
+    assign result = {sign, e_result, overflow_mask & M_result};
+
 endmodule
+
