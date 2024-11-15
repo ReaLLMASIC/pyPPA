@@ -66,9 +66,9 @@ ppa_runner.add_job({
 		# The dictionary below defines a sweep for the `clk_period` hyperparameter. All values of clk_period, starting at `10` and going upto `100` will be swept with a step of 10. i.e., 10, 20, ..., 100.
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
-			'start': 7,
+			'start': 8,
 			'end': 10,
-			'step': 0.25
+			'step': 0.5
 		},
 		'num_head': {
 			'start': 1,
@@ -175,4 +175,4 @@ plt.title("Scatter Plot with Poly Fit Curves for Clock Period, Power, and Area")
 plt.legend()
 
 # Save the plot
-plt.savefig("plots/consmax_bus_sweep_multiple_curves.png", format='png')
+plt.savefig("plots/consmax_bus_sweep_multiple_curves_2.png", format='png')

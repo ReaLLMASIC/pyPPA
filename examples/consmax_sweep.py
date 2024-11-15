@@ -54,7 +54,7 @@ ppa_runner.add_job({
 		# If the option `ABC_AREA` is set to `True`, the area-optimized synthesis strategy is used as opposed to the speed-optimized strategy. The following dictionary lists both values, and hence both the options will be swept and the PPA results will be generated for each case.
 		'ABC_AREA': {
 			# 'values': [True, False]
-			'values': [True]
+			'values': [True, False]
 		}
 	},
 	# Hyperparameters are used defined parameters that can be inserted in the source files using the Mako templating syntax. See https://www.makotemplates.org/ for more information.
@@ -65,9 +65,9 @@ ppa_runner.add_job({
 		# The dictionary below defines a sweep for the `clk_period` hyperparameter. All values of clk_period, starting at `10` and going upto `100` will be swept with a step of 10. i.e., 10, 20, ..., 100.
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
-			'start': 4.475,
-			'end': 4.485,
-			'step': 0.001
+			'start': 5,
+			'end': 7,
+			'step': 0.2
 		}
 	}
 })
