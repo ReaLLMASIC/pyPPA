@@ -169,8 +169,8 @@ for heads, data in data_by_heads.items():
 plt.colorbar(sc, label='Area')
 
 # Add labels and title
-plt.xlabel('Clock Period')
-plt.ylabel('Power')
+plt.xlabel('Clock Period (ns)')
+plt.ylabel('Power (W)')
 plt.title("Scatter Plot with Poly Fit Curves for Clock Period, Power, and Area")
 plt.legend()
 

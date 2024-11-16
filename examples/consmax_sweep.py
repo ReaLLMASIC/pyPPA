@@ -109,12 +109,19 @@ plt.figure(figsize=(10, 6))
 sc = plt.scatter(clk_period, power, c=area, cmap='Reds', s=100, alpha=0.7, edgecolors='black', marker='o', label="OpenROAD")
 plt.plot(period_fit, power_fit, color='red', linewidth=2)
 
-power = [4.846, 4.66, 4.487, 4.327, 4.178, 4.039, 3.908, 3.786, 3.671, 3.563, 3.462]
+power = [4.911, 4.721, 4.54, 4.377, 4.224, 4.081, 3.948, 3.824, 3.709, 3.599, 3.496, 5.122, 5.339, 5.591, 5.856, 6.157, 6.504, 6.872, 7.294]
 power = np.array(power) / 1000
 power = power.tolist()
 
-clk_period = [5.0, 5.2, 5.4, 5.6, 5.8, 6.0, 6.2, 6.4, 6.6, 6.8, 7.0] 
-area = [20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313,20849.996313]
+clk_period = [5.0, 5.2, 5.4, 5.6, 5.8, 6.0, 6.2, 6.4, 6.6, 6.8, 7.0, 4.8, 4.6, 4.4, 4.2, 4.0, 3.8, 3.6, 3.4] 
+area = [22546.623486,22455.285885,22386.469886,22393.97709,22252.591491,22191.282696,22156.249098,22122.466699,22084.930701,22082.428301,22014.863502,22614.188289,
+  22670.492282,
+  22926.988273,
+  23127.180278,
+  23231.029876,
+  23635.167466,
+  24014.281064,
+  24571.065055]
 
 
 coefficients = np.polyfit(clk_period, power, 2)  # 2 is the degree of the polynomial
@@ -133,4 +140,4 @@ plt.ylabel('Power')
 plt.title("2D Scatter Plot with Poly Fit Curve of Clock Period, Power and Area")
 plt.legend()
 
-plt.savefig("plots/consmax_sweep.png", format='png')
+plt.savefig("plots/consmax_sweep_compare.png", format='png')
