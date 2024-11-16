@@ -65,7 +65,7 @@ ppa_runner.add_job({
 		# The dictionary below defines a sweep for the `clk_period` hyperparameter. All values of clk_period, starting at `10` and going upto `100` will be swept with a step of 10. i.e., 10, 20, ..., 100.
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
-			'start': 5,
+			'start': 3.4,
 			'end': 7,
 			'step': 0.2
 		}
@@ -130,7 +130,9 @@ poly_fit = np.poly1d(coefficients)
 period_fit = np.linspace(min(clk_period), max(clk_period), 100)
 power_fit = poly_fit(period_fit)
 
-sc1 = plt.scatter(clk_period, power, c=area, cmap='Blues', s=100, alpha=0.7, edgecolors='black', marker='s', label="Design Compiler")
+# sc1 = plt.scatter(clk_period, power, c=area, cmap='Blues', s=100, alpha=0.7, edgecolors='black', marker='s', label="Design Compiler")
+plt.scatter(clk_period, power, c=area, cmap='Blues', s=100, alpha=0.7, edgecolors='black', marker='s', label="Design Compiler")
+
 plt.plot(period_fit, power_fit, color='blue', linewidth=2)
 
 plt.colorbar(sc, label='Area')  
