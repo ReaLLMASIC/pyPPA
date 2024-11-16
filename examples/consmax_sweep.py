@@ -54,7 +54,7 @@ ppa_runner.add_job({
 		# If the option `ABC_AREA` is set to `True`, the area-optimized synthesis strategy is used as opposed to the speed-optimized strategy. The following dictionary lists both values, and hence both the options will be swept and the PPA results will be generated for each case.
 		'ABC_AREA': {
 			# 'values': [True, False]
-			'values': [True, False]
+			'values': [True]
 		}
 	},
 	# Hyperparameters are used defined parameters that can be inserted in the source files using the Mako templating syntax. See https://www.makotemplates.org/ for more information.
