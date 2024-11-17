@@ -107,4 +107,12 @@ plt.figure(figsize=(10, 6))
 sc = plt.scatter(clk_period, power, c=area, cmap='Reds', s=100, alpha=0.7, edgecolors='black', marker='o', label="OpenROAD")
 plt.plot(period_fit, power_fit, color='red', linewidth=2)
 
+plt.colorbar(sc, label='Area(um^2)')  
+
+plt.xlabel('Clock Period(ns)')
+plt.ylabel('Power(W)')
+plt.title("2D Scatter Plot with Poly Fit Curve of Clock Period, Power and Area")
+plt.legend()
+
+
 plt.savefig("plots/softmax_sweep_compare.png", format='png')
