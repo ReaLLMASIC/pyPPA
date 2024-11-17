@@ -1,5 +1,7 @@
 from os import path
 import sys
+import numpy as np
+import matplotlib.pyplot as plt
 
 sys.path.append(path.join(path.dirname(__file__), '..'))
 from pyppa import PPARunner
@@ -72,10 +74,35 @@ ppa_runner.add_job({
 # To change the number of threads assigned per job, change the `threads_per_job` argument to the PPARunner. To change the number of concurrent jobs, change the `max_concurrent_jobs` argument to the PPARunner.
 ppa_runner.run_all_jobs()
 
+clk_period = []
+power = []
+area = []
+
 # Reading the PPA results in Python
 for job_run in ppa_runner.job_runs:
 	# The `job_runs` variable contains the PPA results for each job
 	for ppa_run in job_run['ppa_runs']:
 		# Each job run contains multiple "PPA Runs", each of which represents a particular configuration that was swept
+		clk_period.append(ppa_run['ppa_stats']['sta']['clk']['clk_period'])
+		power.append(ppa_run['ppa_stats']['power_report']['total']['total_power'])
+		area.append(ppa_run['synth_stats']['module_area'])
+		
 		print(f"Results for run #{ppa_run['run_number']}:")
+		print(f"PPA stats: {ppa_run['ppa_stats']['power_report']['total']['total_power']} W")
+		print(f"STA report: slack {ppa_run['ppa_stats']['sta']['clk']['clk_slack']} period {ppa_run['ppa_stats']['sta']['clk']['clk_period']} total {ppa_run['ppa_stats']['sta']['clk']['clk_period']+ppa_run['ppa_stats']['sta']['clk']['clk_slack']}")
 		print(f"Total cells={ppa_run['synth_stats']['num_cells']}, Area={ppa_run['synth_stats']['module_area']}, Seq/Comb cells = {ppa_run['ppa_stats']['num_sequential_cells']}/{ppa_run['ppa_stats']['num_combinational_cells']}; Synthesis strategy: {'Area' if ppa_run['flow_config']['ABC_AREA'] else 'Speed'}")
+
+print(clk_period)
+print(power)
+print(area)
+
+coefficients = np.polyfit(clk_period, power, 2)  # 2 is the degree of the polynomial
+poly_fit = np.poly1d(coefficients)
+
+period_fit = np.linspace(min(clk_period), max(clk_period), 100)
+power_fit = poly_fit(period_fit)
+
+# plot the sweep results
+plt.figure(figsize=(10, 6))
+sc = plt.scatter(clk_period, power, c=area, cmap='Reds', s=100, alpha=0.7, edgecolors='black', marker='o', label="OpenROAD")
+plt.plot(period_fit, power_fit, color='red', linewidth=2)
