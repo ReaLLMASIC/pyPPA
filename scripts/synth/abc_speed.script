@@ -1,8 +1,45 @@
-strash
-dch
-map -B 1.2
+&get -n
+&st
+&dch
+&nf
+&put
+&get -n
+&st
+&syn2
+&if -g -K 6
+&synch2
+&nf
+&put
+&get -n
+&st
+&syn2
+&if -g -K 6
+&synch2
+&nf
+&put
+&get -n
+&st
+&syn2
+&if -g -K 6
+&synch2
+&nf
+&put
+&get -n
+&st
+&syn2
+&if -g -K 6
+&synch2
+&nf
+&put
+&get -n
+&st
+&syn2
+&if -g -K 6
+&synch2
+&nf
+&put
+buffer -c
 topo
 stime -c
-buffer -c
 upsize -c
 dnsize -c

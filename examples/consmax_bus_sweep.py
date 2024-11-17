@@ -66,13 +66,13 @@ ppa_runner.add_job({
 		# The dictionary below defines a sweep for the `clk_period` hyperparameter. All values of clk_period, starting at `10` and going upto `100` will be swept with a step of 10. i.e., 10, 20, ..., 100.
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
-			'start': 8,
-			'end': 10,
-			'step': 0.5
+			'start': 5,
+			'end': 15,
+			'step': 1
 		},
 		'num_head': {
 			'start': 1,
-			'end': 4,
+			'end': 2,
 			'step': 1
         }
 	}
@@ -166,7 +166,7 @@ for heads, data in data_by_heads.items():
     )
 
 # Add color bar for area
-plt.colorbar(sc, label='Area')
+plt.colorbar(sc, label='Area(um^2)')
 
 # Add labels and title
 plt.xlabel('Clock Period (ns)')
@@ -176,3 +176,35 @@ plt.legend()
 
 # Save the plot
 plt.savefig("plots/consmax_bus_sweep_multiple_curves_2.png", format='png')
+
+
+# plot energy per cycle v.s. Frequency
+plt.figure(figsize=(10, 6))
+
+for heads, data in data_by_heads.items():
+    freq = 1000 / np.array(data['clk_period'])
+    energy_per_cycle = 1000000 * np.array(data['power']) / freq
+
+    sc = plt.scatter(
+        freq, 
+        energy_per_cycle, 
+        c=data['area'], 
+        cmap='Reds', 
+        s=100, 
+        alpha=0.7, 
+        edgecolors='black', 
+        marker='o'
+        # .label=f"Num of Heads: {heads}"
+    )
+    plt.plot(freq, energy_per_cycle, linewidth=2, label=f"Num of Heads: {heads}")
+
+
+# Add color bar for area
+plt.colorbar(sc, label='Area(um^2)')
+
+# Add labels and title
+plt.xlabel('Frequency (MHz)')
+plt.ylabel('Energy per cycle (pJ)')
+plt.legend()
+
+plt.savefig("plots/consmax_bus_sweep_energy_per_cycle.png", format='png')
