@@ -105,6 +105,7 @@ foreach lib $::env(DONT_USE_LIBS) {
 }
 tee -o $::env(REPORTS_DIR)/synth_stat.txt stat {*}$stat_libs
 tee -o $::env(REPORTS_DIR)/synth_stat.json stat -json {*}$stat_libs
+tee -o $::env(REPORTS_DIR)/synth_check.txt check
 
 # Write synthesized design
 write_verilog -noattr -noexpr -nohex -nodec $::env(RESULTS_DIR)/1_1_yosys.v

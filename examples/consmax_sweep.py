@@ -131,11 +131,11 @@ period_fit = np.linspace(min(clk_period), max(clk_period), 100)
 power_fit = poly_fit(period_fit)
 
 # sc1 = plt.scatter(clk_period, power, c=area, cmap='Blues', s=100, alpha=0.7, edgecolors='black', marker='s', label="Design Compiler")
-plt.scatter(clk_period, power, c=area, cmap='Blues', s=100, alpha=0.7, edgecolors='black', marker='s', label="Design Compiler")
+plt.scatter(clk_period, power, s=100, alpha=0.7, edgecolors='black', marker='s', label="Design Compiler")
 
 plt.plot(period_fit, power_fit, color='blue', linewidth=2)
 
-plt.colorbar(sc, label='Area')  
+# plt.colorbar(sc, label='Area')  
 
 plt.xlabel('Clock Period')
 plt.ylabel('Power')

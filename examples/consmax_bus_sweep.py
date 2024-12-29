@@ -159,8 +159,8 @@ for heads, data in data_by_heads.items():
         # .label=f"Num of Heads: {heads}"
     )
     plt.plot(
-        period_fit, 
-        power_fit, 
+        data['clk_period'], 
+        data['power'], 
         linewidth=2, 
         label=f"Num of Heads: {heads}"
     )
@@ -175,7 +175,7 @@ plt.title("Scatter Plot with Poly Fit Curves for Clock Period, Power, and Area")
 plt.legend()
 
 # Save the plot
-plt.savefig("plots/consmax_bus_sweep_multiple_curves_2.png", format='png')
+plt.savefig("plots/consmax_bus_sweep_multiple_curves.png", format='png')
 
 
 # plot energy per cycle v.s. Frequency
