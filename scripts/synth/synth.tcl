@@ -138,6 +138,8 @@ set constr1 [open $::env(OBJECTS_DIR)/abc.script w]
 puts $constr1 "fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m"
 close $constr1
 
+set abc_script $::env(OBJECTS_DIR)/abc.script
+
 # Technology mapping for cells
 # ABC supports multiple liberty files, but the hook from Yosys to ABC doesn't
 if {[info exist ::env(ABC_CLOCK_PERIOD_IN_PS)]} {
