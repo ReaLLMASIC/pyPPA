@@ -147,8 +147,7 @@ if {[info exist ::env(ABC_CLOCK_PERIOD_IN_PS)]} {
   abc -D [expr $::env(ABC_CLOCK_PERIOD_IN_PS)] \
       -script $abc_script \
       -liberty $::env(DONT_USE_SC_LIB) \
-      -constr $::env(OBJECTS_DIR)/abc.constr \
-      -v
+      -constr $::env(OBJECTS_DIR)/abc.constr 
 } else {
   puts "\[WARN\]\[FLOW\] No clock period constraints detected in design"
   abc -liberty $::env(DONT_USE_SC_LIB) \
