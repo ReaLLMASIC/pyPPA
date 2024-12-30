@@ -1,5 +1,11 @@
 source $::env(SCRIPTS_DIR)/synth_preamble.tcl
 
+# set buffering $::env(SYNTH_BUFFERING)
+# set sizing $::env(SYNTH_SIZING)
+
+set buffering 1
+set sizing 1
+
 # Generic synthesis
 set final_synth_args $::env(SYNTH_ARGS)
 if {[info exists ::env(SYNTH_HIERARCHICAL)] && $::env(SYNTH_HIERARCHICAL) != 1} {
@@ -55,6 +61,11 @@ puts $constr "set_driving_cell $::env(ABC_DRIVER_CELL)"
 puts $constr "set_load $::env(ABC_LOAD_IN_FF)"
 close $constr
 
+# Mapping parameters
+set A_factor  0.00
+set B_factor  0.88
+set F_factor  0.00
+
 # Assemble Scripts (By Strategy)
 set abc_rs_K    "resub,-K,"
 set abc_rs      "resub"
@@ -64,15 +75,15 @@ set abc_rfz     "drf,-l,-z"
 set abc_rw      "drw,-l"
 set abc_rwz     "drw,-l,-z"
 set abc_rw_K    "drw,-l,-K"
-if { $::env(SYNTH_ABC_LEGACY_REFACTOR) == "1" } {
-    set abc_rf      "refactor"
-    set abc_rfz     "refactor,-z"
-}
-if { $::env(SYNTH_ABC_LEGACY_REWRITE) == "1" } {
-    set abc_rw      "rewrite"
-    set abc_rwz     "rewrite,-z"
-    set abc_rw_K    "rewrite,-K"
-}
+# if { $::env(SYNTH_ABC_LEGACY_REFACTOR) == "1" } {
+#     set abc_rf      "refactor"
+#     set abc_rfz     "refactor,-z"
+# }
+# if { $::env(SYNTH_ABC_LEGACY_REWRITE) == "1" } {
+#     set abc_rw      "rewrite"
+#     set abc_rwz     "rewrite,-z"
+#     set abc_rw_K    "rewrite,-K"
+# }
 set abc_b       "balance"
 
 set abc_resyn2        "${abc_b}; ${abc_rw}; ${abc_rf}; ${abc_b}; ${abc_rw}; ${abc_rwz}; ${abc_b}; ${abc_rfz}; ${abc_rwz}; ${abc_b}"
