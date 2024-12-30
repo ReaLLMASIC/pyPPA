@@ -6,6 +6,16 @@ source $::env(SCRIPTS_DIR)/synth_preamble.tcl
 set buffering 1
 set sizing 1
 
+# input pin cap of IN_3VX8
+# set max_FO $::env(MAX_FANOUT_CONSTRAINT)
+# set max_TR 0
+# if { [info exist ::env(MAX_TRANSITION_CONSTRAINT)]} {
+#     set max_TR [expr {$::env(MAX_TRANSITION_CONSTRAINT) * 1000}]; # ns -> ps
+# }
+
+set max_FO 10
+set max_TR 0
+
 # Generic synthesis
 set final_synth_args $::env(SYNTH_ARGS)
 if {[info exists ::env(SYNTH_HIERARCHICAL)] && $::env(SYNTH_HIERARCHICAL) != 1} {
