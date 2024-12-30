@@ -16,7 +16,7 @@ yosys -import
 # inputs expected as env vars
 #
 set buffering $::env(SYNTH_BUFFERING)
-set sizing $::env(SYNTH_SIZING)f
+set sizing $::env(SYNTH_SIZING)
 set vtop $::env(DESIGN_NAME)
 set sclib $::env(LIB_SYNTH)
 if {[info exists ::env(DFF_LIB_SYNTH)]} {
