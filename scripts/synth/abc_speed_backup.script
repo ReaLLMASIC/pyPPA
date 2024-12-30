@@ -43,3 +43,13 @@ topo
 stime -c
 upsize -c
 dnsize -c
+
+
+strash
+dch
+map -B 0.6
+topo
+stime -c
+buffer -c
+upsize -c
+dnsize -c

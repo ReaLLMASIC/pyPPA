@@ -135,7 +135,7 @@ if {$buffering==1} {
 # set abc_script "read design.blif;fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m;write output.blif"
 
 set constr1 [open $::env(OBJECTS_DIR)/abc.script w]
-puts $constr1 "fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m"
+puts $constr1 "fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;${abc_fine_tune};stime,-p;print_stats -m"
 close $constr1
 
 set abc_script $::env(OBJECTS_DIR)/abc.script
@@ -147,7 +147,8 @@ if {[info exist ::env(ABC_CLOCK_PERIOD_IN_PS)]} {
   abc -D [expr $::env(ABC_CLOCK_PERIOD_IN_PS)] \
       -script $abc_script \
       -liberty $::env(DONT_USE_SC_LIB) \
-      -constr $::env(OBJECTS_DIR)/abc.constr
+      -constr $::env(OBJECTS_DIR)/abc.constr \
+      -v
 } else {
   puts "\[WARN\]\[FLOW\] No clock period constraints detected in design"
   abc -liberty $::env(DONT_USE_SC_LIB) \
