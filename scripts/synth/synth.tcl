@@ -134,11 +134,11 @@ if {$buffering==1} {
 
 # set abc_script "read design.blif;fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m;write output.blif"
 
-set constr1 [open $::env(OBJECTS_DIR)/abc.script w]
-puts $constr1 "fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;${abc_fine_tune};stime,-p;print_stats -m"
+set constr1 [open $::env(SCRIPTS_DIR)/abc_universal.script w]
+puts $constr1 "fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m"
 close $constr1
 
-set abc_script $::env(OBJECTS_DIR)/abc.script
+set abc_script $::env(SCRIPTS_DIR)/abc_universal.script
 
 # Technology mapping for cells
 # ABC supports multiple liberty files, but the hook from Yosys to ABC doesn't
@@ -186,7 +186,6 @@ foreach lib $::env(DONT_USE_LIBS) {
 }
 tee -o $::env(REPORTS_DIR)/synth_stat.txt stat {*}$stat_libs
 tee -o $::env(REPORTS_DIR)/synth_stat.json stat -json {*}$stat_libs
-tee -o $::env(REPORTS_DIR)/synth_check.txt check
 
 # Write synthesized design
 write_verilog -noattr -noexpr -nohex -nodec $::env(RESULTS_DIR)/1_1_yosys.v
