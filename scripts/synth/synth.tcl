@@ -135,7 +135,8 @@ if {$buffering==1} {
 # set abc_script "read design.blif;fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m;write output.blif"
 
 set constr1 [open $::env(SCRIPTS_DIR)/abc_universal.script w]
-puts $constr1 "fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m"
+# puts $constr1 "fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly};scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m"
+puts $constr1 "strash \ndch \ntopo"
 close $constr1
 
 set abc_script $::env(SCRIPTS_DIR)/abc_universal.script
