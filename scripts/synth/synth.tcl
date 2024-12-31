@@ -139,7 +139,7 @@ set constr1 [open $::env(SCRIPTS_DIR)/abc_universal.script w]
 puts $constr1 "strash \ndch \nmap -B 0.6 \ntopo \nstime -c \nbuffer -c \nupsize -c \ndnsize -c"
 close $constr1
 
-set abc_script $::env(SCRIPTS_DIR)/abc_area.script
+set abc_script $::env(SCRIPTS_DIR)/abc_universal.script
 
 # Technology mapping for cells
 # ABC supports multiple liberty files, but the hook from Yosys to ABC doesn't
