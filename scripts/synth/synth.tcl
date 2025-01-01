@@ -136,7 +136,7 @@ if {$buffering==1} {
 
 set constr1 [open $::env(SCRIPTS_DIR)/abc_universal.script w]
 # puts $constr1 "fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly};scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m"
-puts $constr1 "strash \ndch \nmap -B 0.6 \ntopo \nstime -c \n&put;buffer,-N,10 \nbuffer -c \nupsize -c \ndnsize -c"
+puts $constr1 "strash \ndch \nmap -B 0.6 \ntopo \nstime -c \nbuffer,-N,10 \nupsize -c \ndnsize -c"
 close $constr1
 
 set abc_script $::env(SCRIPTS_DIR)/abc_universal.script
