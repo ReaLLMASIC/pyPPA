@@ -146,10 +146,11 @@ set abc_script $::env(SCRIPTS_DIR)/abc_universal.script
 # ABC supports multiple liberty files, but the hook from Yosys to ABC doesn't
 if {[info exist ::env(ABC_CLOCK_PERIOD_IN_PS)]} {
   puts "\[FLOW\] Set ABC_CLOCK_PERIOD_IN_PS to: $::env(ABC_CLOCK_PERIOD_IN_PS)"
+  set log_file $::env(OBJECTS_DIR)/abc_execution.log
   abc -D [expr $::env(ABC_CLOCK_PERIOD_IN_PS)] \
       -script $abc_script \
       -liberty $::env(DONT_USE_SC_LIB) \
-      -constr $::env(OBJECTS_DIR)/abc.constr 
+      -constr $::env(OBJECTS_DIR)/abc.constr > $log_file 2>&1
 } else {
   puts "\[WARN\]\[FLOW\] No clock period constraints detected in design"
   abc -liberty $::env(DONT_USE_SC_LIB) \
