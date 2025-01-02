@@ -105,7 +105,7 @@ set abc_resyn2rs      "${abc_b};${abc_rs_K},6;${abc_rw};${abc_rs_K},6,-N,2;${abc
 set abc_choice        "fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; fraig_restore"
 set abc_choice2      "fraig_store; balance; fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; fraig_restore"
 
-set abc_map_old_cnt			"map,-p,-a,-B,0.2,-A,0.9,-M,0"
+set abc_map_old_cnt			"map -p -a -B 0.2 -A 0.9 -M 0"
 set abc_map_old_dly         "map,-p,-B,0.2,-A,0.9,-M,0"
 set abc_retime_area         "retime,-D,{D},-M,5"
 set abc_retime_dly          "retime,-D,{D},-M,6"
@@ -136,8 +136,8 @@ if {$buffering==1} {
 
 set constr1 [open $::env(SCRIPTS_DIR)/abc_universal.script w]
 # puts $constr1 "fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly};scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m"
-# puts $constr1 "strash \ndch \nmap -B 0.6 \ntopo \nstime -c \nbuffer,-N,10 \nupsize -c \ndnsize -c"
-puts $constr1 "&get -n \n&st \n&dch \n&nf \n&put \nbuffer -c \ntopo \nstime -c \nupsize -c \ndnsize -c"
+puts $constr1 "strash \ndch \nmap -B 0.6 \ntopo \nstime -c \nbuffer -N 5 \nupsize -c \ndnsize -c"
+# puts $constr1 "&get -n \n&st \n&dch \n&nf \n&put \nbuffer -c \ntopo \nstime -c \nupsize -c \ndnsize -c"
 close $constr1
 
 set abc_script $::env(SCRIPTS_DIR)/abc_universal.script
