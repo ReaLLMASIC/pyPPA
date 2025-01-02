@@ -135,7 +135,7 @@ if {$buffering==1} {
 # set abc_script "read design.blif;fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m;write output.blif"
 
 set constr1 [open $::env(SCRIPTS_DIR)/abc_universal.script w]
-puts $constr1 "fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly};scleanup;${abc_map_old_dly};retime -D {D};&get -n;&st;&dch;&nf;&put;${abc_fine_tune};stime -p;print_stats -m"
+puts $constr1 "fx\nmfs\nstrash\n${abc_rf}\n${abc_resyn2}\n${abc_retime_dly}\nscleanup\n${abc_map_old_dly}\nretime -D {D}\n&get -n \n &st\n&dch\n&nf\n&put\n ${abc_fine_tune}\n stime -p \n print_stats -m"
 # puts $constr1 "strash \ndch \nmap -B 0.6 \ntopo \nstime -c \nbuffer -N 5 \nupsize -c \ndnsize -c"
 # puts $constr1 "&get -n \n&st \n&dch \n&nf \n&put \nbuffer -c \ntopo \nstime -c \nupsize -c \ndnsize -c"
 close $constr1
