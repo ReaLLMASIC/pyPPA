@@ -52,7 +52,12 @@ ppa_runner.add_job({
 		'VERILOG_VCD_NAME': 'softmax.vcd',
 		# If the option `ABC_AREA` is set to `True`, the area-optimized synthesis strategy is used as opposed to the speed-optimized strategy. The following dictionary lists both values, and hence both the options will be swept and the PPA results will be generated for each case.
 		'ABC_AREA': {
-			'values': [True, False]
+			'values': [True]
+		},
+		'ABC_MAX_FANOUT': {
+			'start': 8,
+			'end': 16,
+			'step': 2
 		}
 	},
 	# Hyperparameters are used defined parameters that can be inserted in the source files using the Mako templating syntax. See https://www.makotemplates.org/ for more information.

@@ -134,7 +134,7 @@ close $constr
 
 # set abc_script "read design.blif;fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m;write output.blif"
 
-set max_fanout 10                                     ;# Maximum fan-out for buffer insertion
+set max_fanout $::env(ABC_MAX_FANOUT)                 ;# Maximum fan-out for buffer insertion
 set map_effort 0.7                                    ;# Mapping effort (higher = prioritize delay)
 set arec_effort 0.5                                   ;# Area recovery effort (higher = max effort)
 set clock_period $::env(ABC_CLOCK_PERIOD_IN_PS)       ;# Clock period for retiming in ps
