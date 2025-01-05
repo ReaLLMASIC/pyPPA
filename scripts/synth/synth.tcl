@@ -147,6 +147,7 @@ set constr1 [open $::env(OBJECTS_DIR)/abc_universal.script w]
 puts $constr1 "strash \n"; # structural hashing 
 puts $constr1 "dch\n"; # delay-aware combinational optimization
 puts $constr1 "map -B $map_effort -A $arec_effort\n"; # technology mapping
+puts $constr1 "retime -D $clock_period -M 6\n";
 puts $constr1 "topo"; # topological cleanup
 puts $constr1 "stime -c\n"; # report timing
 puts $constr1 "buffer -N $max_fanout\n";
