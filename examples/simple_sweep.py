@@ -54,16 +54,16 @@ ppa_runner.add_job({
 		'ABC_AREA': {
 			'values': [True]
 		}
-		# ,'ABC_MAX_FANOUT': {
-		# 	'start': 8,
-		# 	'end': 16,
-		# 	'step': 4
-		# },
-		# 'ABC_MAP_EFFORT': {
-		# 	'start': 0,
-		# 	'end': 1,
-		# 	'step': 0.25
-		# }
+		,'ABC_MAX_FANOUT': {
+			'start': 8,
+			'end': 12,
+			'step': 4
+		},
+		'ABC_MAP_EFFORT': {
+			'start': 0,
+			'end': 1,
+			'step': 1
+		}
 	},
 	# Hyperparameters are used defined parameters that can be inserted in the source files using the Mako templating syntax. See https://www.makotemplates.org/ for more information.
 	# The simplest way is to write ${clk_period} in any source files (Verilog, Verilog testbench file, or constraint.sdc) to replace the value with the parameters set.
