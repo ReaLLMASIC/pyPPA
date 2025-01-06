@@ -85,15 +85,15 @@ set abc_rfz     "drf -l -z"
 set abc_rw      "drw -l"
 set abc_rwz     "drw -l -z"
 set abc_rw_K    "drw -l -K"
-if { $::env(SYNTH_ABC_LEGACY_REFACTOR) == "1" } {
-    set abc_rf      "refactor"
-    set abc_rfz     "refactor -z"
-}
-if { $::env(SYNTH_ABC_LEGACY_REWRITE) == "1" } {
-    set abc_rw      "rewrite"
-    set abc_rwz     "rewrite -z"
-    set abc_rw_K    "rewrite -K"
-}
+# if { $::env(SYNTH_ABC_LEGACY_REFACTOR) == "1" } {
+#     set abc_rf      "refactor"
+#     set abc_rfz     "refactor -z"
+# }
+# if { $::env(SYNTH_ABC_LEGACY_REWRITE) == "1" } {
+#     set abc_rw      "rewrite"
+#     set abc_rwz     "rewrite -z"
+#     set abc_rw_K    "rewrite -K"
+# }
 set abc_b       "balance"
 
 set abc_resyn2        "${abc_b}; ${abc_rw}; ${abc_rf}; ${abc_b}; ${abc_rw}; ${abc_rwz}; ${abc_b}; ${abc_rfz}; ${abc_rwz}; ${abc_b}"
