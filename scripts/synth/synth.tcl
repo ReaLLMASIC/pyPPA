@@ -132,7 +132,7 @@ if {$buffering==1} {
     set abc_fine_tune       ""
 }
 
-set abc_script "read design.blif;fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime -D {D};&get -n;&st;&dch;&nf;&put;${abc_fine_tune};stime -p;print_stats -m;write output.blif"
+# set abc_script "read design.blif;fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime -D {D};&get -n;&st;&dch;&nf;&put;${abc_fine_tune};stime -p;print_stats -m;write output.blif"
 
 set max_fanout $::env(ABC_MAX_FANOUT)                 ;# Maximum fan-out for buffer insertion
 set map_effort $::env(ABC_MAP_EFFORT)                 ;# Mapping effort (higher = prioritize delay)
@@ -141,22 +141,23 @@ set clock_period $::env(ABC_CLOCK_PERIOD_IN_PS)       ;# Clock period for retimi
 # set retime_mode 6                                     ;# Retiming mode (6 = minimize area, 5 = minimize delay)
 
 set constr1 [open $::env(OBJECTS_DIR)/abc_universal.script w]
-# puts $constr1 "fx\nmfs\nstrash\n${abc_rf}\n${abc_resyn2}\n${abc_retime_dly}\nscleanup\n${abc_map_old_dly}\nretime -D {D}\n&get -n \n &st\n&dch\n&nf\n&put\n ${abc_fine_tune}\n stime -p \n print_stats -m"
+puts $constr1 "fx\nmfs\nstrash\n${abc_rf}\n${abc_resyn2}\n${abc_retime_dly}\nscleanup\n${abc_map_old_dly}\nretime -D {D}\n&get -n \n &st\n&dch\n&nf\n&put\n ${abc_fine_tune}\n stime -p \n print_stats -m"
 # puts $constr1 "strash \ndch \nmap -B 0.6 \ntopo \nstime -c \nbuffer -N 5 \nupsize -c \ndnsize -c"
 # puts $constr1 "&get -n \n&st \n&dch \n&nf \n&put \nbuffer -c \ntopo \nstime -c \nupsize -c \ndnsize -c"
-puts $constr1 "strash \n"; # structural hashing 
-puts $constr1 "dch\n"; # delay-aware combinational optimization
-puts $constr1 "map -B $map_effort -A $arec_effort\n"; # technology mapping
-puts $constr1 "retime -D $clock_period -M 6\n";
-puts $constr1 "topo"; # topological cleanup
-puts $constr1 "stime -c\n"; # report timing
-puts $constr1 "buffer -N $max_fanout\n";
-puts $constr1 "upsize -c\n"; # increase cell drive strength
-puts $constr1 "dnsize -c\n"; # decrease cell drive strength
+
+# puts $constr1 "strash \n"; # structural hashing 
+# puts $constr1 "dch\n"; # delay-aware combinational optimization
+# puts $constr1 "map -B $map_effort -A $arec_effort\n"; # technology mapping
+# puts $constr1 "retime -D $clock_period -M 6\n";
+# puts $constr1 "topo"; # topological cleanup
+# puts $constr1 "stime -c\n"; # report timing
+# puts $constr1 "buffer -N $max_fanout\n";
+# puts $constr1 "upsize -c\n"; # increase cell drive strength
+# puts $constr1 "dnsize -c\n"; # decrease cell drive strength
 
 close $constr1
 
-# set abc_script $::env(OBJECTS_DIR)/abc_universal.script
+set abc_script $::env(OBJECTS_DIR)/abc_universal.script
 
 # Technology mapping for cells
 # ABC supports multiple liberty files, but the hook from Yosys to ABC doesn't
