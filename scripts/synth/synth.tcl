@@ -145,21 +145,19 @@ set constr1 [open $::env(OBJECTS_DIR)/abc_universal.script w]
 # puts $constr1 "strash \ndch \nmap -B 0.6 \ntopo \nstime -c \nbuffer -N 5 \nupsize -c \ndnsize -c"
 # puts $constr1 "&get -n \n&st \n&dch \n&nf \n&put \nbuffer -c \ntopo \nstime -c \nupsize -c \ndnsize -c"
 
-puts $constr1 "strash \n"; # structural hashing 
-puts $constr1 "dch\n"; # delay-aware combinational optimization
-puts $constr1 "map -B $map_effort -A $arec_effort\n"; # technology mapping
-puts $constr1 "retime -D $clock_period -M 6\n";
+puts $constr1 "strash"; # structural hashing 
+puts $constr1 "dch"; # delay-aware combinational optimization
+puts $constr1 "map -B $map_effort -A $arec_effort"; # technology mapping
+puts $constr1 "retime -D $clock_period -M 6";
 puts $constr1 "topo"; # topological cleanup
 puts $constr1 "stime -c\n"; # report timing
-puts $constr1 "buffer -N $max_fanout\n";
+puts $constr1 "buffer -N $max_fanout";
+
+puts $constr1 "if -g -K 4";  # Optimize paths with gate fan-in <= 4
+puts $constr1 "dch -G\n";      # Consider larger gates for timing improvements
 
 puts $constr1 "upsize -c\n"; # increase cell drive strength
 puts $constr1 "dnsize -c\n"; # decrease cell drive strength
-
-
-puts $constr1 "if -g -K 4\n";  # Optimize paths with gate fan-in <= 4
-puts $constr1 "dch -G\n";      # Consider larger gates for timing improvements
-
 
 close $constr1
 
