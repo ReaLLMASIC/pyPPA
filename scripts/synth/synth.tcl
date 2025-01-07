@@ -153,8 +153,8 @@ puts $constr1 "topo"; # topological cleanup
 puts $constr1 "stime -c\n"; # report timing
 puts $constr1 "buffer -N $max_fanout";
 
-puts $constr1 "if -g -K 4";  # Optimize paths with gate fan-in <= 4
-puts $constr1 "dch -G\n";      # Consider larger gates for timing improvements
+# puts $constr1 "if -g -K 4";  # Optimize paths with gate fan-in <= 4
+# puts $constr1 "dch -G\n";      # Consider larger gates for timing improvements
 
 puts $constr1 "upsize -c\n"; # increase cell drive strength
 puts $constr1 "dnsize -c\n"; # decrease cell drive strength
