@@ -141,19 +141,25 @@ set clock_period $::env(ABC_CLOCK_PERIOD_IN_PS)       ;# Clock period for retimi
 # set retime_mode 6                                     ;# Retiming mode (6 = minimize area, 5 = minimize delay)
 
 set constr1 [open $::env(OBJECTS_DIR)/abc_universal.script w]
-puts $constr1 "fx\nmfs\nstrash\n${abc_rf}\n ${abc_resyn2} \n${abc_retime_dly}\nscleanup\n${abc_map_old_dly}\nretime -D {D}\n&get -n \n &st\n&dch\n&nf\n&put\n ${abc_fine_tune}\n stime -p \n print_stats -m"
+# puts $constr1 "fx\nmfs\nstrash\n${abc_rf}\n ${abc_resyn2} \n${abc_retime_dly}\nscleanup\n${abc_map_old_dly}\nretime -D {D}\n&get -n \n &st\n&dch\n&nf\n&put\n ${abc_fine_tune}\n stime -p \n print_stats -m"
 # puts $constr1 "strash \ndch \nmap -B 0.6 \ntopo \nstime -c \nbuffer -N 5 \nupsize -c \ndnsize -c"
 # puts $constr1 "&get -n \n&st \n&dch \n&nf \n&put \nbuffer -c \ntopo \nstime -c \nupsize -c \ndnsize -c"
 
-# puts $constr1 "strash \n"; # structural hashing 
-# puts $constr1 "dch\n"; # delay-aware combinational optimization
-# puts $constr1 "map -B $map_effort -A $arec_effort\n"; # technology mapping
-# puts $constr1 "retime -D $clock_period -M 6\n";
-# puts $constr1 "topo"; # topological cleanup
-# puts $constr1 "stime -c\n"; # report timing
-# puts $constr1 "buffer -N $max_fanout\n";
-# puts $constr1 "upsize -c\n"; # increase cell drive strength
-# puts $constr1 "dnsize -c\n"; # decrease cell drive strength
+puts $constr1 "strash \n"; # structural hashing 
+puts $constr1 "dch\n"; # delay-aware combinational optimization
+puts $constr1 "map -B $map_effort -A $arec_effort\n"; # technology mapping
+puts $constr1 "retime -D $clock_period -M 6\n";
+puts $constr1 "topo"; # topological cleanup
+puts $constr1 "stime -c\n"; # report timing
+puts $constr1 "buffer -N $max_fanout\n";
+
+puts $constr1 "upsize -c\n"; # increase cell drive strength
+puts $constr1 "dnsize -c\n"; # decrease cell drive strength
+
+
+puts $constr1 "if -g -K 4\n";  # Optimize paths with gate fan-in <= 4
+puts $constr1 "dch -G\n";      # Consider larger gates for timing improvements
+
 
 close $constr1
 
