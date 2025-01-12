@@ -161,7 +161,8 @@ puts $constr1 "dnsize -c\n"; # decrease cell drive strength
 
 close $constr1
 
-set abc_script $::env(OBJECTS_DIR)/abc_universal.script
+# set abc_script $::env(OBJECTS_DIR)/abc_universal.script
+set abc_script $::env(SCRIPTS_DIR)/abc_speed.script
 
 # Technology mapping for cells
 # ABC supports multiple liberty files, but the hook from Yosys to ABC doesn't
