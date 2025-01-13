@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="full" height="225.0" version="1.1" width="455.0">
+	<defs/>
+	<rect fill="white" height="225.0" width="455.0" x="0" y="0"/>
+	<line stroke="rgb(30,255,30)" stroke-linecap="round" stroke-width="1" x1="50.0" x2="50.0" y1="100.0" y2="102.0"/>
+	<line stroke="rgb(0,0,255)" stroke-linecap="round" stroke-width="1" x1="100.0" x2="102.5" y1="50.0" y2="50.0"/>
+	<rect fill="rgb(255,255,255)" height="100" stroke="rgb(0,0,0)" stroke-width="1" width="100" x="0.0" y="0.0"/>
+	<text fill="black" font-size="20.0px" x="18.0" y="60.0">32x256</text>
+	<line stroke="rgb(30,255,30)" stroke-linecap="round" stroke-width="1" x1="155.0" x2="155.0" y1="100.0" y2="104.0"/>
+	<line stroke="rgb(0,0,255)" stroke-linecap="round" stroke-width="1" x1="205.0" x2="207.5" y1="50.0" y2="50.0"/>
+	<rect fill="rgb(255,255,255)" height="100" stroke="rgb(0,0,0)" stroke-width="1" width="100" x="105.0" y="0.0"/>
+	<text fill="black" font-size="20.0px" x="123.0" y="60.0">32x256</text>
+	<line stroke="rgb(0,0,255)" stroke-linecap="round" stroke-width="1" x1="102.5" x2="102.5" y1="50.0" y2="205.0"/>
+	<line stroke="rgb(0,0,255)" stroke-linecap="round" stroke-width="1" x1="207.5" x2="207.5" y1="50.0" y2="205.0"/>
+	<line stroke="rgb(30,255,30)" stroke-linecap="round" stroke-width="1" x1="50.0" x2="305.0" y1="102.0" y2="102.0"/>
+	<line stroke="rgb(30,255,30)" stroke-linecap="round" stroke-width="1" x1="155.0" x2="305.0" y1="104.0" y2="104.0"/>
+	<line stroke="rgb(0,0,255)" stroke-linecap="round" stroke-width="1" x1="330.0" x2="330.0" y1="205.0" y2="105.0"/>
+	<line stroke="rgb(30,255,30)" stroke-linecap="round" stroke-width="1" x1="355.0" x2="455.0" y1="77.5" y2="77.5"/>
+	<text fill="black" font-size="20.0px" x="355.0" y="76.5">DATA: 32</text>
+	<polygon fill="rgb(255,255,255)" points="355.0,75.0 355.0,105.0 305.0,130.0 305.0,50.0" stroke="rgb(0,0,0)" stroke-width="1"/>
+	<line stroke="rgb(0,0,255)" stroke-linecap="round" stroke-width="1" x1="0" x2="330.0" y1="205.0" y2="205.0"/>
+	<text fill="black" font-size="20.0px" x="0" y="204.0">ADDR: 9</text>
+	<text fill="black" font-size="20.0px" x="0" y="225.0">32x512</text>
+</svg>
