@@ -1,3 +1,6 @@
 [submodule "platforms"]
 	path = platforms
 	url = https://github.com/idea-fasoc/platforms.git
+[submodule "SKY130-Macro-Memory-Cell-Generator"]
+	path = SKY130-Macro-Memory-Cell-Generator
+	url = https://github.com/Baungarten-CINVESTAV/SKY130-Macro-Memory-Cell-Generator.git
