@@ -71,66 +71,66 @@ puts $constr "set_driving_cell $::env(ABC_DRIVER_CELL)"
 puts $constr "set_load $::env(ABC_LOAD_IN_FF)"
 close $constr
 
-# Mapping parameters
-set A_factor  0.00
-set B_factor  0.88
-set F_factor  0.00
+# # Mapping parameters
+# set A_factor  0.00
+# set B_factor  0.88
+# set F_factor  0.00
 
-# Assemble Scripts (By Strategy)
-set abc_rs_K    "resub -K "
-set abc_rs      "resub"
-set abc_rsz     "resub -z"
-set abc_rf      "drf -l"
-set abc_rfz     "drf -l -z"
-set abc_rw      "drw -l"
-set abc_rwz     "drw -l -z"
-set abc_rw_K    "drw -l -K"
-# if { $::env(SYNTH_ABC_LEGACY_REFACTOR) == "1" } {
-#     set abc_rf      "refactor"
-#     set abc_rfz     "refactor -z"
+# # Assemble Scripts (By Strategy)
+# set abc_rs_K    "resub -K "
+# set abc_rs      "resub"
+# set abc_rsz     "resub -z"
+# set abc_rf      "drf -l"
+# set abc_rfz     "drf -l -z"
+# set abc_rw      "drw -l"
+# set abc_rwz     "drw -l -z"
+# set abc_rw_K    "drw -l -K"
+# # if { $::env(SYNTH_ABC_LEGACY_REFACTOR) == "1" } {
+# #     set abc_rf      "refactor"
+# #     set abc_rfz     "refactor -z"
+# # }
+# # if { $::env(SYNTH_ABC_LEGACY_REWRITE) == "1" } {
+# #     set abc_rw      "rewrite"
+# #     set abc_rwz     "rewrite -z"
+# #     set abc_rw_K    "rewrite -K"
+# # }
+# set abc_b       "balance"
+
+# set abc_resyn2        "${abc_b}; ${abc_rw}; ${abc_rf}; ${abc_b}; ${abc_rw}; ${abc_rwz}; ${abc_b}; ${abc_rfz}; ${abc_rwz}; ${abc_b}"
+# set abc_share         "strash; multi -m; ${abc_resyn2}"
+# set abc_resyn2a       "${abc_b};${abc_rw};${abc_b};${abc_rw};${abc_rwz};${abc_b};${abc_rwz};${abc_b}"
+# set abc_resyn3        "balance;resub;resub -K 6;balance;resub -z;resub -z -K 6;balance;resub -z -K 5;balance"
+# set abc_resyn2rs      "${abc_b};${abc_rs_K} 6;${abc_rw};${abc_rs_K} 6 -N 2;${abc_rf};${abc_rs_K} 8;${abc_rw};${abc_rs_K} 10;${abc_rwz};${abc_rs_K} 10 -N 2;${abc_b} ${abc_rs_K} 12;${abc_rfz};${abc_rs_K} 12 -N 2;${abc_rwz};${abc_b}"
+
+# set abc_choice        "fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; fraig_restore"
+# set abc_choice2      "fraig_store; balance; fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; fraig_restore"
+
+# set abc_map_old_cnt			"map -p -a -B 0.2 -A 0.9 -M 0"
+# set abc_map_old_dly         "map -p -B 0.2 -A 0.9 -M 0"
+# set abc_retime_area         "retime -D {D} -M 5"
+# set abc_retime_dly          "retime -D {D} -M 6"
+# set abc_map_new_area        "amap -m -Q 0.1 -F 20 -A 20 -C 5000"
+
+# set abc_area_recovery_1       "${abc_choice}; map;"
+# set abc_area_recovery_2       "${abc_choice2}; map;"
+
+# set map_old_cnt			    "map -p -a -B 0.2 -A 0.9 -M 0"
+# set map_old_dly			    "map -p -B 0.2 -A 0.9 -M 0"
+# set abc_retime_area   	"retime -D {D} -M 5"
+# set abc_retime_dly    	"retime -D {D} -M 6"
+# set abc_map_new_area  	"amap -m -Q 0.1 -F 20 -A 20 -C 5000"
+
+# if {$buffering==1} {
+#     set max_tr_arg ""
+#     if { $max_TR != 0 } {
+#         set max_tr_arg " -S ${max_TR}"
+#     }
+#     set abc_fine_tune		"buffer -N ${max_FO} ${max_tr_arg};upsize {D};dnsize {D}"
+# } elseif {$sizing} {
+#     set abc_fine_tune       "upsize {D};dnsize {D}"
+# } else {
+#     set abc_fine_tune       ""
 # }
-# if { $::env(SYNTH_ABC_LEGACY_REWRITE) == "1" } {
-#     set abc_rw      "rewrite"
-#     set abc_rwz     "rewrite -z"
-#     set abc_rw_K    "rewrite -K"
-# }
-set abc_b       "balance"
-
-set abc_resyn2        "${abc_b}; ${abc_rw}; ${abc_rf}; ${abc_b}; ${abc_rw}; ${abc_rwz}; ${abc_b}; ${abc_rfz}; ${abc_rwz}; ${abc_b}"
-set abc_share         "strash; multi -m; ${abc_resyn2}"
-set abc_resyn2a       "${abc_b};${abc_rw};${abc_b};${abc_rw};${abc_rwz};${abc_b};${abc_rwz};${abc_b}"
-set abc_resyn3        "balance;resub;resub -K 6;balance;resub -z;resub -z -K 6;balance;resub -z -K 5;balance"
-set abc_resyn2rs      "${abc_b};${abc_rs_K} 6;${abc_rw};${abc_rs_K} 6 -N 2;${abc_rf};${abc_rs_K} 8;${abc_rw};${abc_rs_K} 10;${abc_rwz};${abc_rs_K} 10 -N 2;${abc_b} ${abc_rs_K} 12;${abc_rfz};${abc_rs_K} 12 -N 2;${abc_rwz};${abc_b}"
-
-set abc_choice        "fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; fraig_restore"
-set abc_choice2      "fraig_store; balance; fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; fraig_restore"
-
-set abc_map_old_cnt			"map -p -a -B 0.2 -A 0.9 -M 0"
-set abc_map_old_dly         "map -p -B 0.2 -A 0.9 -M 0"
-set abc_retime_area         "retime -D {D} -M 5"
-set abc_retime_dly          "retime -D {D} -M 6"
-set abc_map_new_area        "amap -m -Q 0.1 -F 20 -A 20 -C 5000"
-
-set abc_area_recovery_1       "${abc_choice}; map;"
-set abc_area_recovery_2       "${abc_choice2}; map;"
-
-set map_old_cnt			    "map -p -a -B 0.2 -A 0.9 -M 0"
-set map_old_dly			    "map -p -B 0.2 -A 0.9 -M 0"
-set abc_retime_area   	"retime -D {D} -M 5"
-set abc_retime_dly    	"retime -D {D} -M 6"
-set abc_map_new_area  	"amap -m -Q 0.1 -F 20 -A 20 -C 5000"
-
-if {$buffering==1} {
-    set max_tr_arg ""
-    if { $max_TR != 0 } {
-        set max_tr_arg " -S ${max_TR}"
-    }
-    set abc_fine_tune		"buffer -N ${max_FO} ${max_tr_arg};upsize {D};dnsize {D}"
-} elseif {$sizing} {
-    set abc_fine_tune       "upsize {D};dnsize {D}"
-} else {
-    set abc_fine_tune       ""
-}
 
 # set abc_script "read design.blif;fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime -D {D};&get -n;&st;&dch;&nf;&put;${abc_fine_tune};stime -p;print_stats -m;write output.blif"
 
@@ -161,8 +161,8 @@ puts $constr1 "dnsize -c\n"; # decrease cell drive strength
 
 close $constr1
 
-# set abc_script $::env(OBJECTS_DIR)/abc_universal.script
-set abc_script $::env(SCRIPTS_DIR)/abc_speed.script
+set abc_script $::env(OBJECTS_DIR)/abc_universal.script
+# set abc_script $::env(SCRIPTS_DIR)/abc_speed.script
 
 # Technology mapping for cells
 # ABC supports multiple liberty files, but the hook from Yosys to ABC doesn't
