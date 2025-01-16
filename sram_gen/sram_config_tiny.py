@@ -19,3 +19,9 @@ output_name = "sram_16x512"
 
 # Disable analytical models for full characterization (WARNING: slow!)
 # analytical_delay = False
+
+num_spare_cols = 1
+num_spare_rows = 1
+
+import os
+exec(open(os.path.join(os.path.dirname(__file__), 'sky130_sram_common.py')).read())
