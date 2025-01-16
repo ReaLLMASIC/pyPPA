@@ -2,7 +2,6 @@
 word_size = 16
 # Number of words in the memory
 num_words = 512
-
 # Technology to use in $OPENRAM_TECH
 tech_name = "sky130"
 # Process corners to characterize
