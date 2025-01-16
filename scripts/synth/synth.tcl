@@ -136,7 +136,7 @@ close $constr
 
 set max_fanout $::env(ABC_MAX_FANOUT)                 ;# Maximum fan-out for buffer insertion
 set map_effort $::env(ABC_MAP_EFFORT)                 ;# Mapping effort (higher = prioritize delay)
-set arec_effort 0.5                                   ;# Area recovery effort (higher = max effort)
+set arec_effort $::env(ABC_AREC_EFFORT)               ;# Area recovery effort (higher = max effort)
 set clock_period $::env(ABC_CLOCK_PERIOD_IN_PS)       ;# Clock period for retiming in ps
 # set retime_mode 6                                     ;# Retiming mode (6 = minimize area, 5 = minimize delay)
 
@@ -150,9 +150,9 @@ puts $constr1 "dch"; # delay-aware combinational optimization
 puts $constr1 "map -B $map_effort -A $arec_effort"; # technology mapping
 puts $constr1 "retime -D $clock_period -M 6";
 
-puts $constr1 "map -B $map_effort -A $arec_effort"; # technology mapping
-puts $constr1 "retime -D 10 -M 6";
-puts $constr1 "retime -D 10 -M 6";
+# puts $constr1 "map -B $map_effort -A $arec_effort"; # technology mapping
+# puts $constr1 "retime -D 10 -M 6";
+# puts $constr1 "retime -D 10 -M 6";
 
 puts $constr1 "topo"; # topological cleanup
 puts $constr1 "stime -c\n"; # report timing
