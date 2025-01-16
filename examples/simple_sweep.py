@@ -55,8 +55,8 @@ ppa_runner.add_job({
 			'values': [True]
 		}
 		,'ABC_MAX_FANOUT': {
-			'start': 4,
-			'end': 24,
+			'start': 12,
+			'end': 28,
 			'step': 4
 		},
 		'ABC_MAP_EFFORT': {
