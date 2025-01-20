@@ -134,11 +134,36 @@ close $constr
 
 # set abc_script "read design.blif;fx;mfs;strash;${abc_rf};${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime -D {D};&get -n;&st;&dch;&nf;&put;${abc_fine_tune};stime -p;print_stats -m;write output.blif"
 
-set max_fanout $::env(ABC_MAX_FANOUT)                 ;# Maximum fan-out for buffer insertion
-set map_effort $::env(ABC_MAP_EFFORT)                 ;# Mapping effort (higher = prioritize delay)
-set arec_effort $::env(ABC_AREC_EFFORT)               ;# Area recovery effort (higher = max effort)
-set clock_period $::env(ABC_CLOCK_PERIOD_IN_PS)       ;# Clock period for retiming in ps
+# set max_fanout $::env(ABC_MAX_FANOUT)                 ;# Maximum fan-out for buffer insertion
+# set map_effort $::env(ABC_MAP_EFFORT)                 ;# Mapping effort (higher = prioritize delay)
+# set arec_effort $::env(ABC_AREC_EFFORT)               ;# Area recovery effort (higher = max effort)
+# set clock_period $::env(ABC_CLOCK_PERIOD_IN_PS)       ;# Clock period for retiming in ps
 # set retime_mode 6                                     ;# Retiming mode (6 = minimize area, 5 = minimize delay)
+
+# Set default values for the variables if not provided by the environment
+if {![info exists ::env(ABC_MAX_FANOUT)]} {
+    set max_fanout 10 ;# Default maximum fan-out for buffer insertion
+} else {
+    set max_fanout $::env(ABC_MAX_FANOUT)
+}
+
+if {![info exists ::env(ABC_MAP_EFFORT)]} {
+    set map_effort 0.5 ;# Default mapping effort (higher = prioritize delay)
+} else {
+    set map_effort $::env(ABC_MAP_EFFORT)
+}
+
+if {![info exists ::env(ABC_AREC_EFFORT)]} {
+    set arec_effort 0.6 ;# Default area recovery effort (higher = max effort)
+} else {
+    set arec_effort $::env(ABC_AREC_EFFORT)
+}
+
+if {![info exists ::env(ABC_CLOCK_PERIOD_IN_PS)]} {
+    set clock_period 1000 ;# Default clock period for retiming in ps
+} else {
+    set clock_period $::env(ABC_CLOCK_PERIOD_IN_PS)
+}
 
 set constr1 [open $::env(OBJECTS_DIR)/abc_universal.script w]
 # puts $constr1 "fx\nmfs\nstrash\n${abc_rf}\n ${abc_resyn2} \n${abc_retime_dly}\nscleanup\n${abc_map_old_dly}\nretime -D {D}\n&get -n \n &st\n&dch\n&nf\n&put\n ${abc_fine_tune}\n stime -p \n print_stats -m"
