@@ -58,7 +58,7 @@ def fom(area: float, period: float, total_power: float):
 	# The objective function/figure of merit (which is minimized), is the product of the area, period, and power attempts to minimize all three.
 	return area_in_mm2 * period * total_power
 
-def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARun], previous_suggestions):
+def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], previous_suggestions):
 	if prev_iter_ppa_runs is not None:
 		if len(prev_iter_ppa_runs) != len(previous_suggestions):
 			print("Number of runs does not match number of suggestions. Something went wrong, aborting.")
