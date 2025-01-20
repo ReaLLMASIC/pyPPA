@@ -12,7 +12,7 @@ sys.path.append(path.join(path.dirname(__file__), '..'))
 
 from pyppa import PPARunner
 from pyppa.tools import Yosys, OpenROAD, Iverilog
-from pyppa.ppa.ppa_runner import PPARun
+from pyppa.ppa.ppa_runner import PPARunner
 from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 
 
