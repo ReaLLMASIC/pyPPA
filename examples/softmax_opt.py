@@ -36,15 +36,17 @@ ppa_runner = PPARunner(
 problem = vz.ProblemStatement()
 problem.search_space.root.add_float_param(name='constraint_period', min_value=8, max_value=15, default_value=15) # Guessing that the optimal period is somewhere in between, based on previous results
 # problem.search_space.root.add_bool_param('abc_area')
-problem.search_space.root.add_int_param('ABC_MAX_FANOUT', min_value=12, max_value=28, default_value=20) # Guessing the ABC max fanout is somewhere between 12 and 28
-problem.search_space.root.add_float_param('ABC_MAP_EFFORT', min_value=0, max_value=1, default_value=0.6) # Guessing the ABC map effort is somewhere between 0 and 1
-problem.search_space.root.add_discrete_param('num_softmax', [4,8,16,32], default_value=8) # Number of softmax buffers
+problem.search_space.root.add_int_param(name='ABC_MAX_FANOUT', min_value=12, max_value=28, default_value=20) # Guessing the ABC max fanout is somewhere between 12 and 28
+problem.search_space.root.add_float_param(name='ABC_MAP_EFFORT', min_value=0, max_value=1, default_value=0.6) # Guessing the ABC map effort is somewhere between 0 and 1
+problem.search_space.root.add_discrete_param(name='num_softmax', feasible_values=[4,8,16,32], default_value=8) # Number of softmax buffers
 problem.metric_information.append(
     vz.MetricInformation(
         name='fom',
 		goal=vz.ObjectiveMetricGoal.MINIMIZE
 	)
 )
+
+print(problem.search_space.root)
 
 study_config = vz.StudyConfig.from_problem(problem)
 study_config.algorithm = 'DEFAULT'
