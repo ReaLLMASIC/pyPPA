@@ -38,8 +38,8 @@ problem.search_space.root.add_float_param(name='constraint_period', min_value=8,
 # problem.search_space.root.add_bool_param('abc_area')
 problem.search_space.root.add_int_param(name='ABC_MAX_FANOUT', min_value=12, max_value=28, default_value=20) # Guessing the ABC max fanout is somewhere between 12 and 28
 problem.search_space.root.add_float_param(name='ABC_MAP_EFFORT', min_value=0, max_value=1, default_value=0.6) # Guessing the ABC map effort is somewhere between 0 and 1
-# problem.search_space.root.add_discrete_param(name='num_softmax', feasible_values=[4,8,16,32], default_value=8) # Number of softmax buffers
-problem.search_space.root.add_int_param(name='num_softmax', min_value=4, max_value=16, default_value=8) # Number of softmax buffers
+problem.search_space.root.add_discrete_param(name='num_softmax', feasible_values=[4,8,16,32], default_value=8) # Number of softmax buffers
+# problem.search_space.root.add_int_param(name='num_softmax', min_value=4, max_value=16, default_value=8) # Number of softmax buffers
 problem.metric_information.append(
     vz.MetricInformation(
         name='fom',
@@ -131,7 +131,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 				},
 				'hyperparameters': {
 					'clk_period': suggestion.parameters['constraint_period'],
-					'num_softmax': suggestion.parameters['num_softmax']
+					'num_softmax': int(suggestion.parameters['num_softmax'])
 				}
 			} for suggestion in suggestions
 		],
