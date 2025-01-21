@@ -62,7 +62,7 @@ def fom(area: float, period: float, total_power: float, num_softmax: int):
     w3 = 0.2
     target_power = 0.04
     target_area = 3e6
-    target_throughput = 1e7
+    target_throughput = 3e7
 	
     throughput = 1e9 / period / num_softmax
 
@@ -103,7 +103,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 			final_measurement = vz.Measurement({'fom': objective})
 			suggestion.complete(final_measurement)
 
-	if prev_iter_number >= 20: # Run for 10 iterations and then stop
+	if prev_iter_number >= 15: # Run for 10 iterations and then stop
 		print("Optimization complete.")
 		# Print the optimal Vizier trials
 		for optimal_trial in study_client.optimal_trials():

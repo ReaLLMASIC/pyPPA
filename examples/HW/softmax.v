@@ -141,7 +141,7 @@ module softmax
     reg [`DATA_BIT-1:0] max_reg;
     always @(posedge clk or posedge rst) begin
         if (rst) 
-            max_reg<='0;
+            max_reg<=1b'0;
         else if(full)
             max_reg<=max_buffer;
     end
