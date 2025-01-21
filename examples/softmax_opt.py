@@ -60,8 +60,8 @@ def fom(area: float, period: float, total_power: float, num_softmax: int):
     w1 = 0.6
     w2 = 0.2
     w3 = 0.2
-    target_power = 10
-    target_area = 2000
+    target_power = 0.04
+    target_area = 3e6
     target_throughput = 1e7
 	
     throughput = 1e9 / period / num_softmax
@@ -98,8 +98,8 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 				num_softmax=num_softmax
 			)
 
-			print(f'Iteration {prev_iter_number}, suggestion (constraint_period = {constraint_period}, abc_max_fanout = {abc_max_fanout}, abc_map_effort = {abc_map_effort}) led to\n')
-			print(f'area {area} period {period} total_power {total_power} throughput {throughput} objective value {objective}.')
+			print(f'Iteration {prev_iter_number}, suggestion (constraint_period = {constraint_period}, abc_max_fanout = {abc_max_fanout}, abc_map_effort = {abc_map_effort}) led to')
+			print(f'area {area} period {period} total_power {total_power} throughput {throughput} objective value {objective}.\n')
 			final_measurement = vz.Measurement({'fom': objective})
 			suggestion.complete(final_measurement)
 
