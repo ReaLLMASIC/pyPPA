@@ -46,8 +46,6 @@ problem.metric_information.append(
 	)
 )
 
-print(problem.search_space.root)
-
 study_config = vz.StudyConfig.from_problem(problem)
 study_config.algorithm = 'DEFAULT'
 study_client = clients.Study.from_study_config(
@@ -121,6 +119,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 
 	# Assign new suggestions
 	suggestions = study_client.suggest(count=3) # Since 3 threads per job
+	print(suggestions)
 	return {
 		'opt_complete': False,
 		'next_suggestions': [
