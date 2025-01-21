@@ -17,7 +17,7 @@
 `define DATA_BIT 16 //input and output data width
 `define CDATA_BIT 8
 
-`define SOFTMAX_NUM 8 //softmax total count.
+`define SOFTMAX_NUM ${num_softmax} //softmax total count.
 `define SOFTMAX_ADDR $clog2(`SOFTMAX_NUM)
 
 `define I_EXP 8
