@@ -51,10 +51,10 @@ ppa_runner.add_job({
 		# The name of the VCD file dumped. By default it is set to `module_name.vcd`
 		'VERILOG_VCD_NAME': 'softmax.vcd',
 		# If the option `ABC_AREA` is set to `True`, the area-optimized synthesis strategy is used as opposed to the speed-optimized strategy. The following dictionary lists both values, and hence both the options will be swept and the PPA results will be generated for each case.
-		'ABC_AREA': {
-			'values': [True]
-		}
-		,'ABC_MAX_FANOUT': {
+		# 'ABC_AREA': {
+		# 	'values': [True]
+		# }
+		'ABC_MAX_FANOUT': {
 			'start': 12,
 			'end': 28,
 			'step': 4
