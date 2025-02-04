@@ -54,17 +54,17 @@ ppa_runner.add_job({
 		# 'ABC_AREA': {
 		# 	'values': [True]
 		# }
-		# ,'ABC_MAX_FANOUT': {
-		# 	'start': 12,
-		# 	'end': 28,
-		# 	'step': 4
-		# },
-		# 'ABC_MAP_EFFORT': {
-		# 	'values': [0.5]
-		# },
-		# 'ABC_AREC_EFFORT': {
-        #     'values': [0.5]
-		# }
+		,'ABC_MAX_FANOUT': {
+			'start': 12,
+			'end': 16,
+			'step': 4
+		},
+		'ABC_MAP_EFFORT': {
+			'values': [0.5]
+		},
+		'ABC_AREC_EFFORT': {
+            'values': [0.5]
+		}
 	},
 	# Hyperparameters are used defined parameters that can be inserted in the source files using the Mako templating syntax. See https://www.makotemplates.org/ for more information.
 	# The simplest way is to write ${clk_period} in any source files (Verilog, Verilog testbench file, or constraint.sdc) to replace the value with the parameters set.
@@ -74,10 +74,10 @@ ppa_runner.add_job({
 		# The dictionary below defines a sweep for the `clk_period` hyperparameter. All values of clk_period, starting at `10` and going upto `100` will be swept with a step of 10. i.e., 10, 20, ..., 100.
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
-			'values': [12.5,13]
+			'values': [13]
 		},
 		'num_softmax': {
-			'values': [4,8,16]
+			'values': [4,8]
 		}
 	}
 })
