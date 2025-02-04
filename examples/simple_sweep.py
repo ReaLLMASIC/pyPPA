@@ -75,6 +75,9 @@ ppa_runner.add_job({
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
 			'values': [12.5,13]
+		},
+		'num_softmax': {
+			'values': [4,8,16]
 		}
 	}
 })
