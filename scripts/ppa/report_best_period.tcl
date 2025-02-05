@@ -15,7 +15,7 @@ proc report_best_period {step} {
     # Period is in sdc/liberty units.
     utl::info "FLW" 7 "clock $clk_name period $period" 
 
-    utl::info "FLW" 7 "clock $clk_name period $period" > $timing_report_file
+    # utl::info "FLW" 7 "clock $clk_name period $period" > $timing_report_file
 
     if { [llength $clks] == 1 } {
       set slack [sta::time_sta_ui [sta::worst_slack_cmd "max"]]
@@ -31,13 +31,13 @@ proc report_best_period {step} {
     }
   }
 
-  # utl::info "FLW" 11 "Path endpoint count [sta::endpoint_count]"
+  utl::info "FLW" 11 "Path endpoint count [sta::endpoint_count]"
 
   # Report the N worst delay paths.
   utl::info "FLW" 12 "Reporting the $numPaths worst delay paths:"
   # The following command assumes that your STA reporting command accepts the "-max_paths" option.
   # You might need to adjust the options depending on your STA tool.
-  # set report [sta::report_timing -verbose -max_paths $numPaths]
-  # utl::info "FLW" 12 "$report"
+  set report [sta::report_timing -verbose -max_paths $numPaths]
+  utl::info "FLW" 12 "$report"
 
 }
