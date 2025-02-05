@@ -32,6 +32,6 @@ puts "report paths with less than 2ns slack"
 report_checks -slack_max 2
 puts "report paths with more than 4ns slack"
 report_checks -slack_min 4
-
-report_checks -path_group clk -group_path_count 10
+puts "report paths with clk group"
+report_checks -path_group clk
 sta -help
