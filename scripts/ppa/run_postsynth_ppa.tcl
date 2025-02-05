@@ -23,5 +23,6 @@ foreach inst [$block getInsts] {
 puts "Sequential Cells Count: $seq_count"
 puts "Combinational Cells Count: $comb_count"
 
+report_checks -help
 report_checks -path_delay min_max
-sta
+sta -help
