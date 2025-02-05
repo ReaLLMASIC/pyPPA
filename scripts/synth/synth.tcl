@@ -231,7 +231,7 @@ insbuf -buf {*}$::env(MIN_BUF_CELL_AND_PORTS)
 tee -o $::env(REPORTS_DIR)/synth_check.txt check
 
 #report checks
-tee -o $::env(REPORTS_DIR)/timing_report.txt report_checks
+tee -o $::env(REPORTS_DIR)/timing_report.txt help
 
 # Create argument list for stat
 set stat_libs ""
