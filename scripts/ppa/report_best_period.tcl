@@ -3,6 +3,8 @@ proc report_best_period {step} {
   set margin 5
   set numPaths 10
 
+  set timing_report_file [file join $::env(REPORTS_DIR) "${step}_timing_report.txt"]
+
   set clks [all_clocks]
   if { [llength $clks] == 0 } {
     utl::warn "FLW" 6 "No clocks found."
@@ -11,7 +13,9 @@ proc report_best_period {step} {
     set clk_name [get_name $clk]
     set period [get_property $clk "period"]
     # Period is in sdc/liberty units.
-    utl::info "FLW" 7 "clock $clk_name period $period"
+    utl::info "FLW" 7 "clock $clk_name period $period" 
+
+    utl::info "FLW" 7 "clock $clk_name period $period" > $timing_report_file
 
     if { [llength $clks] == 1 } {
       set slack [sta::time_sta_ui [sta::worst_slack_cmd "max"]]
