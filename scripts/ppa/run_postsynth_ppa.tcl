@@ -22,3 +22,6 @@ foreach inst [$block getInsts] {
 
 puts "Sequential Cells Count: $seq_count"
 puts "Combinational Cells Count: $comb_count"
+
+#report checks
+tee -o $::env(REPORTS_DIR)/timing_report.txt sta
