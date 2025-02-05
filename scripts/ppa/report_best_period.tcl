@@ -1,6 +1,7 @@
 proc report_best_period {step} {
   # slack margin for updated clock as a percent of clock period
   set margin 5
+  set numPaths 10
 
   set clks [all_clocks]
   if { [llength $clks] == 0 } {
@@ -27,4 +28,12 @@ proc report_best_period {step} {
   }
 
   utl::info "FLW" 11 "Path endpoint count [sta::endpoint_count]"
+
+  # Report the N worst delay paths.
+  utl::info "FLW" 12 "Reporting the $numPaths worst delay paths:"
+  # The following command assumes that your STA reporting command accepts the "-max_paths" option.
+  # You might need to adjust the options depending on your STA tool.
+  set report [sta::report_timing -verbose -max_paths $numPaths]
+  utl::info "FLW" 12 "$report"
+
 }

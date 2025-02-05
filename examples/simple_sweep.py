@@ -74,10 +74,10 @@ ppa_runner.add_job({
 		# The dictionary below defines a sweep for the `clk_period` hyperparameter. All values of clk_period, starting at `10` and going upto `100` will be swept with a step of 10. i.e., 10, 20, ..., 100.
 		# This hyperparameter is used to set the clock period in the constraint.sdc and the verilog testbench.
 		'clk_period': {
-			'values': [13]
+			'values': [13,8]
 		},
 		'num_softmax': {
-			'values': [4,8]
+			'values': [4]
 		}
 	}
 })
@@ -117,16 +117,16 @@ period_fit = np.linspace(min(clk_period), max(clk_period), 100)
 power_fit = poly_fit(period_fit)
 
 # plot the sweep results
-plt.figure(figsize=(10, 6))
-sc = plt.scatter(clk_period, power, c=area, cmap='Reds', s=100, alpha=0.7, edgecolors='black', marker='o', label="OpenROAD")
-plt.plot(period_fit, power_fit, color='red', linewidth=2)
+# plt.figure(figsize=(10, 6))
+# sc = plt.scatter(clk_period, power, c=area, cmap='Reds', s=100, alpha=0.7, edgecolors='black', marker='o', label="OpenROAD")
+# plt.plot(period_fit, power_fit, color='red', linewidth=2)
 
-plt.colorbar(sc, label='Area(um^2)')  
+# plt.colorbar(sc, label='Area(um^2)')  
 
-plt.xlabel('Clock Period(ns)')
-plt.ylabel('Power(W)')
-plt.title("2D Scatter Plot with Poly Fit Curve of Clock Period, Power and Area")
-plt.legend()
+# plt.xlabel('Clock Period(ns)')
+# plt.ylabel('Power(W)')
+# plt.title("2D Scatter Plot with Poly Fit Curve of Clock Period, Power and Area")
+# plt.legend()
 
 
-plt.savefig("plots/softmax_sweep_compare.png", format='png')
+# plt.savefig("plots/softmax_sweep_compare.png", format='png')
