@@ -230,6 +230,9 @@ insbuf -buf {*}$::env(MIN_BUF_CELL_AND_PORTS)
 # Reports
 tee -o $::env(REPORTS_DIR)/synth_check.txt check
 
+#report checks
+tee -o $::env(REPORTS_DIR)/timing_report.txt report_checks
+
 # Create argument list for stat
 set stat_libs ""
 foreach lib $::env(DONT_USE_LIBS) {
