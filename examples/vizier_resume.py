@@ -76,6 +76,8 @@ study_client = clients.Study.from_study_config(
 )
 print('Local SQL database file located at: ', service.VIZIER_DB_PATH)
 
+print(study_client.trials())
+
 # Figure of Merit function
 def fom(area: float, period: float, total_power: float, num_softmax: int):
     w1 = 0.2
@@ -91,7 +93,7 @@ def fom(area: float, period: float, total_power: float, num_softmax: int):
 # Optimizer function with checkpointing
 def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], previous_suggestions):
     # Load past trials from Vizier
-    completed_trials = study_client.list_trials()
+    completed_trials = study_client.trials()
     last_iteration = len(completed_trials)
     
     print(f"Found {len(completed_trials)} completed trials in history. Resuming from iteration {last_iteration}.")
@@ -120,9 +122,11 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
             final_measurement = vz.Measurement({'fom': objective})
             suggestion.complete(final_measurement)
 
-    if prev_iter_number >= 15:
+    if prev_iter_number >= 3:
         print("Optimization complete. Printing optimal trials:")
-        for optimal_trial in study_client.optimal_trials():
+        # Save checkpoint
+        save_checkpoint(prev_iter_number + 1, suggestions)
+        for optimal_trial in study_client.trials():
             optimal_trial = optimal_trial.materialize()
             print("Optimal Trial Suggestion and Objective:", optimal_trial.parameters, optimal_trial.final_measurement)
         return {'opt_complete': True}
@@ -132,8 +136,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
     for suggestion in suggestions:
         print(suggestion.parameters)
 
-    # Save checkpoint
-    save_checkpoint(prev_iter_number + 1, suggestions)
+    
 
     return {
         'opt_complete': False,
