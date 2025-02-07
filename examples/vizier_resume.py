@@ -94,9 +94,9 @@ def fom(area: float, period: float, total_power: float, num_softmax: int):
 def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], previous_suggestions):
     # Load past trials from Vizier
     completed_trials = study_client.trials()
-    last_iteration = len(completed_trials)
+    # last_iteration = len(completed_trials)
     
-    print(f"Found {len(completed_trials)} completed trials in history. Resuming from iteration {last_iteration}.")
+    # print(f"Found {len(completed_trials)} completed trials in history. Resuming from iteration {last_iteration}.")
 
     if prev_iter_ppa_runs is not None:
         if len(prev_iter_ppa_runs) != len(previous_suggestions):
