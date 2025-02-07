@@ -51,7 +51,7 @@ study_config.algorithm = 'DEFAULT'
 study_client = clients.Study.from_study_config(
   study_config,
   owner='ppa_runner',
-  study_id='ppa_softmax_optimizer'
+  study_id='ppa_softmax_optimizer_v2'
 )
 print('Local SQL database file located at: ', service.VIZIER_DB_PATH)
 
