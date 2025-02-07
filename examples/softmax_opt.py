@@ -119,6 +119,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 
 	# Assign new suggestions
 	suggestions = study_client.suggest(count=3) # Since 3 threads per job
+	print(suggestions)
 	return {
 		'opt_complete': False,
 		'next_suggestions': [
