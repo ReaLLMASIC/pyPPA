@@ -35,9 +35,8 @@ ppa_runner = PPARunner(
 
 problem = vz.ProblemStatement()
 problem.search_space.root.add_float_param(name='constraint_period', min_value=8, max_value=15, default_value=15) # Guessing that the optimal period is somewhere in between, based on previous results
-# problem.search_space.root.add_bool_param('abc_area')
 # problem.search_space.root.add_int_param(name='ABC_MAX_FANOUT', min_value=12, max_value=28, default_value=20) # Guessing the ABC max fanout is somewhere between 12 and 28
-problem.search_space.root.add_float_param(name='ABC_MAP_EFFORT', min_value=0, max_value=1, default_value=0.6) # Guessing the ABC map effort is somewhere between 0 and 1
+# problem.search_space.root.add_float_param(name='ABC_MAP_EFFORT', min_value=0, max_value=1, default_value=0.6) # Guessing the ABC map effort is somewhere between 0 and 1
 problem.search_space.root.add_discrete_param(name='num_softmax', feasible_values=[4,8,16,32], default_value=8) # Number of softmax buffers
 # problem.search_space.root.add_int_param(name='num_softmax', min_value=4, max_value=16, default_value=8) # Number of softmax buffers
 problem.metric_information.append(
@@ -81,8 +80,6 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 
 		for i, suggestion in enumerate(previous_suggestions):
 			constraint_period = suggestion.parameters['constraint_period']
-			# abc_max_fanout = suggestion.parameters['ABC_MAX_FANOUT']
-			abc_map_effort = suggestion.parameters['ABC_MAP_EFFORT']
 			num_softmax = suggestion.parameters['num_softmax']
 
 			run = prev_iter_ppa_runs[i]
@@ -99,7 +96,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 			)
 
 			# print(f'Iteration {prev_iter_number}, suggestion (constraint_period = {constraint_period}, abc_max_fanout = {abc_max_fanout}, abc_map_effort = {abc_map_effort}) led to')
-			print(f'Iteration {prev_iter_number}, suggestion (constraint_period = {constraint_period}, abc_map_effort = {abc_map_effort}) led to')
+			print(f'Iteration {prev_iter_number}, suggestion (constraint_period = {constraint_period} ) led to')
 			
 			print(f'area {area} period {period} total_power {total_power} throughput {throughput} objective value {objective}.\n')
 			final_measurement = vz.Measurement({'fom': objective})
@@ -126,10 +123,10 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 		'opt_complete': False,
 		'next_suggestions': [
 			{
-				'flow_config': {
-					# 'ABC_MAX_FANOUT': suggestion.parameters['ABC_MAX_FANOUT'],
-					'ABC_MAP_EFFORT': suggestion.parameters['ABC_MAP_EFFORT']
-				},
+				# 'flow_config': {
+				# 	# 'ABC_MAX_FANOUT': suggestion.parameters['ABC_MAX_FANOUT'],
+				# 	# 'ABC_MAP_EFFORT': suggestion.parameters['ABC_MAP_EFFORT']
+				# },
 				'hyperparameters': {
 					'clk_period': suggestion.parameters['constraint_period'],
 					'num_softmax': int(suggestion.parameters['num_softmax'])
