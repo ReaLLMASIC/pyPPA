@@ -81,6 +81,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 		for i, suggestion in enumerate(previous_suggestions):
 			constraint_period = suggestion.parameters['constraint_period']
 			num_softmax = suggestion.parameters['num_softmax']
+			map_effort = suggestion.parameters['ABC_MAP_EFFORT']
 
 			run = prev_iter_ppa_runs[i]
 			area = run['synth_stats']['module_area']
@@ -96,7 +97,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 			)
 
 			# print(f'Iteration {prev_iter_number}, suggestion (constraint_period = {constraint_period}, abc_max_fanout = {abc_max_fanout}, abc_map_effort = {abc_map_effort}) led to')
-			print(f'Iteration {prev_iter_number}, suggestion (constraint_period = {constraint_period} MAP_EFFORT = {suggestion.parameters['ABC_MAP_EFFORT']} ) led to')
+			print(f'Iteration {prev_iter_number}, suggestion (constraint_period = {constraint_period} MAP_EFFORT = {map_effort}) led to')
 			
 			print(f'area {area} period {period} total_power {total_power} throughput {throughput} objective value {objective}.\n')
 			final_measurement = vz.Measurement({'fom': objective})
