@@ -125,7 +125,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
     if prev_iter_number >= 3:
         print("Optimization complete. Printing optimal trials:")
         # Save checkpoint
-        save_checkpoint(prev_iter_number + 1, suggestions)
+        save_checkpoint(prev_iter_number + 1, previous_suggestions)
         for optimal_trial in study_client.trials():
             optimal_trial = optimal_trial.materialize()
             print("Optimal Trial Suggestion and Objective:", optimal_trial.parameters, optimal_trial.final_measurement)
@@ -133,10 +133,8 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 
     # Generate new suggestions
     suggestions = study_client.suggest(count=3)
-    for suggestion in suggestions:
-        print(suggestion.parameters)
-
-    
+    # for suggestion in suggestions:
+    #     print(suggestion.parameters)
 
     return {
         'opt_complete': False,
