@@ -51,7 +51,7 @@ study_config.algorithm = 'DEFAULT'
 study_client = clients.Study.from_study_config(
   study_config,
   owner='ppa_runner',
-  study_id='ppa_softmax_optimizer_v2'
+  study_id='ppa_softmax_optimizer_v3'
 )
 print('Local SQL database file located at: ', service.VIZIER_DB_PATH)
 
@@ -96,7 +96,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 			)
 
 			# print(f'Iteration {prev_iter_number}, suggestion (constraint_period = {constraint_period}, abc_max_fanout = {abc_max_fanout}, abc_map_effort = {abc_map_effort}) led to')
-			print(f'Iteration {prev_iter_number}, suggestion (constraint_period = {constraint_period} ) led to')
+			print(f'Iteration {prev_iter_number}, suggestion (constraint_period = {constraint_period} MAP_EFFORT = {suggestion.parameters['ABC_MAP_EFFORT']} ) led to')
 			
 			print(f'area {area} period {period} total_power {total_power} throughput {throughput} objective value {objective}.\n')
 			final_measurement = vz.Measurement({'fom': objective})
