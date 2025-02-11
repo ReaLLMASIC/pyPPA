@@ -60,7 +60,7 @@ problem.metric_information.append(
 )
 
 study_config = vz.StudyConfig.from_problem(problem)
-study_config.algorithm = 'DEFAULT'
+study_config.algorithm = 'RANDOM_SEARCH'
 study_client = clients.Study.from_study_config(
   study_config,
   owner='ppa_runner',
