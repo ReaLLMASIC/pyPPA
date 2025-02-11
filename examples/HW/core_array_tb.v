@@ -3,10 +3,10 @@
 module core_array_tb;
 
     // Parameters
-    parameter HNUM = ${num_head}; // Set a default value or replace with `${num_head}`
-    parameter VNUM = 8;
+    parameter HNUM = ${n_heads}; // Set a default value or replace with `${num_head}`
+    parameter VNUM = $(n_cols); // Set a default value or replace with `${n_cols}`
 
-    parameter GBUS_DATA = 64;
+    parameter GBUS_DATA = $(gbus_width);
     parameter GBUS_ADDR = 12;
 
     parameter LBUF_DEPTH = 64;
@@ -17,10 +17,10 @@ module core_array_tb;
 
     parameter ODATA_BIT = 16;
     parameter IDATA_BIT = 8;
-    parameter MAC_NUM = 8;
+    parameter MAC_NUM = GBUS_DATA / 8;
 
     parameter WMEM_DEPTH = 512; 
-    parameter CACHE_DEPTH = 256;
+    parameter CACHE_DEPTH = $(max_context_length);
 
     // Clock and reset
     reg clk;

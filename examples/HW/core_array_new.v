@@ -1,17 +1,19 @@
-`define VNUM = 8
-`define GBUS_DATA = 64
+`define VNUM = $(n_cols)
+`define HNUM = $(n_heads)
+`define N_EMBED = $(n_embed)
+`define GBUS_DATA = $(gbus_width) 
 `define GBUS_ADDR = 12
+`define MAC_NUM   = `GBUS_DATA/8
 `define LBUF_DEPTH = 64
 `define LBUF_DATA =  64
 `define LBUF_ADDR   = $clog2(64)
 `define CDATA_BIT = 8
 `define ODATA_BIT = 16
 `define IDATA_BIT = 8
-`define MAC_NUM   = 8
 `define WMEM_DEPTH  = 512
 `define WMEM_ADDR = $clog2(512)
-`define CACHE_DEPTH = 256
-`define CACHE_ADDR = $clog2(256)
+`define CACHE_DEPTH = $(max_context_length)
+`define CACHE_ADDR = $clog2(`CACHE_DEPTH)
 `define ABUF_DEPTH = 64
 `define ABUF_DATA =  64
 `define ABUF_ADDR  = $clog2(64)
@@ -26,10 +28,10 @@
 
 ///////////////////////////Core Array///////////////////////////
 module core_array #(
-	parameter HNUM = ${num_head},
-    parameter VNUM = 8,
+	parameter HNUM = `HNUM,
+    parameter VNUM = `VNUM,
 
-    parameter GBUS_DATA = 64,
+    parameter GBUS_DATA = `GBUS_DATA,
     parameter GBUS_ADDR = 12,
 
     parameter LBUF_DEPTH = 64,
@@ -40,10 +42,10 @@ module core_array #(
 
     parameter ODATA_BIT = 16,
     parameter IDATA_BIT = 8,
-    parameter MAC_NUM   = 8,
+    parameter MAC_NUM   = `MAC_NUM,
 
     parameter   WMEM_DEPTH  = 512,
-    parameter   CACHE_DEPTH = 256  
+    parameter   CACHE_DEPTH = `CACHE_DEPTH 
 )(
     // Global Signals
     input                       clk,
