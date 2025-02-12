@@ -1,6 +1,6 @@
 `define VNUM = $(n_cols)
 `define HNUM = $(n_heads)
-`define N_EMBED = $(n_embed)
+`define HEAD_DIM = $(head_dim)
 `define GBUS_DATA = $(gbus_width) 
 `define GBUS_ADDR = 12
 `define MAC_NUM   = `GBUS_DATA/8

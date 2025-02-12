@@ -40,10 +40,9 @@ problem.search_space.root.add_float_param(name='constraint_period', min_value=8,
 # problem.search_space.root.add_float_param(name='ABC_MAP_EFFORT', min_value=0, max_value=1, default_value=0.6) # Guessing the ABC map effort is somewhere between 0 and 1
 problem.search_space.root.add_int_param(name='n_heads', min_value=1, max_value=12, default_value=4) 
 problem.search_space.root.add_int_param(name='n_cols', min_value=1, max_value=256, default_value=4) 
-problem.search_space.root.add_discrete_param(name='n_embed', feasible_values=np.arange(32,288,32).tolist(), default_value=64) 
+problem.search_space.root.add_discrete_param(name='head_dim', feasible_values=np.arange(32,288,32).tolist(), default_value=64) 
 problem.search_space.root.add_discrete_param(name='max_context_length', feasible_values=np.arange(8,264,8).tolist(), default_value=64)
 problem.search_space.root.add_discrete_param(name='gbus_width', feasible_values=np.arange(8,264,8).tolist(), default_value=64)
-
 
 problem.metric_information.append(
     vz.MetricInformation(
@@ -57,9 +56,35 @@ study_config.algorithm = 'NSGA2' # Use NSGA2 for multi-objective optimization
 study_client = clients.Study.from_study_config(
   study_config,
   owner='ppa_runner',
-  study_id='ppa_softmax_optimizer_v3'
+  study_id='ppa_core_array_optwan_v1'
 )
 print('Local SQL database file located at: ', service.VIZIER_DB_PATH)
+
+def is_feasible(suggestion) -> bool:
+	"""Check if the suggestion is feasible."""
+	n_heads = int(suggestion.parameters['n_heads'])
+	n_cols = int(suggestion.parameters['n_cols'])
+	head_dim = int(suggestion.parameters['head_dim'])
+	max_context_length = int(suggestion.parameters['max_context_length'])
+	gbus_width = int(suggestion.parameters['gbus_width'])
+
+	mac_num = int(gbus_width/8)
+
+	if head_dim % n_cols !=0:
+		print(f"head_dim {head_dim} is not divisible by n_cols {n_cols}. Reject suggestion.")
+		return False
+	
+	core_dim = int(head_dim/n_cols)
+
+	if core_dim % mac_num != 0:
+		print(f"core_dim {core_dim} is not divisible by mac_num {mac_num}. Reject suggestion.")
+		return False
+	
+	if max_context_length % n_cols != 0:
+		print(f"max_context_length {max_context_length} is not divisible by n_heads {n_heads}. Reject suggestion.")
+		return False
+
+	return True
 
 def fom(area: float, period: float, total_power: float):
     w1 = 0.2
@@ -119,8 +144,13 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 		}
 
 	# Assign new suggestions
-	suggestions = study_client.suggest(count=3) # Since 3 threads per job
-	for suggestion in suggestions:
+	feasible_suggestions = []
+	while len(feasible_suggestions) < 3:    # Since 3 threads per job
+		suggestion = study_client.suggest(count=1)[0]
+		if is_feasible(suggestion):
+			feasible_suggestions.append(suggestion)
+	# suggestions = study_client.suggest(count=3) # Since 3 threads per job
+	for suggestion in feasible_suggestions:
 		print(suggestion.parameters) 
 	return {
 		'opt_complete': False,
@@ -131,11 +161,15 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 				# },
 				'hyperparameters': {
 					'clk_period': suggestion.parameters['constraint_period'],
-					'n_heads': int(suggestion.parameters['num_softmax'])
+					'n_heads': suggestion.parameters['n_heads'],
+					'n_cols': suggestion.parameters['n_cols'],
+					'head_dim': suggestion.parameters['head_dim'],
+					'max_context_length': suggestion.parameters['max_context_length'],
+					'gbus_width': suggestion.parameters['gbus_width']
 				}
-			} for suggestion in suggestions
+			} for suggestion in feasible_suggestions
 		],
-		'context': suggestions # Send suggestions as context, and they will be sent as arguments for the next run of the optimizer.
+		'context': feasible_suggestions # Send suggestions as context, and they will be sent as arguments for the next run of the optimizer.
 	}
 
 ppa_runner.add_job({
