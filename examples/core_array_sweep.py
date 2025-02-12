@@ -56,7 +56,7 @@ study_config.algorithm = 'NSGA2' # Use NSGA2 for multi-objective optimization
 study_client = clients.Study.from_study_config(
   study_config,
   owner='ppa_runner',
-  study_id='ppa_core_array_optwan_v1'
+  study_id='ppa_core_array_opt_v1'
 )
 print('Local SQL database file located at: ', service.VIZIER_DB_PATH)
 
@@ -146,6 +146,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 	# Assign new suggestions
 	feasible_suggestions = []
 	while len(feasible_suggestions) < 3:    # Since 3 threads per job
+		print("Generating new suggestions")
 		suggestion = study_client.suggest(count=1)[0]
 		if is_feasible(suggestion):
 			feasible_suggestions.append(suggestion)
