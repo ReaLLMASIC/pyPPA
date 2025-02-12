@@ -87,10 +87,10 @@ def is_feasible(suggestion) -> bool:
 	return True
 
 def fom(area: float, period: float, total_power: float):
-    w1 = 0.2
-    w2 = 0.2
+    w1 = 0.5
+    w2 = 0.5
     w3 = 0.6
-    target_power = 0.08
+    target_power = 0.8
     target_area = 3e6
     target_throughput = 6e7
 

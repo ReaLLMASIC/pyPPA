@@ -1,19 +1,14 @@
-`define VNUM = $(n_cols)
-`define HNUM = $(n_heads)
-`define HEAD_DIM = $(head_dim)
-`define GBUS_DATA = $(gbus_width) 
 `define GBUS_ADDR = 12
-`define MAC_NUM   = `GBUS_DATA/8
 `define LBUF_DEPTH = 64
 `define LBUF_DATA =  64
 `define LBUF_ADDR   = $clog2(64)
 `define CDATA_BIT = 8
 `define ODATA_BIT = 16
 `define IDATA_BIT = 8
+`define MAC_NUM   = 8
 `define WMEM_DEPTH  = 512
 `define WMEM_ADDR = $clog2(512)
-`define CACHE_DEPTH = $(max_context_length)
-`define CACHE_ADDR = $clog2(`CACHE_DEPTH)
+`define CACHE_ADDR = $clog2(256)
 `define ABUF_DEPTH = 64
 `define ABUF_DATA =  64
 `define ABUF_ADDR  = $clog2(64)
@@ -28,10 +23,10 @@
 
 ///////////////////////////Core Array///////////////////////////
 module core_array #(
-	parameter HNUM = `HNUM,
-    parameter VNUM = `VNUM,
+	parameter HNUM = ${num_head},
+    parameter VNUM = ${num_col},
 
-    parameter GBUS_DATA = `GBUS_DATA,
+    parameter GBUS_DATA = ${gbus_width},
     parameter GBUS_ADDR = 12,
 
     parameter LBUF_DEPTH = 64,
@@ -42,10 +37,10 @@ module core_array #(
 
     parameter ODATA_BIT = 16,
     parameter IDATA_BIT = 8,
-    parameter MAC_NUM   = `MAC_NUM,
+    parameter MAC_NUM   = 8,
 
     parameter   WMEM_DEPTH  = 512,
-    parameter   CACHE_DEPTH = `CACHE_DEPTH 
+    parameter   CACHE_DEPTH = ${max_context_length}
 )(
     // Global Signals
     input                       clk,
@@ -286,7 +281,7 @@ module core_top #(
     parameter   GBUS_ADDR   = 12,
 
     parameter   WMEM_DEPTH  = 512,
-    parameter   CACHE_DEPTH = 256,
+    parameter   CACHE_DEPTH = ${max_context_length},
 
     parameter   LBUF_DATA   = 64,
     parameter   LBUF_DEPTH  = 64,
@@ -553,7 +548,7 @@ endmodule
 
 module align_s2p #(
     parameter IDATA_BIT = 8,
-    parameter GBUS_DATA = 64
+    parameter GBUS_DATA = ${gbus_width}
 )(
     // Global Signals
     input                       clk,
@@ -616,7 +611,7 @@ endmodule
 ///////////////////////////Core Mem//////////////////////////
 module core_mem #(
     parameter LBUF_DATA = 64,
-    parameter GBUS_DATA = 64,
+    parameter GBUS_DATA = ${gbus_width},
     parameter GBUS_ADDR = 12,
     parameter LBUF_ADDR = 64,
     parameter WMEM_ADDR = $clog2(512),
@@ -979,7 +974,7 @@ endmodule
 
 module align_s2p_lbuf #(
     parameter LBUF_DATA = 64,
-    parameter GBUS_DATA = 64
+    parameter GBUS_DATA = ${gbus_width}
     )(
     input                       clk,
     input                       rstn, 
@@ -1027,7 +1022,7 @@ endmodule
 
 module mem_sp_wmem #(
     parameter WMEM_DEPTH = 512,
-    parameter GBUS_DATA = 64
+    parameter GBUS_DATA = ${gbus_width}
 )(
     input                       clk,
     input       [$clog2(WMEM_DEPTH)-1:0]  addr,
@@ -1050,8 +1045,8 @@ module mem_sp_wmem #(
 endmodule
 
 module mem_sp_cache #(
-    parameter CACHE_DEPTH = 256,
-    parameter GBUS_DATA = 64
+    parameter CACHE_DEPTH = ${max_context_length},
+    parameter GBUS_DATA = ${gbus_width}
 )(
     input                       clk,
     input       [$clog2(CACHE_DEPTH)-1:0]  addr,
@@ -1115,7 +1110,7 @@ module core_buf #(
     parameter ABUF_ADDR = $clog2(64),
     parameter ABUF_DEPTH = 64,
     parameter ALERT_DEPTH = 3,
-    parameter GBUS_DATA = 64
+    parameter GBUS_DATA = ${gbus_width}
 )(
     // Global Signals
     input                       clk,
@@ -1266,7 +1261,7 @@ endmodule
 
 module align_s2p_abuf #(
     parameter ABUF_DATA = 64,
-    parameter GBUS_DATA = 64
+    parameter GBUS_DATA = ${gbus_width}
 )(
     input                       clk,
     input                       rstn, 
@@ -1976,4 +1971,3 @@ module core_quant #(
         end
     end
 endmodule
-
