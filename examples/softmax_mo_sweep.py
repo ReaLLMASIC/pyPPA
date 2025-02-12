@@ -151,6 +151,8 @@ ppa_runner.add_job({
 	'optimizer': vizier_optimizer
 })
 
+print("Running PPA jobs...")
+
 ppa_runner.run_all_jobs() 
 
 trials = study_client.trials() # Print the Vizier trials
