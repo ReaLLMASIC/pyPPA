@@ -155,7 +155,8 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 				print(f"Suggestion {i} is not feasible. Skipping.")
 				# suggestion.complete(vz.Measurement(), infeasibility_reason='Infeasible design.')  # mark as completed
 				suggestion.complete(vz.Measurement({'fom':math.inf}))  # mark as completed
-			feasible_suggestions.append(suggestion)
+			else:
+				feasible_suggestions.append(suggestion)
 
 	for suggestion in feasible_suggestions:
 		print("Feasible suggestions:")
