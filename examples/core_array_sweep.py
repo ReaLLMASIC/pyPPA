@@ -16,6 +16,7 @@ from pyppa.tools import Yosys, OpenROAD, Iverilog
 from pyppa.ppa.ppa_runner import PPARunner
 from platforms.sky130hd.config import SKY130HD_PLATFORM_CONFIG
 
+import math
 
 ppa_runner = PPARunner(
 	design_name="core_array",
@@ -158,7 +159,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 			if not is_feasible(suggestion):
 				print(f"Suggestion {i} is not feasible. Skipping.")
 				# suggestion.complete(vz.Measurement(), infeasibility_reason='Infeasible design.')  # mark as completed
-				suggestion.complete(vz.Measurement())  # mark as completed
+				suggestion.complete(vz.Measurement({'fom':math.inf}))  # mark as completed
 			feasible_suggestions.append(suggestion)
 
 	return {
