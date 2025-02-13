@@ -157,6 +157,7 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 				suggestion.complete(vz.Measurement({'fom':math.inf}))  # mark as completed
 			else:
 				feasible_suggestions.append(suggestion)
+		suggestions = study_client.suggest(count=5)
 
 	for suggestion in feasible_suggestions:
 		print("Feasible suggestions:")
