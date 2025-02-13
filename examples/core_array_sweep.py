@@ -57,7 +57,7 @@ study_config.algorithm = 'NSGA2' # Use NSGA2 for multi-objective optimization
 study_client = clients.Study.from_study_config(
   study_config,
   owner='ppa_runner',
-  study_id='ppa_core_array_opt_v1'
+  study_id='ppa_core_array_opt_v2'
 )
 print('Local SQL database file located at: ', service.VIZIER_DB_PATH)
 
