@@ -146,11 +146,6 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 
 	# Assign new suggestions
 	feasible_suggestions = []
-	# while len(feasible_suggestions) < 3:    # Since 3 threads per job
-	# 	print("Generating new suggestions")
-	# 	suggestion = study_client.suggest(count=1)[0]
-	# 	if is_feasible(suggestion):
-	# 		feasible_suggestions.append(suggestion)
 	suggestions = study_client.suggest(count=5) # Since 3 threads per job
 	while len(feasible_suggestions) < 3:
 		print("Generating new suggestions")
@@ -162,13 +157,16 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 				suggestion.complete(vz.Measurement({'fom':math.inf}))  # mark as completed
 			feasible_suggestions.append(suggestion)
 
+	for suggestion in feasible_suggestions:
+		print("Feasible suggestions:")
+		print(suggestion.parameters) 
 	return {
 		'opt_complete': False,
 		'next_suggestions': [
 			{
-				# 'flow_config': {
-					# 'ABC_MAP_EFFORT': suggestion.parameters['ABC_MAP_EFFORT']
-				# },
+				'flow_config': {
+					'ABC_AREA': True
+				},
 				'hyperparameters': {
 					'clk_period': suggestion.parameters['constraint_period'],
 					'n_heads': int(suggestion.parameters['n_heads']),
