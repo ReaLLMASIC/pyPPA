@@ -145,14 +145,20 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 
 	# Assign new suggestions
 	feasible_suggestions = []
-	while len(feasible_suggestions) < 3:    # Since 3 threads per job
+	# while len(feasible_suggestions) < 3:    # Since 3 threads per job
+	# 	print("Generating new suggestions")
+	# 	suggestion = study_client.suggest(count=1)[0]
+	# 	if is_feasible(suggestion):
+	# 		feasible_suggestions.append(suggestion)
+	suggestions = study_client.suggest(count=5) # Since 3 threads per job
+	while len(feasible_suggestions) < 3:
 		print("Generating new suggestions")
-		suggestion = study_client.suggest(count=1)[0]
-		if is_feasible(suggestion):
-			feasible_suggestions.append(suggestion)
-	# suggestions = study_client.suggest(count=3) # Since 3 threads per job
-	for suggestion in feasible_suggestions:
-		print(suggestion.parameters) 
+		for i, suggestion in enumerate(suggestions):
+			print(suggestion.parameters)
+			if not is_feasible(suggestion):
+				print(f"Suggestion {i} is not feasible. Skipping.")
+				suggestion.complete(vz.Measurement(), infeasibility_reason='Infeasible design.')  # mark as completed
+
 	return {
 		'opt_complete': False,
 		'next_suggestions': [
@@ -162,11 +168,11 @@ def vizier_optimizer(prev_iter_number, prev_iter_ppa_runs: list[PPARunner], prev
 				# },
 				'hyperparameters': {
 					'clk_period': suggestion.parameters['constraint_period'],
-					'n_heads': suggestion.parameters['n_heads'],
-					'n_cols': suggestion.parameters['n_cols'],
-					'head_dim': suggestion.parameters['head_dim'],
-					'max_context_length': suggestion.parameters['max_context_length'],
-					'gbus_width': suggestion.parameters['gbus_width']
+					'n_heads': int(suggestion.parameters['n_heads']),
+					'n_cols': int(suggestion.parameters['n_cols']),
+					'head_dim': int(suggestion.parameters['head_dim']),
+					'max_context_length': int(suggestion.parameters['max_context_length']),
+					'gbus_width': int(suggestion.parameters['gbus_width'])
 				}
 			} for suggestion in feasible_suggestions
 		],
