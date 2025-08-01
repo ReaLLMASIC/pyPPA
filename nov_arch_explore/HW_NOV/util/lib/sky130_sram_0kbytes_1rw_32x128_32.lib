@@ -1,4 +1,4 @@
-library (sky130_sram_0kbytes_1rw_32x128_32_TT_1p8V_25C_lib){
+library (sky130_sram_0kbytes_1rw_32x128_32_used_TT_1p8V_25C_lib){
     delay_model : "table_lookup";
     time_unit : "1ns" ;
     voltage_unit : "1V" ;
@@ -71,7 +71,7 @@ library (sky130_sram_0kbytes_1rw_32x128_32_TT_1p8V_25C_lib){
     bit_to : 0;
     }
 
-cell (sky130_sram_0kbytes_1rw_32x128_32){
+cell (sky130_sram_0kbytes_1rw_32x128_32_used){
     memory(){ 
     type : ram;
     address_width : 8;
@@ -81,7 +81,7 @@ cell (sky130_sram_0kbytes_1rw_32x128_32){
     dont_use  : true;
     map_only   : true;
     dont_touch : true;
-    area : 0;
+    area : 86698.808;
 
     pg_pin(vccd1) {
          voltage_name : VCCD1;
@@ -283,37 +283,37 @@ cell (sky130_sram_0kbytes_1rw_32x128_32){
         internal_power(){
             when : "!csb0 & !web0"; 
             rise_power(scalar){
-                values("4.104684e+00");
+                values("2.191759e+10");
             }
             fall_power(scalar){
-                values("4.104684e+00");
+                values("2.191759e+10");
             }
         }
         internal_power(){
             when : "csb0 & !web0"; 
             rise_power(scalar){
-                values("4.104684e+00");
+                values("2.191759e+10");
             }
             fall_power(scalar){
-                values("4.104684e+00");
+                values("2.191759e+10");
             }
         }
         internal_power(){
             when : "!csb0 & web0"; 
             rise_power(scalar){
-                values("4.104684e+00");
+                values("2.191759e+10");
             }
             fall_power(scalar){
-                values("4.104684e+00");
+                values("2.191759e+10");
             }
         }
         internal_power(){
             when : "csb0 & web0"; 
             rise_power(scalar){
-                values("4.104684e+00");
+                values("2.191759e+10");
             }
             fall_power(scalar){
-                values("4.104684e+00");
+                values("2.191759e+10");
             }
         }
         timing(){ 
