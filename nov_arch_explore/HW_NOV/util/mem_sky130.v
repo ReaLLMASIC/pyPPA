@@ -21,14 +21,14 @@ module mem_sp_sky130 #(
     localparam TILE_ADDR_BITS = $clog2(MACRO_DEPTH);       
     localparam TILE_SEL_BITS = $clog2(NUM_TILES);  
 
-    localparam ADDR_WIDTH = 8;   
+    localparam ADDR_WIDTH = $clog2(MACRO_WIDTH);   
 
     // Internal signals
     wire [TILE_ADDR_BITS-1:0] local_addr;
     wire [TILE_SEL_BITS-1:0]  tile_sel;
 
-    assign local_addr = addr[TILE_ADDR_BITS-1:0];
-    assign tile_sel   = addr[ADDR_BIT-1:TILE_ADDR_BITS];
+    assign local_addr = (ADDR_BIT == TILE_ADDR_BITS) ? addr : addr[TILE_ADDR_BITS-1:0];
+    assign tile_sel   = (ADDR_BIT == TILE_ADDR_BITS) ? 1'b0 : addr[ADDR_BIT-1:TILE_ADDR_BITS];
 
     genvar bank, tile;
     // wire [MACRO_WIDTH-1:0] rdata_temp [0:NUM_BANKS-1];
@@ -36,7 +36,6 @@ module mem_sp_sky130 #(
 
     generate
     for (tile = 0; tile < NUM_TILES; tile = tile + 1) begin : tile_gen
-        
         for (bank = 0; bank < NUM_BANKS; bank = bank + 1) begin : bank_gen
             wire csb  = ~(tile_sel == tile);  // active low
             wire web  = ~wen;
@@ -50,8 +49,8 @@ module mem_sp_sky130 #(
                 .web0(web),
                 // .spare_wen0(1'b1),  // enable spare bit write
                 .addr0(addr0),
-                .din0({1'b0,din0}),  // pad MSB (bit 32) as unused
-                .dout0({1'b0,dout0_t})  // pad MSB (bit 32) as unused
+                .din0(din0),  // pad MSB (bit 32) as unused
+                .dout0(dout0_t)  // pad MSB (bit 32) as unused
             );
 
             assign tile_rdata_candidate[tile][bank*MACRO_WIDTH +: MACRO_WIDTH] = (ren & ~csb) ? dout0_t : 0;
