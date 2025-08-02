@@ -21,7 +21,7 @@ module mem_sp_sky130 #(
     localparam TILE_ADDR_BITS = $clog2(MACRO_DEPTH);       
     localparam TILE_SEL_BITS = $clog2(NUM_TILES);  
 
-    localparam ADDR_WIDTH = $clog2(MACRO_WIDTH);   
+    localparam ADDR_WIDTH = $clog2(MACRO_DEPTH);   
 
     // Internal signals
     wire [TILE_ADDR_BITS-1:0] local_addr;
